@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MRT model &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Cell model" href="../cell/cell.html" />
+    <link rel="prev" title="Color model – Subphase Analysis" href="../color/analysis/subphase.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Color model</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">MRT model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#model-parameters">Model parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-formulation">Model Formulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Greyscale model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">MRT model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/mrt/mrt.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mrt-model">
+<h1>MRT model<a class="headerlink" href="#mrt-model" title="Link to this heading">¶</a></h1>
+<p>The LBPM single fluid model is implemented by combining a multi-relaxation time (MRT) D3Q19
+lattice Boltzmann equation (LBE) to solve for the momentum transport, recovering the Navier-Stokes
+equations to second order based on the Chapman-Enskog expansion. The MRT model is used to assess the
+permeability of digital rock images in either the Darcy or non-Darcy flow regimes.</p>
+<p>A typical command to launch the LBPM color simulator is as follows</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">mpirun</span> <span class="pre">-np</span> <span class="pre">$NUMPROCS</span> <span class="pre">lbpm_permeability_simulator</span> <span class="pre">input.db</span>
+<span class="pre">`</span></code></p>
+<p>where <code class="docutils literal notranslate"><span class="pre">$NUMPROCS</span></code> is the number of MPI processors to be used and <code class="docutils literal notranslate"><span class="pre">input.db</span></code> is
+the name of the input database that provides the simulation parameters.
+Note that the specific syntax to launch MPI tasks may vary depending on your system.
+For additional details please refer to your local system documentation.</p>
+<section id="model-parameters">
+<h2>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h2>
+<p>The essential model parameters for the single-phase MRT model are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> – control the fluid viscosity – <img class="math" src="../../../_images/math/4a5c820d1417065eaa18653a272d20ee2fb52607.png" alt="0.7 &lt; \tau &lt; 1.5"/></p></li>
+</ul>
+<p>The kinematic viscosity is given by</p>
+<div class="math">
+<p><img src="../../../_images/math/235f1f69258b36052a1f862f2e4390236da6d7d5.png" alt="$$
+    \nu = \frac{1}{3} \Big( \tau - \frac 12 \Big)
+  $$"/></p>
+</div></section>
+<section id="model-formulation">
+<h2>Model Formulation<a class="headerlink" href="#model-formulation" title="Link to this heading">¶</a></h2>
+<p>The LBE governing momentum transport is defined based on a MRT relaxation based on the D3Q19 discrete
+velocity set, which determines the values <img class="math" src="../../../_images/math/858c35451a0502b675ac7f1d6698530a5cec174d.png" alt="\bm{\xi}_q"/></p>
+<div class="math">
+<p><img src="../../../_images/math/ce208484f0dfd5bb79b3675e17e113f5c58034aa.png" alt="$$
+   f_q(\bm{x}_i + \bm{\xi}_q \delta t,t + \delta t) - f_q(\bm{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \bm{\xi}_q \cdot \frac{\bm{F}}{c_s^2} \;,
+$$"/></p>
+</div><p>Where <img class="math" src="../../../_images/math/d23fcfca4465d32559903995001c5500b0f66947.png" alt="\bm{F}"/> is an external body force and <img class="math" src="../../../_images/math/e9cad99f5e079221ba09be21b33c2d37db885c16.png" alt="c_s^2 = 1/3"/> is the speed of sound for the LB model.
+The moments are linearly indepdendent functions of the distributions:</p>
+<div class="math">
+<p><img src="../../../_images/math/161894fb327d3929efa25da7a96bb7689d278040.png" alt="$$
+   m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
+$$"/></p>
+</div><p>The non-zero equilibrium moments are</p>
+<div class="math">
+<p><img src="../../../_images/math/cd511394bc38958a8fd4a3c5c0ab0c4d47beee9b.png" alt="$$
+  m_1^{eq} = 19\frac{j_x^2+j_y^2+j_z^2}{\rho} - 11\rho \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/629ec3ca0458142bb808547e2288baa839e35ab3.png" alt="$$
+  m_2^{eq} = 3\rho - \frac{11}{2} \frac{j_x^2+j_y^2+j_z^2}{\rho} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/f8dc06acaf6ba1c1b25576c166cc6b5223df55e5.png" alt="$$
+  m_4^{eq} = -\frac 2 3 j_x \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/6d17ee94bcfe56327c9685d489e0ce08dd1a327c.png" alt="$$
+  m_6^{eq} = -\frac 2 3 j_y \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/39a53dd2c26effdc819e0e67300fcb18845dafcd.png" alt="$$
+  m_8^{eq} = -\frac 2 3 j_z \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/4d8b38af5554952c0060650e682fcbdfe54bb3ad.png" alt="$$
+  m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho}\;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/2f54e14432e2d81ffc87567cefde5b6e7a047664.png" alt="$$
+  m_{10}^{eq} = -\frac{2j_x^2-j_y^2-j_z^2)}{2\rho} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/a7e617d7eb5d7566c928e2fadb7a69641521e66f.png" alt="$$
+  m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/d18ccdc9c9ef4965ce3d88f3bb8e177ae504975d.png" alt="$$
+  m_{12}^{eq} = -\frac{j_y^2-j_z^2}{2\rho} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/66747ea862cdce0c119b8ca3407f0b84ca55c60a.png" alt="$$
+  m_{13}^{eq} = \frac{j_x j_y}{\rho} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/29fd19ecec312095b97b724730a3f098f137a3ab.png" alt="$$
+  m_{14}^{eq} = \frac{j_y j_z}{\rho} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/b2d51b68def04cd71a4ae32f7612af484ef7ea01.png" alt="$$
+  m_{15}^{eq} = \frac{j_x j_z}{\rho} \;,
+$$"/></p>
+</div><p>The relaxation parameters are determined based on the relaxation time <img class="math" src="../../../_images/math/914b2d4b6659b86d3153d5510839dfb254dfc8a3.png" alt="\tau"/></p>
+<div class="math">
+<p><img src="../../../_images/math/2fb510687f511886665fec7c54267a87d12096a5.png" alt="$$
+  \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu = \frac{1}{\tau} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/93dd50621273db3c86e80c2f27e4ebff6a37aea4.png" alt="$$
+  \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;,
+$$"/></p>
+</div></section>
+<section id="boundary-conditions">
+<h2>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading">¶</a></h2>
+<p>The following external boundary conditions are supported by <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>
+and can be set by setting the <code class="docutils literal notranslate"><span class="pre">BC</span></code> key values in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section of the
+input file database</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code> – fully periodic boundary conditions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">3</span></code> – constant pressure boundary condition</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">4</span></code> – constant volumetric flux boundary condition</p></li>
+</ul>
+<p>For <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code> any mass that exits on one side of the domain will re-enter at the other
+side. If the pore-structure for the image is tight, the mismatch between the inlet and
+outlet can artificially reduce the permeability of the sample due to the blockage of
+flow pathways at the boundary. LBPM includes an internal utility that will reduce the impact
+of the boundary mismatch by eroding the solid labels within the inlet and outlet layers
+(<a class="reference external" href="https://doi.org/10.1007/s10596-020-10028-9">https://doi.org/10.1007/s10596-020-10028-9</a>) to create a mixing layer.
+The number mixing layers to use can be set using the key values in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section
+of the input database</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">InletLayers</span>&#160; <span class="pre">=</span> <span class="pre">5</span></code> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> voxels at the inlet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUtletLayers</span>&#160; <span class="pre">=</span> <span class="pre">5</span></code> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> voxels at the outlet</p></li>
+</ul>
+<p>For the other boundary conditions a thin reservoir of fluid  (default <code class="docutils literal notranslate"><span class="pre">3</span></code> voxels)
+is established at either side of the domain. The inlet is defined as the boundary face
+where <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">0</span></code> and the outlet is the boundary face where <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">nprocz*nz</span></code>. By default a
+reservoir of fluid A is established at the inlet and a reservoir of fluid B is established at
+the outlet, each with a default thickness of three voxels. To over-ride the default label at
+the inlet or outlet, the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section of the database may specify the following key values</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">InletLayerPhase</span> <span class="pre">=</span> <span class="pre">2</span></code> – establish a reservoir of component B at the inlet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OutletLayerPhase</span> <span class="pre">=</span> <span class="pre">1</span></code> – establish a reservoir of component A at the outlet</p></li>
+</ul>
+<section id="example-input-file">
+<h3>Example Input File<a class="headerlink" href="#example-input-file" title="Link to this heading">¶</a></h3>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MRT</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-5</span>
+<span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2000</span>
+<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span>
+<span class="p">}</span>
+<span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Bentheimer_LB_sim_intermediate_oil_wet_Sw_0p37.raw&quot;</span>
+<span class="w">   </span><span class="n">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;8bit&quot;</span><span class="w">      </span><span class="c1">// data type</span>
+<span class="w">   </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">900</span><span class="p">,</span><span class="w"> </span><span class="mi">900</span><span class="p">,</span><span class="w"> </span><span class="mi">1600</span><span class="w">     </span><span class="c1">// size of original image</span>
+<span class="w">   </span><span class="n">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">        </span><span class="c1">// process grid</span>
+<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="w">      </span><span class="c1">// sub-domain size</span>
+<span class="w">   </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="w"> </span><span class="c1">// offset to read sub-domain</span>
+<span class="w">   </span><span class="n">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.66</span><span class="w">    </span><span class="c1">// voxel length (in microns)</span>
+<span class="w">   </span><span class="n">ReadValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="c1">// labels within the original image</span>
+<span class="w">   </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">  </span><span class="c1">// associated labels to be used by LBPM</span>
+<span class="w">   </span><span class="n">InletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="c1">// specify 10 layers along the z-inlet</span>
+<span class="w">   </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                 </span><span class="c1">// boundary condition type (0 for periodic)</span>
+<span class="p">}</span>
+<span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../color/analysis/subphase.html" class="btn btn-neutral float-left" title="Color model – Subphase Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../cell/cell.html" class="btn btn-neutral float-right" title="Cell model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

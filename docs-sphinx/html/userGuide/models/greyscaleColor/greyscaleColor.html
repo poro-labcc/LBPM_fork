@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greyscale Color Model &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Free energy model" href="../freeEnergy/freeEnergy.html" />
+    <link rel="prev" title="Greyscale model" href="../greyscale/greyscale.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Color model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../mrt/mrt.html">MRT model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Greyscale model</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Greyscale Color Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formulation">Formulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">Greyscale Color Model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/greyscaleColor/greyscaleColor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="greyscale-color-model">
+<h1>Greyscale Color Model<a class="headerlink" href="#greyscale-color-model" title="Link to this heading">¶</a></h1>
+<p>The LBPM greyscale lattice Boltzmann model is constructed to approximate the
+solution of the Darcy-Brinkman equations in grey regions coupled to a color model implementation
+solution in open regions. A simple constitutive form is used to model the relative
+permeability in the grey regions,</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h2>
+<p>The essential model parameters for the color model are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code> – control the interfacial tension between fluids – <img class="math" src="../../../_images/math/16a8036a0b631c92853f3f0e0c20acf89a298d3c.png" alt="0 &lt; \alpha &lt; 0.01"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">beta</span></code> – control the width of the interface – <img class="math" src="../../../_images/math/a1c54687e086b518cec40d9b80e783f648d251ad.png" alt="\beta &lt; 1"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tauA</span></code> – control the viscosity of fluid A – <img class="math" src="../../../_images/math/622becc39e90a7dda0d1c2fa81515ba0ec7e34a7.png" alt="0.7 &lt; \tau_A &lt; 1.5"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tauB</span></code> – control the viscosity of fluid B – <img class="math" src="../../../_images/math/4a4bbeb896089615ca0f58819695272c9c28c196.png" alt="0.7 &lt; \tau_B &lt; 1.5"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rhoA</span></code> – control the viscosity of fluid A – <img class="math" src="../../../_images/math/5c5759a291a9ccd9fc91996d55cfa9778ef79dbf.png" alt="0.05 &lt; \rho_A &lt; 1.0"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rhoB</span></code> – control the viscosity of fluid B – <img class="math" src="../../../_images/math/941b624be98c8308ef3f170c2aba2641474950ef.png" alt="0.05 &lt; \rho_B &lt; 1.0"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">greyscale_endpoint_A</span></code> – control the endpoint for greyscale components – <img class="math" src="../../../_images/math/c162e55693532da040b610d8cbc5f9c626747d7f.png" alt="S_b^{r,a}"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">greyscale_endpoint_B</span></code> – control the endpoint for greyscale components – <img class="math" src="../../../_images/math/f374c2f9f75bb7031da3068bad9a7ad42c437d0b.png" alt="S_b^{r,b}"/></p></li>
+</ul>
+</section>
+<section id="formulation">
+<h2>Formulation<a class="headerlink" href="#formulation" title="Link to this heading">¶</a></h2>
+<p>The greyscale color model extends the conventional two-fluid color model such that flow through
+micro-porous “grey” voxels can also be treated. Extensions to the formulation are made to:
+(1) implement momentum transport behavior consistent with the single phase greyscale model
+(2) adapt the re-coloring term to allow for transport through microporosity.
+Mass transport LBEs are constructed to model the behavior for each fluid. Within the open pore
+regions, mass transport LBEs recover the behavior of the standard two-fluid color model.
+Within grey voxels the standard recoloring term is disabled so that the mass transport behavior
+can be described by a different rule within the microporous regions. The endpoints are
+specified based on the saturation of fluid B at which fluid A ceases to percolate, <img class="math" src="../../../_images/math/c162e55693532da040b610d8cbc5f9c626747d7f.png" alt="S_b^{r,a}"/>
+and the saturation of fluid B at which fluid B ceases to percolate, <img class="math" src="../../../_images/math/f374c2f9f75bb7031da3068bad9a7ad42c437d0b.png" alt="S_b^{r,b}"/>.
+The endpoints should be independently specified for each class of microporosity that is labeled
+in the input image. Between the endpoint values, the effective permeability is paramaterized based on the value</p>
+<div class="math">
+<p><img src="../../../_images/math/8450e5bd8c16ee0dadd9068ac5682c7410b586ee.png" alt="$$
+ S_{ab} = \frac{S_b - S_b^{r,b}}{S_b^{r,a} - S_b^{r,b}}
+ $$"/></p>
+</div><p>At the endpoints, the effective permeability is provided as an input parameter for
+each fluid. When <img class="math" src="../../../_images/math/3e39f61a2d3ff4aec4d34d8e0dfb99b4cf44b8b9.png" alt="S_b=S_b^{r,b}"/> the effective permeability of fluid B is
+zero and <img class="math" src="../../../_images/math/1bc8801f7159e1d74c1b6fc653d14920ed1c24e7.png" alt="K_a=K^{r,a}"/>. Between the endpoints the Corey model predicts the
+effective permeability for fluid A according to</p>
+<div class="math">
+<p><img src="../../../_images/math/2df7b3ef180625321ca2119f19a04a11e6dc7467.png" alt="$$
+   K_a = K^{r,a} (1-S_{ab})^{\lambda^a}
+   $$"/></p>
+</div><p>where <img class="math" src="../../../_images/math/7def2960596f6476f5d80e16e3bc63eae41bc606.png" alt="\lambda^a=2"/> is the Corey exponent. Likewise,
+When <img class="math" src="../../../_images/math/cf9cb2f3c02c16728d6504ebb6e4b059db2f8f3d.png" alt="S_b=S_b^{r,a}"/> the effective permeability for fluid A will be zero,
+and <img class="math" src="../../../_images/math/25d4e1e790d9ba3dbad592202d86b85dabd3f68d.png" alt="K_b=K^{r,b}"/> with</p>
+<div class="math">
+<p><img src="../../../_images/math/ac9d61c3fd2d4e419436c27eb648dc37dc7078c7.png" alt="$$
+   K_b = K^{r,b} S_{ab}^{\lambda^b}
+   $$"/></p>
+</div><p>Two LBEs are constructed to model the mass transport,</p>
+<div class="math">
+<p><img src="../../../_images/math/6983c920fe16fe539862296a760684063b09aca7.png" alt="$$
+A_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2}
+    + \beta  \frac{N_b}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big] \;
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/ca4c3b8464267976b0015807f60c3d8e8459b250.png" alt="$$
+B_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) =
+    w_q N_b \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2}
+    - \beta  \frac{N_a}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big]\;,
+$$"/></p>
+</div><p>The number density for each fluid is obtained from the sum of the mass transport distributions</p>
+<div class="math">
+<p><img src="../../../_images/math/4ecbf8da1316cba1a40e20f3b86b93573f3de013.png" alt="$$
+N_a = \sum_q A_q\;, \quad    N_b = \sum_q B_q\;
+$$"/></p>
+</div><p>The phase indicator field is then defined as</p>
+<div class="math">
+<p><img src="../../../_images/math/80524f70bbfc95984221be39fc5cf422af17806d.png" alt="$$
+\phi = \frac{N_a-N_b}{N_a+N_b}
+$$"/></p>
+</div><p>The recoloring step incorporates the standard color model
+rule to model anti-diffusion at the interface within the open pores. Within grey regions,
+the anti-diffusion term must be disabled, since within grey voxels the length scale for fluid features
+is smaller than the interface width produced from the color model. Within grey voxels the
+two fluids are permitted to freely mix between the endpoints. Beyond the endpoints, the recoloring
+term is used to drive spontaneous imbibition into the grey voxels</p>
+<div class="math">
+<p><img src="../../../_images/math/fbd162d4de226bf3234c28fd53cc48f3935b5c1e.png" alt="$$
+   R_c =
+   $$"/></p>
+</div><p>The fluid density and kinematic viscosity are determined based on linear interpolation</p>
+<div class="math">
+<p><img src="../../../_images/math/03e2ffd857b944cd3d68b76a34677d8e180b4415.png" alt="$$
+ \rho_0 = \frac{(1+\phi) \rho_n}{2}+ \frac{(1-\phi) \rho_w}{2} \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/8eb11dfb1174a9ac744f644a4a3ae5360a53a6dc.png" alt="$$
+ s_\nu = \frac{(1+\phi)}{2\tau_n} +\frac{(1-\phi)}{2\tau_w} \;,
+$$"/></p>
+</div><p>where</p>
+<div class="math">
+<p><img src="../../../_images/math/062d05cc849dd1271ea3b4f8b3a53d96eeb4c5fd.png" alt="$$
+ \nu_w = \frac{1}{3}\Big(\tau_w - \frac{1}{2} \Big) \;, \quad
+ \nu_n = \frac{1}{3}\Big(\tau_n - \frac{1}{2} \Big) \;.
+$$"/></p>
+</div><p>These values are then used to model the momentum transport.</p>
+<p>A D3Q19 LBE is constructed to describe the momentum transport</p>
+<div class="math">
+<p><img src="../../../_images/math/3d15bf07a5d0987c90017b7d8aa24e1fda4c5b20.png" alt="$$
+   f_q(\bm{x}_i + \bm{\xi}_q \delta t,t + \delta t) - f_q(\bm{x}_i,t) =
+   \sum^{Q-1}_{k=0} M^{-1}_{qk} S_{kk} (m_k^{eq}-m_k)  + \sum^{Q-1}_{k=0} M^{-1}_{qk} (1-\frac{S_{kk}}{2}) \hat{F}_q\;,
+   $$"/></p>
+</div><p>The force is imposed based on the construction developed by Guo et al</p>
+<div class="math">
+<p><img src="../../../_images/math/e2232a69e808477fdf601c2be64e251c5825b7a7.png" alt="$$
+   F_i = \rho_0 \omega_i \left[\frac{\bm{e}_i \cdot \bm{a}}{c_s^2} +
+   \frac{\bm{u} \bm{a}:(\bm{e}_i \bm{e}_i -c_s^2 \mathcal{I})}{\epsilon c_s^4}   \right] ,
+   $$"/></p>
+</div><p>The acceleration includes contributions due to the external driving force <img class="math" src="../../../_images/math/c481d6fa4b84c93f2a5ba6dde0909f15e8559210.png" alt="\bm{g}"/>
+as well as a drag force due to the permeability <img class="math" src="../../../_images/math/52ddc0cde6d632f631533173562fe3ca375b1f32.png" alt="K"/> and flow rate <img class="math" src="../../../_images/math/31f5012e345c71cd30735606236fd0b372a7f111.png" alt="\bm{u}"/> with the
+porosity <img class="math" src="../../../_images/math/0ad7b30534898f253002222f998f38001e604648.png" alt="\epsilon"/> and  viscosity <img class="math" src="../../../_images/math/14eb89266154200b9c81dcfc3bd058638fa221bf.png" alt="\nu"/> determining the net forces acting within
+a grey voxel</p>
+<div class="math">
+<p><img src="../../../_images/math/154aee6ad790388969cc4d620d3b7a0166a68c59.png" alt="$$
+   \bm{a} = - \frac{\epsilon \nu}{K} \bm{u} + \bm{F}_{cp}/\rho_0 + \epsilon \bm{g},
+   $$"/></p>
+</div><p>The flow velocity is defined as</p>
+<div class="math">
+<p><img src="../../../_images/math/ce48be5ee7ada3a3765d660967d5a685f9dbf8f8.png" alt="$$
+   \rho_0 \bm{u} = \sum_i \bm{e}_i f_i + \frac{\delta t}{2} \rho_0 \bm{a}.
+   $$"/></p>
+</div><p>Combining the previous expressions,</p>
+<div class="math">
+<p><img src="../../../_images/math/2b977f9b0aa3b7cab366d94dcb68d9e02b44547f.png" alt="$$
+   \bm{u} = \frac{\frac{1}{\rho_0}\sum_i \bm{e}_i f_i + \frac{\delta t}{2}\epsilon \bm{g} +
+   \frac{\delta t}{2} \frac{\bm{F}_{cp}}{\rho_0}}{1+ \frac{\delta t}{2} \frac{\epsilon \nu}{K}}
+   $$"/></p>
+</div><p>Where <img class="math" src="../../../_images/math/d23fcfca4465d32559903995001c5500b0f66947.png" alt="\bm{F}"/> is an external body force and <img class="math" src="../../../_images/math/e9cad99f5e079221ba09be21b33c2d37db885c16.png" alt="c_s^2 = 1/3"/> is the speed of sound for the LB model.
+The moments are linearly indepdendent:</p>
+<div class="math">
+<p><img src="../../../_images/math/161894fb327d3929efa25da7a96bb7689d278040.png" alt="$$
+   m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
+$$"/></p>
+</div><p>The relaxation parameters are determined from the relaxation time:</p>
+<div class="math">
+<p><img src="../../../_images/math/989cc75a407e363894138399b7fa390fac4b598d.png" alt="$$
+  \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu \;,
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/93dd50621273db3c86e80c2f27e4ebff6a37aea4.png" alt="$$
+  \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;,
+$$"/></p>
+</div><p>The non-zero equilibrium moments are defined as</p>
+<div class="math">
+<p><img src="../../../_images/math/5788eb046a2e77783d3260c1559b6928bba7c1a1.png" alt="$$
+  m_1^{eq} = 19\frac{ j_x^2+j_y^2+j_z^2}{\rho_0} - 11\rho - 19 \alpha |\textbf{C}|, \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/12488b2d9346b77a078fdbea96fe4ee273d9b99f.png" alt="$$
+  m_2^{eq} = 3\rho - \frac{11( j_x^2+j_y^2+j_z^2)}{2\rho_0}, \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/73126581d68c9a3bdc85ec73367b21aa166f4aa9.png" alt="$$
+  m_4^{eq} = -\frac{2 j_x}{3}, \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/c82c9b00b1dbf4b58441831c504853230e557efc.png" alt="$$
+  m_6^{eq} = -\frac{2 j_y}{3}, \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/2ed78f1836467e1e21a1817cbedeadfe174dd3ba.png" alt="$$
+  m_8^{eq} = -\frac{2 j_z}{3}, \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/59e8520f46575df6f7e8c5c81af9fa6e4782a205.png" alt="$$
+  m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho_0}+ \alpha \frac{|\textbf{C}|}{2}(2n_x^2-n_y^2-n_z^2), \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/de67f4dba35f230adae8b9feab01ff7b7f9fe281.png" alt="$$
+  m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho_0} + \alpha \frac{|\textbf{C}|}{2}(n_y^2-n_z^2), \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/c84a179c6a162ba8bb5312efad54d74effbd6aab.png" alt="$$
+  m_{13}^{eq} = \frac{j_x j_y}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_y\;, \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/a59bfc2728b1e9382abe9a8d45aa215ab125e0cb.png" alt="$$
+  m_{14}^{eq} = \frac{j_y j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_y n_z\;, \\
+$$"/></p>
+</div><div class="math">
+<p><img src="../../../_images/math/7e16c15955f55989538fbaae498d3aee3103b09b.png" alt="$$
+  m_{15}^{eq} = \frac{j_x j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_z\;.
+$$"/></p>
+</div><p>where the color gradient is determined from the phase indicator field</p>
+<div class="math">
+<p><img src="../../../_images/math/fd1332d4b32b57ac95fc0339de8f52d525d3263d.png" alt="$$
+\textbf{C}=\nabla \phi\;.
+$$"/></p>
+</div><p>and the unit normal vector is</p>
+<div class="math">
+<p><img src="../../../_images/math/57676dc40445e91d74549276f8c0891eefc6207c.png" alt="$$
+  \bm{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
+$$"/></p>
+</div></section>
+<section id="boundary-conditions">
+<h2>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading">¶</a></h2>
+<p>Due to the nature of the contribution of the porosity to the pressure term in the Chapman-Enskog
+expansion, periodic boundary conditions are recommended for <code class="docutils literal notranslate"><span class="pre">lbpm_greyscaleColor_simulator</span></code>
+and can be set by setting the <code class="docutils literal notranslate"><span class="pre">BC</span></code> key values in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section of the
+input file database</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code> – fully periodic boundary conditions</p></li>
+</ul>
+<p>For <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code> any mass that exits on one side of the domain will re-enter at the other
+side. If the pore-structure for the image is tight, the mismatch between the inlet and
+outlet can artificially reduce the permeability of the sample due to the blockage of
+flow pathways at the boundary. LBPM includes an internal utility that will reduce the impact
+of the boundary mismatch by eroding the solid labels within the inlet and outlet layers
+(<a class="reference external" href="https://doi.org/10.1007/s10596-020-10028-9">https://doi.org/10.1007/s10596-020-10028-9</a>) to create a mixing layer.
+The number mixing layers to use can be set using the key values in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section
+of the input database</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">InletLayers</span>&#160; <span class="pre">=</span> <span class="pre">5</span></code> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> voxels at the inlet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUtletLayers</span>&#160; <span class="pre">=</span> <span class="pre">5</span></code> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> voxels at the outlet</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../greyscale/greyscale.html" class="btn btn-neutral float-left" title="Greyscale model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../freeEnergy/freeEnergy.html" class="btn btn-neutral float-right" title="Free energy model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

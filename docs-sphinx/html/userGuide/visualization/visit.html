@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizing simulation data with visit &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="I/O conventions for LBPM" href="../IO/fileformat.html" />
+    <link rel="prev" title="Free energy model" href="../models/freeEnergy/freeEnergy.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">LBPM model summary</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">User Guide</a></li>
+      <li class="breadcrumb-item active">Visualizing simulation data with visit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/userGuide/visualization/visit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="visualizing-simulation-data-with-visit">
+<h1>Visualizing simulation data with visit<a class="headerlink" href="#visualizing-simulation-data-with-visit" title="Link to this heading">¶</a></h1>
+<p>(Paraview &gt; v 5.6 also works)</p>
+<p>Control over visualization options is set within the <code class="docutils literal notranslate"><span class="pre">Visualization</span></code> section of the input file</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">write_silo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">     </span><span class="c1">// write SILO databases with assigned variables</span>
+<span class="w">   </span><span class="n">save_8bit_raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">  </span><span class="c1">// write labeled 8-bit binary files with phase assignments</span>
+<span class="w">   </span><span class="n">save_phase_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">  </span><span class="c1">// save phase field within SILO database</span>
+<span class="w">   </span><span class="n">save_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="w">    </span><span class="c1">// save pressure field within SILO database</span>
+<span class="w">   </span><span class="n">save_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="w">    </span><span class="c1">// save velocity field within SILO database</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>LBPM provides two main options for visualization. The first is the writing of 8-bit raw binary files, which are labeled based on the timestep. For example, if <code class="docutils literal notranslate"><span class="pre">visualization_interval</span> <span class="pre">=</span> <span class="pre">10000</span></code> (specified within the Analysis section of the input file) the first 8-bit binary file will be written when <code class="docutils literal notranslate"><span class="pre">timestep</span> <span class="pre">=</span> <span class="pre">1000</span></code> and will be named <code class="docutils literal notranslate"><span class="pre">id_t1000.raw</span></code>. Additional files will be written subsequently at the specified interval. Similarly, higher fidelity visualization files are written using the SILO format, which are stored within the directories <code class="docutils literal notranslate"><span class="pre">vis1000/</span></code>. The summary file <code class="docutils literal notranslate"><span class="pre">LBM.visit</span></code> enumerates these files so that they can be loaded directly into VisIt or other visualization software. By default, only the phase field will be saved. Visualization for other variables, such as the pressure and velocity fields, can be enabled by setting the associated flags to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
+<p>The VisIt software is able to natively read the SILO format. To import the data fields written by LBPM, open the VisIt GUI and select <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Open</span> <span class="pre">file</span></code> from the top menu. Then select the LBM.visit file that you would like to read</p>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../../_images/lbpm-visit-workflow-i.png"><img alt="VisIt GUI" src="../../_images/lbpm-visit-workflow-i.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Opening data in the VisIt GUI.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Once the file has been opened, any database fields within the file will be visible from within the program. Here we construct an 3D countour the phase field to visualize the boundary of the oil. The menu for the <code class="docutils literal notranslate"><span class="pre">Contour</span></code> object will show that the data for phase is available. The pressure and velocity fields will only be visible if they have been explicitly enabled within the simulation options (see <code class="docutils literal notranslate"><span class="pre">Visualization</span></code> details above)</p>
+<figure class="align-default" id="id2">
+<a class="reference internal image-reference" href="../../_images/lbpm-visit-workflow-ii.png"><img alt="VisIt GUI" src="../../_images/lbpm-visit-workflow-ii.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Selecting isosurface contour to represent a surface.</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Once the contour has been created, double click the object icon to open the countour plot attributes window. In the field for <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">by</span></code> choose <code class="docutils literal notranslate"><span class="pre">values</span></code> and specify <code class="docutils literal notranslate"><span class="pre">0</span></code> as the contour to draw. Note that it is possible to change the color and opacity of the contour, which is useful if you want to draw multiple contours on the same plot</p>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../../_images/lbpm-visit-workflow-iii.png"><img alt="VisIt GUI" src="../../_images/lbpm-visit-workflow-iii.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Drawing an isosurface.</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>Once the attributes have been selected, click the Draw button to render the contour. Depending on the machine where you are rendering and the size of the image, it may take several minutes to render the window</p>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../../_images/lbpm-visit-workflow-iv.png"><img alt="VisIt GUI" src="../../_images/lbpm-visit-workflow-iv.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Rendering an isosurface.</span><a class="headerlink" href="#id4" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../models/freeEnergy/freeEnergy.html" class="btn btn-neutral float-left" title="Free energy model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../IO/fileformat.html" class="btn btn-neutral float-right" title="I/O conventions for LBPM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

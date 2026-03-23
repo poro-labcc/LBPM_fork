@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Measuring Contact Angles &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Membrane Charging Dynamics" href="../membrane/cellModel.html" />
+    <link rel="prev" title="Steady-state flow (color model)" href="../color/steadyState.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userGuide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../running.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../domain/domain.html">Input Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../morphology/morphOpen.html">Morphological pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../color/fractionalFlow.html">Steady-state fractional flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../color/steadyState.html">Steady-state flow (color model)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Measuring Contact Angles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../membrane/cellModel.html">Membrane Charging Dynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../membrane/cellModel.html#example-output">Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../running.html">Examples</a></li>
+      <li class="breadcrumb-item active">Measuring Contact Angles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/analysis/TwoPhase.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="measuring-contact-angles">
+<h1>Measuring Contact Angles<a class="headerlink" href="#measuring-contact-angles" title="Link to this heading">¶</a></h1>
+<p>LBPM includes specialized data analysis capabilities for two-fluid systems. While these
+components are generally designed for in situ analysis of simulation data, they can also
+be applied independently to analyze 3D image data. In this example we consider applying
+the analysis tools implemented in <code class="docutils literal notranslate"><span class="pre">lbpm_TwoPhase_analysis</span></code>, which are designed to
+analyze two-fluid configurations in porous media. The numerical implementation used to
+construct the common line are described in ( <a class="reference external" href="https://doi.org/10.1016/j.advwatres.2006.06.010">https://doi.org/10.1016/j.advwatres.2006.06.010</a> ).
+Methods used to measure the contact angle are described in ( <a class="reference external" href="https://doi.org/10.1017/jfm.2016.212">https://doi.org/10.1017/jfm.2016.212</a> ).</p>
+<p>Source files for the example are included in the LBPM repository
+in the directory <code class="docutils literal notranslate"><span class="pre">examples/Droplet</span></code>. A simple python code is included
+to set up a fluid droplet on a flat surface</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">D</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">80</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">40</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+
+<span class="n">cx</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">cy</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">cz</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">80</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">40</span><span class="p">):</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">-</span><span class="n">cx</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="n">cx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="n">cx</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="n">cx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="n">cz</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="n">cz</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="mi">25</span><span class="p">)</span> <span class="p">:</span>
+                <span class="n">D</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">4</span> <span class="p">:</span>
+                <span class="n">D</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">D</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="s2">&quot;droplet_40x80x80.raw&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The input file provided below will specify how the analysis should be performed. The name and the dimensions of the input
+file are provided in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section, as with other LBPM simulators. For large images, additional processors can be
+used to speed up the analysis or take advantage of distributed memory. The <code class="docutils literal notranslate"><span class="pre">ReadValues</span></code> list should be used to specify the
+labels to use for analysis. The first label will be taken to be the solid.  The second label will be taken to be the fluid
+to analyze, which in this case will be the droplet labeled with <code class="docutils literal notranslate"><span class="pre">2</span></code> above.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>Domain<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nv">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;droplet_40x80x80.raw&quot;</span>
+<span class="w">    </span><span class="nv">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span><span class="w">     </span>//<span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>processors<span class="w"> </span><span class="o">(</span>Npx,Npy,Npz<span class="o">)</span>
+<span class="w">    </span><span class="nv">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">40</span>,<span class="w"> </span><span class="m">80</span>,<span class="w"> </span><span class="m">80</span><span class="w">      </span>//<span class="w"> </span>Size<span class="w"> </span>of<span class="w"> </span><span class="nb">local</span><span class="w"> </span>domain<span class="w"> </span><span class="o">(</span>Nx,Ny,Nz<span class="o">)</span>
+<span class="w">    </span><span class="nv">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">40</span>,<span class="w"> </span><span class="m">80</span>,<span class="w"> </span><span class="m">80</span><span class="w">      </span>//<span class="w"> </span>size<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>input<span class="w"> </span>image
+<span class="w">    </span><span class="nv">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>.0
+<span class="w">    </span><span class="nv">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="w">              </span>//<span class="w"> </span>Boundary<span class="w"> </span>condition<span class="w"> </span><span class="nb">type</span>
+<span class="w">    </span><span class="nv">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;8bit&quot;</span>
+<span class="w">    </span><span class="nv">ReadValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">1</span>
+<span class="w">    </span><span class="nv">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">1</span>
+<span class="o">}</span>
+Visualization<span class="w"> </span><span class="o">{</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>The analysis can be launched as <code class="docutils literal notranslate"><span class="pre">mpirun</span> <span class="pre">-np</span> <span class="pre">1</span> <span class="pre">$LBPM_DIR/lbpm_TwoPhase_analysis</span> <span class="pre">input.db</span></code>. Output should appear as
+follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Input<span class="w"> </span>data<span class="w"> </span>file:<span class="w"> </span>input.db
+voxel<span class="w"> </span><span class="nv">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>.000000<span class="w"> </span>micron
+Input<span class="w"> </span>media:<span class="w"> </span>droplet_40x80x80.raw
+Relabeling<span class="w"> </span><span class="m">3</span><span class="w"> </span>values
+<span class="nv">oldvalue</span><span class="o">=</span><span class="m">0</span>,<span class="w"> </span><span class="nv">newvalue</span><span class="w"> </span><span class="o">=</span><span class="m">0</span>
+<span class="nv">oldvalue</span><span class="o">=</span><span class="m">2</span>,<span class="w"> </span><span class="nv">newvalue</span><span class="w"> </span><span class="o">=</span><span class="m">2</span>
+<span class="nv">oldvalue</span><span class="o">=</span><span class="m">1</span>,<span class="w"> </span><span class="nv">newvalue</span><span class="w"> </span><span class="o">=</span><span class="m">1</span>
+Dimensions<span class="w"> </span>of<span class="w"> </span>segmented<span class="w"> </span>image:<span class="w"> </span><span class="m">40</span><span class="w"> </span>x<span class="w"> </span><span class="m">80</span><span class="w"> </span>x<span class="w"> </span><span class="m">80</span>
+Reading<span class="w"> </span><span class="m">8</span>-bit<span class="w"> </span>input<span class="w"> </span>data
+Read<span class="w"> </span>segmented<span class="w"> </span>data<span class="w"> </span>from<span class="w"> </span>droplet_40x80x80.raw
+<span class="nv">Label</span><span class="o">=</span><span class="m">0</span>,<span class="w"> </span><span class="nv">Count</span><span class="o">=</span><span class="m">25600</span>
+<span class="nv">Label</span><span class="o">=</span><span class="m">2</span>,<span class="w"> </span><span class="nv">Count</span><span class="o">=</span><span class="m">25773</span>
+<span class="nv">Label</span><span class="o">=</span><span class="m">1</span>,<span class="w"> </span><span class="nv">Count</span><span class="o">=</span><span class="m">204627</span>
+Distributing<span class="w"> </span>subdomains<span class="w"> </span>across<span class="w"> </span><span class="m">1</span><span class="w"> </span>processors
+Process<span class="w"> </span>grid:<span class="w"> </span><span class="m">1</span><span class="w"> </span>x<span class="w"> </span><span class="m">1</span><span class="w"> </span>x<span class="w"> </span><span class="m">1</span>
+Subdomain<span class="w"> </span>size:<span class="w"> </span><span class="m">40</span><span class="w"> </span>x<span class="w"> </span><span class="m">80</span><span class="w"> </span>x<span class="w"> </span><span class="m">80</span>
+Size<span class="w"> </span>of<span class="w"> </span>transition<span class="w"> </span>region:<span class="w"> </span><span class="m">0</span>
+Media<span class="w"> </span><span class="nv">porosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.900000
+Initialized<span class="w"> </span>solid<span class="w"> </span>phase<span class="w"> </span>--<span class="w"> </span>Converting<span class="w"> </span>to<span class="w"> </span>Signed<span class="w"> </span>Distance<span class="w"> </span><span class="k">function</span>
+Initialized<span class="w"> </span>fluid<span class="w"> </span>phase<span class="w"> </span>--<span class="w"> </span>Converting<span class="w"> </span>to<span class="w"> </span>Signed<span class="w"> </span>Distance<span class="w"> </span><span class="k">function</span>
+Computing<span class="w"> </span>Minkowski<span class="w"> </span>functionals
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">TwoPhase</span></code> analysis class will generate signed distance functions for the solid and fluid surfaces.
+Using the distance functions, the interfaces and common line will be constructed. Contact angles are logged
+for each processor, e.g. <code class="docutils literal notranslate"><span class="pre">ContactAngle.00000.csv</span></code>, which specifies the x, y, z coordinates for each measurement
+along with the cosine of the contact angle. Averaged measures (determined over the entire input image)
+are logged to <code class="docutils literal notranslate"><span class="pre">geometry.csv</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sw</span></code> – water saturation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">awn</span></code> – surface area of meniscus between wn fluids</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ans</span></code> – surface area between fluid n and solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aws</span></code> – surface area between fluid w and solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Jwn</span></code> – integral of mean curvature of meniscus</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Kwn</span></code> – integral of Gaussian curvature of meniscus</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lwns</span></code> – length of common line</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cwns</span></code> – average contact angle</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">KGws</span></code> – geodesic curvature of common line relative to ws surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">KGwn</span></code> – geodesic curvature of common line relative to wn surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwnxx</span></code> – orientation tensor component for wn surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwnyy</span></code> – orientation tensor component for wn surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwnzz</span></code> – orientation tensor component for wn surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwnxy</span></code> – orientation tensor component for wn surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwnxz</span></code> – orientation tensor component for wn surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwnyz</span></code> – orientation tensor component for wn surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwsxx</span></code> – orientation tensor component for ws surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwsyy</span></code> – orientation tensor component for ws surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwszz</span></code> – orientation tensor component for ws surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwsxy</span></code> – orientation tensor component for ws surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwsxz</span></code> – orientation tensor component for ws surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gwsyz</span></code> – orientation tensor component for ws surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gnsxx</span></code> – orientation tensor component for ns surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gnsyy</span></code> – orientation tensor component for ns surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gnszz</span></code> – orientation tensor component for ns surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gnsxy</span></code> – orientation tensor component for ns surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gnsxz</span></code> – orientation tensor component for ns surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Gnsyz</span></code> – orientation tensor component for ns surface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trawn</span></code> – trimmed surface area for meniscus (one voxel from solid)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trJwn</span></code> – mean curvature for trimmed meniscus</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trRwn</span></code> – radius of curvature for trimmed meniscus</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vw</span></code> – volume of fluid w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Aw</span></code> – boundary surface area for fluid w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Jw</span></code> – integral of mean curvature for fluid w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xw</span></code> – Euler characteristic for fluid w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vn</span></code> – volume of fluid n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">An</span></code>  – boundary surface area for fluid n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Jn</span></code> – integral of mean curvature for fluid n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xn</span></code> – Euler characteristic for fluid n</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../color/steadyState.html" class="btn btn-neutral float-left" title="Steady-state flow (color model)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../membrane/cellModel.html" class="btn btn-neutral float-right" title="Membrane Charging Dynamics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

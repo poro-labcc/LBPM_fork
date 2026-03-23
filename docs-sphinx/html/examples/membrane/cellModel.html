@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Membrane Charging Dynamics &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Publications" href="../../publications/publications.html" />
+    <link rel="prev" title="Measuring Contact Angles" href="../analysis/TwoPhase.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userGuide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../running.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../domain/domain.html">Input Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../morphology/morphOpen.html">Morphological pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../color/fractionalFlow.html">Steady-state fractional flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../color/steadyState.html">Steady-state flow (color model)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../analysis/TwoPhase.html">Measuring Contact Angles</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Membrane Charging Dynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-output">Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../running.html">Examples</a></li>
+      <li class="breadcrumb-item active">Membrane Charging Dynamics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/membrane/cellModel.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="membrane-charging-dynamics">
+<h1>Membrane Charging Dynamics<a class="headerlink" href="#membrane-charging-dynamics" title="Link to this heading">¶</a></h1>
+<p>In this example, we consider membrane charging dynamics for a simple cell.</p>
+<p>For the case considered in <code class="docutils literal notranslate"><span class="pre">example/SingleCell</span></code> an input membrane geometry is provided in the
+file <code class="docutils literal notranslate"><span class="pre">Bacterium.swc</span></code>, which specifies an oblong cell shape, relying on the <code class="docutils literal notranslate"><span class="pre">.swc</span></code> file format that
+is commonly used to approximate neuron structures. The case considered is the four ion membrane transport
+problem considered in Figure 4 from McClure &amp; Li</p>
+<p>The cell simulation is performed by the executable <code class="docutils literal notranslate"><span class="pre">lbpm_nernst_planck_cell_simulator</span></code>, which is launched
+in the same way as other parallel tools</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="nv">$LBPM_BIN</span>/lbpm_nernst_planck_cell_simulator<span class="w"> </span>Bacterium.db
+</pre></div>
+</div>
+<p>The input file <code class="docutils literal notranslate"><span class="pre">Bacterium.db</span></code> specifies the following</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MultiphysController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25000</span>
+<span class="w">   </span><span class="n">num_iter_Ion_List</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<span class="w">   </span><span class="n">analysis_interval</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-9</span>
+<span class="w">   </span><span class="n">visualization_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="w">        </span><span class="c1">// Frequency to write visualization data</span>
+<span class="p">}</span>
+<span class="n">Ions</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">use_membrane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">   </span><span class="n">Restart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="w">   </span><span class="n">MembraneIonConcentrationList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">150.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">10.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">15.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">155.0e-3</span><span class="w"> </span><span class="c1">//user-input unit: [mol/m^3]</span>
+<span class="w">   </span><span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">293.15</span><span class="w"> </span><span class="c1">//unit [K]</span>
+<span class="w">   </span><span class="n">number_ion_species</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w">  </span><span class="c1">//number of ions</span>
+<span class="w">   </span><span class="n">tauList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">   </span><span class="n">IonDiffusivityList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="w"> </span><span class="c1">//user-input unit: [m^2/sec]</span>
+<span class="w">   </span><span class="n">IonValenceList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="c1">//valence charge of ions; dimensionless; positive/negative integer</span>
+<span class="w">   </span><span class="n">IonConcentrationList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">20.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">16.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0e-3</span><span class="w"> </span><span class="c1">//user-input unit: [mol/m^3]</span>
+<span class="w">   </span><span class="n">BC_Solid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1">//solid boundary condition; 0=non-flux BC; 1=surface ion concentration</span>
+<span class="w">   </span><span class="n">FluidVelDummy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="c1">// dummy fluid velocity for debugging</span>
+<span class="w">   </span><span class="n">BC_InletList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">   </span><span class="n">BC_OutletList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">}</span>
+<span class="n">Poisson</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">lattice_scheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;D3Q19&quot;</span>
+<span class="w">   </span><span class="n">epsilonR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">78.5</span><span class="w"> </span><span class="c1">//fluid dielectric constant [dimensionless]</span>
+<span class="w">   </span><span class="n">BC_Inlet</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c1">// -&gt;1: fixed electric potential; -&gt;2: sine/cosine periodic electric potential</span>
+<span class="w">   </span><span class="n">BC_Outlet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c1">// -&gt;1: fixed electric potential; -&gt;2: sine/cosine periodic electric potential</span>
+<span class="w">   </span><span class="c1">//--------------------------------------------------------------------------</span>
+<span class="w">   </span><span class="c1">//--------------------------------------------------------------------------</span>
+<span class="w">   </span><span class="n">BC_Solid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="c1">//solid boundary condition; 1=surface potential; 2=surface charge density</span>
+<span class="w">   </span><span class="n">SolidLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1">//solid labels for assigning solid boundary condition</span>
+<span class="w">   </span><span class="n">SolidValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1">//if surface potential, unit=[V]; if surface charge density, unit=[C/m^2]</span>
+<span class="w">   </span><span class="n">WriteLog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="c1">//write convergence log for LB-Poisson solver</span>
+<span class="w">   </span><span class="c1">//------------------------------ advanced setting ------------------------------------</span>
+<span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4000</span><span class="w"> </span><span class="c1">//max timestep for obtaining steady-state electrical potential</span>
+<span class="w">   </span><span class="n">analysis_interval</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="c1">//timestep checking steady-state convergence</span>
+<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-10</span><span class="w">  </span><span class="c1">//stopping criterion for steady-state solution</span>
+<span class="w">   </span><span class="n">InitialValueLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">   </span><span class="n">InitialValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="p">}</span>
+<span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Bacterium.swc&quot;</span>
+<span class="w">   </span><span class="n">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">     </span><span class="c1">// Number of processors (Npx,Npy,Npz)</span>
+<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="w">      </span><span class="c1">// Size of local domain (Nx,Ny,Nz)</span>
+<span class="w">   </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="w">         </span><span class="c1">// size of the input image</span>
+<span class="w">   </span><span class="n">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="w">   </span><span class="c1">//resolution; user-input unit: [um]</span>
+<span class="w">   </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">              </span><span class="c1">// Boundary condition type</span>
+<span class="w">   </span><span class="n">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;swc&quot;</span>
+<span class="w">   </span><span class="n">ReadValues</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">   </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">}</span>
+<span class="n">Analysis</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">analysis_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">   </span><span class="n">subphase_analysis_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span><span class="w">    </span><span class="c1">// Frequency to perform analysis</span>
+<span class="w">   </span><span class="n">restart_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5000</span><span class="w">    </span><span class="c1">// Frequency to write restart data</span>
+<span class="w">   </span><span class="n">restart_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Restart&quot;</span><span class="w">    </span><span class="c1">// Filename to use for restart file (will append rank)</span>
+<span class="w">   </span><span class="n">N_threads</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w">            </span><span class="c1">// Number of threads to use</span>
+<span class="w">   </span><span class="n">load_balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;independent&quot;</span><span class="w"> </span><span class="c1">// Load balance method to use: &quot;none&quot;, &quot;default&quot;, &quot;independent&quot;</span>
+<span class="p">}</span>
+<span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">save_electric_potential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">   </span><span class="n">save_concentration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">   </span><span class="n">save_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="p">}</span>
+<span class="n">Membrane</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">MembraneLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">   </span><span class="n">VoltageThreshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">   </span><span class="n">MassFractionIn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">   </span><span class="n">MassFractionOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">   </span><span class="n">ThresholdMassFractionIn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">   </span><span class="n">ThresholdMassFractionOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="example-output">
+<h1>Example Output<a class="headerlink" href="#example-output" title="Link to this heading">¶</a></h1>
+<p>Successful output looks like the following</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>********************************************************
+Running<span class="w"> </span>LBPM<span class="w"> </span>Nernst-Planck<span class="w"> </span>Membrane<span class="w"> </span>solver
+********************************************************
+....<span class="w"> </span>Read<span class="w"> </span>membrane<span class="w"> </span>permeability<span class="w"> </span><span class="o">(</span>MassFractionIn<span class="o">)</span>
+....<span class="w"> </span>Read<span class="w"> </span>membrane<span class="w"> </span>permeability<span class="w"> </span><span class="o">(</span>MassFractionOut<span class="o">)</span>
+....<span class="w"> </span>Read<span class="w"> </span>membrane<span class="w"> </span>permeability<span class="w"> </span><span class="o">(</span>ThresholdMassFractionIn<span class="o">)</span>
+....<span class="w"> </span>Read<span class="w"> </span>membrane<span class="w"> </span>permeability<span class="w"> </span><span class="o">(</span>ThresholdMassFractionOut<span class="o">)</span>
+....<span class="w"> </span>Read<span class="w"> </span>MembraneIonConcentrationList
+voxel<span class="w"> </span><span class="nv">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.010000<span class="w"> </span>micron
+voxel<span class="w"> </span><span class="nv">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.010000<span class="w"> </span>micron
+Reading<span class="w"> </span>SWC<span class="w"> </span>file...
+<span class="w">    </span>Number<span class="w"> </span>of<span class="w"> </span>lines<span class="w"> </span><span class="k">in</span><span class="w"> </span>SWC<span class="w"> </span>file:<span class="w"> </span><span class="m">7</span>
+<span class="w">   </span>Number<span class="w"> </span>of<span class="w"> </span>lines<span class="w"> </span>extracted<span class="w"> </span>is:<span class="w"> </span><span class="m">7</span>
+<span class="w">   </span><span class="nb">shift</span><span class="w"> </span>swc<span class="w"> </span>data<span class="w"> </span>by<span class="w"> </span><span class="m">0</span>.150000,<span class="w"> </span><span class="m">0</span>.140000,<span class="w"> </span><span class="m">0</span>.140000
+Media<span class="w"> </span><span class="nv">porosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>.000000
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>Initialized<span class="w"> </span>solid<span class="w"> </span>phase<span class="w"> </span><span class="p">&amp;</span><span class="w"> </span>converting<span class="w"> </span>to<span class="w"> </span>Signed<span class="w"> </span>Distance<span class="w"> </span><span class="k">function</span>
+<span class="w">    </span>Domain<span class="w"> </span>set.
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>Create<span class="w"> </span>ScaLBL_Communicator
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>Set<span class="w"> </span>up<span class="w"> </span>memory<span class="w"> </span>efficient<span class="w"> </span>layout
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>Allocating<span class="w"> </span>distributions
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>Setting<span class="w"> </span>up<span class="w"> </span>device<span class="w"> </span>map<span class="w"> </span>and<span class="w"> </span>neighbor<span class="w"> </span>list
+****<span class="w"> </span>Creating<span class="w"> </span>membrane<span class="w"> </span>data<span class="w"> </span>structure<span class="w"> </span>******
+<span class="w">   </span>Number<span class="w"> </span>of<span class="w"> </span>active<span class="w"> </span>lattice<span class="w"> </span>sites<span class="w"> </span><span class="o">(</span><span class="nv">rank</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="o">)</span>:<span class="w"> </span><span class="m">262160</span>
+<span class="w">   </span>Membrane<span class="w"> </span>labels:<span class="w"> </span><span class="m">1</span>
+<span class="w">      </span><span class="nv">label</span><span class="o">=</span><span class="m">2</span>,<span class="w"> </span>volume<span class="w"> </span><span class="nv">fraction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.133917
+Creating<span class="w"> </span>membrane<span class="w"> </span>data<span class="w"> </span>structure...
+<span class="w">   </span>Copy<span class="w"> </span>initial<span class="w"> </span>neighborlist...
+<span class="w">   </span>Cut<span class="w"> </span>membrane<span class="w"> </span>links...
+<span class="w">   </span><span class="o">(</span>cut<span class="w"> </span><span class="m">7105</span><span class="w"> </span>links<span class="w"> </span>crossing<span class="w"> </span>membrane<span class="o">)</span>
+<span class="w">   </span>Construct<span class="w"> </span>membrane<span class="w"> </span>data<span class="w"> </span>structures...
+<span class="w">   </span>Create<span class="w"> </span>device<span class="w"> </span>data<span class="w"> </span>structures...
+<span class="w">   </span>Construct<span class="w"> </span>communication<span class="w"> </span>data<span class="w"> </span>structures...
+Ion<span class="w"> </span>model<span class="w"> </span>setup<span class="w"> </span><span class="nb">complete</span>
+Analyze<span class="w"> </span>system<span class="w"> </span>with<span class="w"> </span>sub-domain<span class="w"> </span><span class="nv">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">66</span><span class="w"> </span>x<span class="w"> </span><span class="m">66</span><span class="w"> </span>x<span class="w"> </span><span class="m">66</span>
+Set<span class="w"> </span>up<span class="w"> </span>analysis<span class="w"> </span>routines<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="m">4</span><span class="w"> </span>ions
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>initializing<span class="w"> </span>D3Q7<span class="w"> </span>distributions
+<span class="w">   </span>...initializing<span class="w"> </span>based<span class="w"> </span>on<span class="w"> </span>membrane<span class="w"> </span>list
+....<span class="w"> </span>Set<span class="w"> </span>concentration<span class="o">(</span><span class="m">0</span><span class="o">)</span>:<span class="w"> </span><span class="nv">inside</span><span class="o">=</span><span class="m">0</span>.15<span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>,<span class="w"> </span><span class="nv">outside</span><span class="o">=</span><span class="m">0</span>.004<span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>
+....<span class="w"> </span>Set<span class="w"> </span>concentration<span class="o">(</span><span class="m">1</span><span class="o">)</span>:<span class="w"> </span><span class="nv">inside</span><span class="o">=</span><span class="m">0</span>.01<span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>,<span class="w"> </span><span class="nv">outside</span><span class="o">=</span><span class="m">0</span>.02<span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>
+....<span class="w"> </span>Set<span class="w"> </span>concentration<span class="o">(</span><span class="m">2</span><span class="o">)</span>:<span class="w"> </span><span class="nv">inside</span><span class="o">=</span><span class="m">0</span>.015<span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>,<span class="w"> </span><span class="nv">outside</span><span class="o">=</span><span class="m">0</span>.016<span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>
+....<span class="w"> </span>Set<span class="w"> </span>concentration<span class="o">(</span><span class="m">3</span><span class="o">)</span>:<span class="w"> </span><span class="nv">inside</span><span class="o">=</span><span class="m">0</span>.155<span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>,<span class="w"> </span><span class="nv">outside</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="o">[</span>mol/m^3<span class="o">]</span>
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>initializing<span class="w"> </span>charge<span class="w"> </span>density
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>solid<span class="w"> </span>boundary:<span class="w"> </span>non-flux<span class="w"> </span>boundary<span class="w"> </span>is<span class="w"> </span>assigned
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>inlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">1</span><span class="w"> </span>is<span class="w"> </span>periodic
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>outlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">1</span><span class="w"> </span>is<span class="w"> </span>periodic
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>inlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">2</span><span class="w"> </span>is<span class="w"> </span>periodic
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>outlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">2</span><span class="w"> </span>is<span class="w"> </span>periodic
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>inlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">3</span><span class="w"> </span>is<span class="w"> </span>periodic
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>outlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">3</span><span class="w"> </span>is<span class="w"> </span>periodic
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>inlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">4</span><span class="w"> </span>is<span class="w"> </span>periodic
+LB<span class="w"> </span>Ion<span class="w"> </span>Solver:<span class="w"> </span>outlet<span class="w"> </span>boundary<span class="w"> </span><span class="k">for</span><span class="w"> </span>Ion<span class="w"> </span><span class="m">4</span><span class="w"> </span>is<span class="w"> </span>periodic
+*****************************************************
+LB<span class="w"> </span>Ion<span class="w"> </span>Transport<span class="w"> </span>Solver:
+<span class="w">      </span>Ion<span class="w"> </span><span class="m">1</span>:<span class="w"> </span>LB<span class="w"> </span>relaxation<span class="w"> </span><span class="nv">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+<span class="w">              </span>Time<span class="w"> </span>conversion<span class="w"> </span>factor:<span class="w"> </span><span class="m">1</span>.25e-08<span class="w"> </span><span class="o">[</span>sec/lt<span class="o">]</span>
+<span class="w">              </span>Internal<span class="w"> </span>iteration:<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">[</span>lt<span class="o">]</span>
+<span class="w">      </span>Ion<span class="w"> </span><span class="m">2</span>:<span class="w"> </span>LB<span class="w"> </span>relaxation<span class="w"> </span><span class="nv">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+<span class="w">              </span>Time<span class="w"> </span>conversion<span class="w"> </span>factor:<span class="w"> </span><span class="m">1</span>.25e-08<span class="w"> </span><span class="o">[</span>sec/lt<span class="o">]</span>
+<span class="w">              </span>Internal<span class="w"> </span>iteration:<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">[</span>lt<span class="o">]</span>
+<span class="w">      </span>Ion<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>LB<span class="w"> </span>relaxation<span class="w"> </span><span class="nv">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+<span class="w">              </span>Time<span class="w"> </span>conversion<span class="w"> </span>factor:<span class="w"> </span><span class="m">1</span>.25e-08<span class="w"> </span><span class="o">[</span>sec/lt<span class="o">]</span>
+<span class="w">              </span>Internal<span class="w"> </span>iteration:<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">[</span>lt<span class="o">]</span>
+<span class="w">      </span>Ion<span class="w"> </span><span class="m">4</span>:<span class="w"> </span>LB<span class="w"> </span>relaxation<span class="w"> </span><span class="nv">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+<span class="w">              </span>Time<span class="w"> </span>conversion<span class="w"> </span>factor:<span class="w"> </span><span class="m">1</span>.25e-08<span class="w"> </span><span class="o">[</span>sec/lt<span class="o">]</span>
+<span class="w">              </span>Internal<span class="w"> </span>iteration:<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">[</span>lt<span class="o">]</span>
+*****************************************************
+Ion<span class="w"> </span>model<span class="w"> </span>initialized
+Main<span class="w"> </span>loop<span class="w"> </span>time_conv<span class="w"> </span>computed<span class="w"> </span>from<span class="w"> </span>ion<span class="w"> </span><span class="m">1</span>:<span class="w"> </span><span class="m">2</span>.5e-08<span class="o">[</span>s/lt<span class="o">]</span>
+Main<span class="w"> </span>loop<span class="w"> </span>time_conv<span class="w"> </span>computed<span class="w"> </span>from<span class="w"> </span>ion<span class="w"> </span><span class="m">2</span>:<span class="w"> </span><span class="m">2</span>.5e-08<span class="o">[</span>s/lt<span class="o">]</span>
+Main<span class="w"> </span>loop<span class="w"> </span>time_conv<span class="w"> </span>computed<span class="w"> </span>from<span class="w"> </span>ion<span class="w"> </span><span class="m">3</span>:<span class="w"> </span><span class="m">2</span>.5e-08<span class="o">[</span>s/lt<span class="o">]</span>
+Main<span class="w"> </span>loop<span class="w"> </span>time_conv<span class="w"> </span>computed<span class="w"> </span>from<span class="w"> </span>ion<span class="w"> </span><span class="m">4</span>:<span class="w"> </span><span class="m">2</span>.5e-08<span class="o">[</span>s/lt<span class="o">]</span>
+***********************************************************************************
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>steady-state<span class="w"> </span><span class="nv">MaxTimeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">4000</span><span class="p">;</span><span class="w"> </span>steady-state<span class="w"> </span><span class="nv">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>1e-10
+<span class="w">                   </span>LB<span class="w"> </span>relaxation<span class="w"> </span><span class="nv">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>.5
+***********************************************************************************
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>Use<span class="w"> </span>averaged<span class="w"> </span>MSE<span class="w"> </span>to<span class="w"> </span>check<span class="w"> </span>solution<span class="w"> </span>convergence.
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>Use<span class="w"> </span>D3Q19<span class="w"> </span>lattice<span class="w"> </span>structure.
+voxel<span class="w"> </span><span class="nv">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.010000<span class="w"> </span>micron
+voxel<span class="w"> </span><span class="nv">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.010000<span class="w"> </span>micron
+Reading<span class="w"> </span>SWC<span class="w"> </span>file...
+<span class="w">    </span>Number<span class="w"> </span>of<span class="w"> </span>lines<span class="w"> </span><span class="k">in</span><span class="w"> </span>SWC<span class="w"> </span>file:<span class="w"> </span><span class="m">7</span>
+<span class="w">   </span>Number<span class="w"> </span>of<span class="w"> </span>lines<span class="w"> </span>extracted<span class="w"> </span>is:<span class="w"> </span><span class="m">7</span>
+<span class="w">   </span><span class="nb">shift</span><span class="w"> </span>swc<span class="w"> </span>data<span class="w"> </span>by<span class="w"> </span><span class="m">0</span>.150000,<span class="w"> </span><span class="m">0</span>.140000,<span class="w"> </span><span class="m">0</span>.140000
+Media<span class="w"> </span><span class="nv">porosity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>.000000
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>Initialized<span class="w"> </span>solid<span class="w"> </span>phase<span class="w"> </span><span class="p">&amp;</span><span class="w"> </span>converting<span class="w"> </span>to<span class="w"> </span>Signed<span class="w"> </span>Distance<span class="w"> </span><span class="k">function</span>
+<span class="w">    </span>Domain<span class="w"> </span>set.
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>Create<span class="w"> </span>ScaLBL_Communicator
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>Set<span class="w"> </span>up<span class="w"> </span>memory<span class="w"> </span>efficient<span class="w"> </span>layout
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>Allocating<span class="w"> </span>distributions
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>Setting<span class="w"> </span>up<span class="w"> </span>device<span class="w"> </span>map<span class="w"> </span>and<span class="w"> </span>neighbor<span class="w"> </span>list
+<span class="w"> </span>....<span class="w"> </span>LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>check<span class="w">  </span>neighbor<span class="w"> </span>list
+<span class="w"> </span>....<span class="w"> </span>LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>copy<span class="w">  </span>neighbor<span class="w"> </span>list<span class="w"> </span>to<span class="w"> </span>GPU
+Poisson<span class="w"> </span>solver<span class="w"> </span>created
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>initializing<span class="w"> </span>D3Q19<span class="w"> </span>distributions
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>Poisson<span class="w"> </span>solid<span class="w"> </span>labels:<span class="w"> </span><span class="m">1</span>
+<span class="w">   </span><span class="nv">label</span><span class="o">=</span><span class="m">0</span>,<span class="w"> </span>surface<span class="w"> </span><span class="nv">potential</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="o">[</span>V<span class="o">]</span>,<span class="w"> </span>volume<span class="w"> </span><span class="nv">fraction</span><span class="o">=</span><span class="m">0</span>
+LB-Poisson<span class="w"> </span>Solver:<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>Poisson<span class="w"> </span>initial-value<span class="w"> </span>labels:<span class="w"> </span><span class="m">2</span>
+<span class="w">   </span><span class="nv">label</span><span class="o">=</span><span class="m">1</span>,<span class="w"> </span>initial<span class="w"> </span><span class="nv">potential</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="o">[</span>V<span class="o">]</span>,<span class="w"> </span>volume<span class="w"> </span><span class="nv">fraction</span><span class="o">=</span><span class="m">0</span>.96
+<span class="w">   </span><span class="nv">label</span><span class="o">=</span><span class="m">2</span>,<span class="w"> </span>initial<span class="w"> </span><span class="nv">potential</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="o">[</span>V<span class="o">]</span>,<span class="w"> </span>volume<span class="w"> </span><span class="nv">fraction</span><span class="o">=</span><span class="m">0</span>.13
+<span class="w">   </span>POISSON<span class="w"> </span>MODEL:<span class="w"> </span>Reading<span class="w"> </span>restart<span class="w"> </span>file!
+Poisson<span class="w"> </span>solver<span class="w"> </span>initialized
+<span class="w">   </span>...<span class="w"> </span>getting<span class="w"> </span>Poisson<span class="w"> </span>solver<span class="w"> </span>error
+-------------------------------------------------------------------
+<span class="nb">set</span><span class="w"> </span>coefficients
+********************************************************
+CPU<span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>.008526
+Lattice<span class="w"> </span>update<span class="w"> </span>rate<span class="w"> </span><span class="o">(</span>per<span class="w"> </span>core<span class="o">)=</span><span class="w"> </span><span class="m">30</span>.749833<span class="w"> </span>MLUPS
+Lattice<span class="w"> </span>update<span class="w"> </span>rate<span class="w"> </span><span class="o">(</span>total<span class="o">)=</span><span class="w"> </span><span class="m">61</span>.499666<span class="w"> </span>MLUPS
+********************************************************
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../analysis/TwoPhase.html" class="btn btn-neutral float-left" title="Measuring Contact Angles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../publications/publications.html" class="btn btn-neutral float-right" title="Publications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

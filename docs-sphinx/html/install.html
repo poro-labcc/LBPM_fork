@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="_static/doctools.js?v=9bcbadda"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="User Guide" href="userGuide/index.html" />
+    <link rel="prev" title="LBPM – Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-dependencies">Building Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-lbpm">Building LBPM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-scripts">Sample Scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userGuide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
+<p>Sample scripts to configure and build LBPM are included in the <cite>sample_scripts</cite> directory. To build this package, MPI and cmake are required, along with a compiler that supports the C++-14 standard. Building in source is not supported.</p>
+<p>The essential dependencies needed to build LBPM are:</p>
+<ol class="arabic simple">
+<li><p>cmake (version 3.9 or higher)</p></li>
+<li><p>MPI</p></li>
+<li><p>HDF5</p></li>
+<li><p>silo</p></li>
+</ol>
+<section id="building-dependencies">
+<h2>Building Dependencies<a class="headerlink" href="#building-dependencies" title="Link to this heading">¶</a></h2>
+<p>(skip if they are already installed on your system)</p>
+<ol class="arabic simple">
+<li><p>Download third-party library source files</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zlib-1.2.11.tar.gz
+hdf5-1.8.12.tar.gz
+silo-4.10.2.tar.gz
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Set up path where you want to install</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MPI_DIR</span><span class="o">=</span>/path/to/mpi
+<span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_ZLIB_DIR</span><span class="o">=</span>/path/to/zlib
+<span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_HDF5_DIR</span><span class="o">=</span>/path/to/hdf5
+<span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_SILO_DIR</span><span class="o">=</span>/path/to/silo
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Build third-party library dependencies</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tar<span class="w"> </span>-xzvf<span class="w"> </span>zlib-1.2.11.tar.gz
+tar<span class="w"> </span>-xzvf<span class="w"> </span>hdf5-1.8.12.tar.gz
+tar<span class="w"> </span>-xzvf<span class="w"> </span>silo-4.10.2.tar.gz
+<span class="nb">cd</span><span class="w"> </span>zlib-1.2.11
+
+./configure<span class="w"> </span>--prefix<span class="o">=</span><span class="nv">$LBPM_ZLIB_DIR</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>install
+
+<span class="nb">cd</span><span class="w"> </span>../hdf5-1.8.12
+
+<span class="nv">CC</span><span class="o">=</span><span class="nv">$MPI_DIR</span>/bin/mpicc<span class="w">  </span><span class="nv">CXX</span><span class="o">=</span><span class="nv">$MPI_DIR</span>/bin/mpicxx<span class="w"> </span><span class="nv">CXXFLAGS</span><span class="o">=</span><span class="s2">&quot;-fPIC -O3 -std=c++14&quot;</span><span class="w"> </span><span class="se">\</span>
+./configure<span class="w"> </span>--prefix<span class="o">=</span><span class="nv">$LBPM_HDF5_DIR</span><span class="w"> </span>--enable-parallel<span class="w"> </span>--enable-shared<span class="w"> </span>--with-zlib<span class="o">=</span><span class="nv">$LBPM_ZLIB_DIR</span>
+<span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>install
+
+
+<span class="nb">cd</span><span class="w"> </span>../silo-4.10.2
+
+<span class="nv">CC</span><span class="o">=</span><span class="nv">$MPI_DIR</span>/bin/mpicc<span class="w">  </span><span class="nv">CXX</span><span class="o">=</span><span class="nv">$MPI_DIR</span>/bin/mpicxx<span class="w"> </span><span class="nv">CXXFLAGS</span><span class="o">=</span><span class="s2">&quot;-fPIC -O3 -std=c++14&quot;</span><span class="w"> </span><span class="se">\</span>
+./configure<span class="w"> </span>--prefix<span class="o">=</span><span class="nv">$LBPM_SILO_DIR</span><span class="w"> </span>-with-hdf5<span class="o">=</span><span class="nv">$LBPM_HDF5_DIR</span>/include,<span class="nv">$LBPM_HDF5_DIR</span>/lib<span class="w"> </span>--enable-static
+<span class="w"> </span>make<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="building-lbpm">
+<h2>Building LBPM<a class="headerlink" href="#building-lbpm" title="Link to this heading">¶</a></h2>
+<p>Many HPC systems will include all of these dependencies, and LBPM can be built simply by setting the paths to the associated libraries in the cmake configure line.</p>
+<p>The steps typically used to build LBPM are as follows:</p>
+<ol class="arabic simple">
+<li><p>Set environment variables for the source directory <cite>$LBPM_WIA_SOURCE</cite> and build directory <cite>$LBPM_WIA_DIR</cite></p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_SOURCE</span><span class="o">=</span>/path/to/source/LBPM
+<span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_DIR</span><span class="o">=</span>/path/to/build/LBPM
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Set environment variables for the path to HDF5 and SILO (required),  and optionally for TimerUtility and NetCDF (optional)</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_HDF5_DIR</span><span class="o">=</span>/path/to/hdf5
+<span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_SILO_DIR</span><span class="o">=</span>/path/to/silo
+<span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_TIMER_DIR</span><span class="o">=</span>/path/to/timer
+<span class="nb">export</span><span class="w"> </span><span class="nv">LBPM_NETCDF_DIR</span><span class="o">=</span>/path/to/netcdf
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Create the build directory and navigate to it</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span><span class="nv">$LBPM_WIA_DIR</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nv">$LBPM_WIA_DIR</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Configure the project. Numerous scripts exist to build LBPM on different HPC clusters, which are available in the  <cite>$LBPM_SOURCE/sample_scripts/</cite> directory. It is often possible to run these scripts directly if one exists for a system similar to the one you are building on. For a standard CPU build:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w">                                           </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span>CMAKE_BUILD_TYPE:STRING<span class="o">=</span>Release<span class="w">          </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span>CMAKE_C_COMPILER:PATH<span class="o">=</span>mpicc<span class="w">              </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span>CMAKE_CXX_COMPILER:PATH<span class="o">=</span>mpicxx<span class="w">           </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">CMAKE_C_FLAGS</span><span class="o">=</span><span class="s2">&quot;-fPIC&quot;</span><span class="w">                    </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">CMAKE_CXX_FLAGS</span><span class="o">=</span><span class="s2">&quot;-fPIC&quot;</span><span class="w">                  </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">CMAKE_CXX_STD</span><span class="o">=</span><span class="m">14</span><span class="w">                         </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_TIMER</span><span class="o">=</span><span class="m">0</span><span class="w">                              </span><span class="se">\</span>
+<span class="w">        </span>-D<span class="w"> </span><span class="nv">TIMER_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_TIMER_DIR</span><span class="w">     </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_NETCDF</span><span class="o">=</span><span class="m">0</span><span class="w">                             </span><span class="se">\</span>
+<span class="w">        </span>-D<span class="w"> </span><span class="nv">NETCDF_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_NETCDF_DIR</span><span class="w">   </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_SILO</span><span class="o">=</span><span class="m">1</span><span class="w">                               </span><span class="se">\</span>
+<span class="w">       </span>-D<span class="w"> </span><span class="nv">HDF5_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_HDF5_DIR</span><span class="w">         </span><span class="se">\</span>
+<span class="w">       </span>-D<span class="w"> </span><span class="nv">SILO_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_SILO_DIR</span><span class="w">         </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_CUDA</span><span class="o">=</span><span class="m">0</span><span class="w">                               </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">$LBPM_SOURCE</span>
+</pre></div>
+</div>
+<p>For GPU support, it is necessary to have CUDA along with a GPU-aware MPI implementation. Otherwise, the LBPM routines should behave identically irrespective of the underlying hardware.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake<span class="w">                                           </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span>CMAKE_BUILD_TYPE:STRING<span class="o">=</span>Release<span class="w">          </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span>CMAKE_C_COMPILER:PATH<span class="o">=</span>mpicc<span class="w">              </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span>CMAKE_CXX_COMPILER:PATH<span class="o">=</span>mpicxx<span class="w">           </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">CMAKE_C_FLAGS</span><span class="o">=</span><span class="s2">&quot;-fPIC&quot;</span><span class="w">                    </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">CMAKE_CXX_FLAGS</span><span class="o">=</span><span class="s2">&quot;-fPIC&quot;</span><span class="w">                  </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">CMAKE_CXX_STD</span><span class="o">=</span><span class="m">14</span><span class="w">                         </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_TIMER</span><span class="o">=</span><span class="m">0</span><span class="w">                              </span><span class="se">\</span>
+<span class="w">        </span>-D<span class="w"> </span><span class="nv">TIMER_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_TIMER_DIR</span><span class="w">     </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_NETCDF</span><span class="o">=</span><span class="m">0</span><span class="w">                             </span><span class="se">\</span>
+<span class="w">        </span>-D<span class="w"> </span><span class="nv">NETCDF_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_NETCDF_DIR</span><span class="w">   </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_SILO</span><span class="o">=</span><span class="m">1</span><span class="w">                               </span><span class="se">\</span>
+<span class="w">       </span>-D<span class="w"> </span><span class="nv">HDF5_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_HDF5_DIR</span><span class="w">         </span><span class="se">\</span>
+<span class="w">       </span>-D<span class="w"> </span><span class="nv">SILO_DIRECTORY</span><span class="o">=</span><span class="nv">$LBPM_SILO_DIR</span><span class="w">         </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">USE_CUDA</span><span class="o">=</span><span class="m">1</span><span class="w">                               </span><span class="se">\</span>
+<span class="w">    </span>-D<span class="w"> </span><span class="nv">CMAKE_CUDA_FLAGS</span><span class="o">=</span><span class="s2">&quot;-arch sm_70&quot;</span><span class="w">           </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">$LBPM_SOURCE</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Build the project (using four cores to build)</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>-j4
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Install the project</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install
+</pre></div>
+</div>
+<ol class="arabic simple" start="7">
+<li><p>Run the tests to make sure they execute correctly (on a cluster, it is recommended to run these using the batch system rather than on the head node)</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ctest
+</pre></div>
+</div>
+</section>
+<section id="sample-scripts">
+<h2>Sample Scripts<a class="headerlink" href="#sample-scripts" title="Link to this heading">¶</a></h2>
+<p>The LBPM repository contains sample scripts showing successful CMake configuration, build and
+install steps for a range of systems. Refer to the project sub-directory below for these examples.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span><span class="nv">$LBPM_SOURCE</span>/sample_scripts
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="LBPM – Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="userGuide/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

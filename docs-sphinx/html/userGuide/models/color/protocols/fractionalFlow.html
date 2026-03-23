@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color model – Fractional Flow Protocol &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Color model – Image Sequence Protocol" href="imageSequence.html" />
+    <link rel="prev" title="Color model – Core Flooding" href="coreFlooding.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html">Color model</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html#simulation-protocols">Simulation protocols</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#analysis-capabilities">Analysis capabilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#model-parameters">Model parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#model-formulation">Model Formulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#boundary-conditions">Boundary Conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#example-data">Example data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">MRT model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../greyscale/greyscale.html">Greyscale model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../freeEnergy/freeEnergy.html">Free energy model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">LBPM model summary</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Color model</a></li>
+      <li class="breadcrumb-item active">Color model – Fractional Flow Protocol</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/userGuide/models/color/protocols/fractionalFlow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="color-model-fractional-flow-protocol">
+<h1>Color model – Fractional Flow Protocol<a class="headerlink" href="#color-model-fractional-flow-protocol" title="Link to this heading">¶</a></h1>
+<p>The fractional flow protocol is designed to perform steady-state relative
+permeability simulations by using an internal routine to change the fluid
+saturation by adding and subtracting mass to the fluid phases. The
+mass density is updated for each fluid based on the locations where
+the local rate of flow is high.</p>
+<p>Enabling the fractional flow protocol will automatically set the following default settings:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fractional_flow_increment</span> <span class="pre">=</span> <span class="pre">0.05</span></code> -  target change in saturation between steady points</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">endpoint_threshold</span> <span class="pre">=</span> <span class="pre">0.1</span></code> - termination criterion based on the relative flow rates of fluids</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mass_fraction_factor</span> <span class="pre">=</span> <span class="pre">0.006</span></code> - percentage change to the mass fraction (per iteration)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fractional_flow_epsilon</span> <span class="pre">=</span> <span class="pre">5.0e-6</span></code> - control the threshold velocity <img class="math" src="../../../../_images/math/d22469699b391d3401bbb011f8ffa57f004365fa.png" alt="U_\epsilon"/></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip_timesteps</span> <span class="pre">=</span> <span class="pre">50000</span></code> -  timesteps to spend in adaptive part of algorithm</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_steady_timesteps</span> <span class="pre">=</span> <span class="pre">1000000</span></code> - minimum number of timesteps per steady point</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_steady_timesteps</span> <span class="pre">=</span> <span class="pre">1000000</span></code> - maximum number of timesteps per steady point</p></li>
+</ul>
+<p>Any of these values can be manually overriden by setting the appropriate key to a custom value
+within the <code class="docutils literal notranslate"><span class="pre">FlowAdaptor</span></code> section of the input file database. The fractional flow
+will enforce periodic boundary conditions <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code>, and is not compatible with other
+boundary condition routines. A warning message will be printed if <code class="docutils literal notranslate"><span class="pre">BC</span></code> is set to a value
+other than <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+<p>The basic idea for the fractional flow algorithm is to define an algorithm to modify the
+fluid saturation that will:</p>
+<ol class="arabic simple">
+<li><p>minimize the introduction of end effects and gradients in saturation</p></li>
+<li><p>respect the structure and connectivity of the fluid phases to the maximum extent</p></li>
+<li><p>minimize the transient disruption to the flow behavior so that fewer timesteps are required to reach steady
+state</p></li>
+</ol>
+<p>The strategy used to accomplish these objectives is to change saturation by either increasing
+or decreasing the mass within each fluid, depending on the sign of <code class="docutils literal notranslate"><span class="pre">mass_fraction_factor</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">mass_fraction_factor</span></code> is positive, the algorithm will remove mass from fluid A and add
+mass to fluid B. The opposite will happen if <code class="docutils literal notranslate"><span class="pre">mass_fraction_factor</span></code> is negative. The algorithm
+will selectively add mass to voxels where the local flow rate is high, since these will generally
+correspond to the mobile (i.e. not disconnected) fluid regions. A local weighting function is determined
+from the velocity <img class="math" src="../../../../_images/math/cb75c87c7829d92322034032115ec797744f25c5.png" alt="\mathbf{u}_i"/></p>
+<div class="math">
+<p><img src="../../../../_images/math/0427e3af2983b8953bb5712c49de6090db798e55.png" alt="$$
+   W_i = \frac{ U_\epsilon + |\mathbf{u}_i|}{U_\epsilon + \max{|\mathbf{u}_i|}}
+$$"/></p>
+</div><p>where <img class="math" src="../../../../_images/math/44d3c2dda1d5188aec800d851adf40efebede991.png" alt="\max{|\mathbf{u}_i|}"/> is the maximum flow speed within fluid <img class="math" src="../../../../_images/math/5aa339d4daf45a810dda332e3c80a0698e526e04.png" alt="i"/> and
+<img class="math" src="../../../../_images/math/d22469699b391d3401bbb011f8ffa57f004365fa.png" alt="U_\epsilon"/> is a threshold speed that is set to minimize the influence of spurious
+currents on the mass seeding algorithm. The sum of the weighting function is used to normalize
+the local weights so that the added mass will match the value specified by <code class="docutils literal notranslate"><span class="pre">mass_fraction_factor</span></code>.
+If the flow is slower than <img class="math" src="../../../../_images/math/d22469699b391d3401bbb011f8ffa57f004365fa.png" alt="U_\epsilon"/>, the algorithm will tend to add mass evenly to the system.
+For example, if the water is only present in films that flow very slowly, then mass will
+be evenly seeded throughout entire water film. Alternatively, if one or both fluids
+flows through distinct channels, the mass will be disproportionately added to these
+channels where the rate of flow is high. As system relaxes, the mass will redistribute
+spatially, causing a change to the fluid saturation.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Color</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">protocol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;fractional flow&quot;</span>
+<span class="w">   </span><span class="n">capillary_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-4</span><span class="w">            </span><span class="c1">// capillary number for the displacement</span>
+<span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000000</span><span class="w">              </span><span class="c1">// maximum timtestep</span>
+<span class="w">   </span><span class="n">alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.005</span><span class="w">                      </span><span class="c1">// controls interfacial tension</span>
+<span class="w">   </span><span class="n">rhoA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w">                         </span><span class="c1">// controls the density of fluid A</span>
+<span class="w">   </span><span class="n">rhoB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w">                         </span><span class="c1">// controls the density of fluid B</span>
+<span class="w">   </span><span class="n">tauA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="w">                         </span><span class="c1">// controls the viscosity of fluid A</span>
+<span class="w">   </span><span class="n">tauB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="w">                         </span><span class="c1">// controls the viscosity of fluid B</span>
+<span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-5</span><span class="w">                   </span><span class="c1">// body force</span>
+<span class="w">   </span><span class="n">WettingConvention</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SCAL&quot;</span><span class="w">         </span><span class="c1">// convention for sign of wetting affinity</span>
+<span class="w">   </span><span class="n">ComponentLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="w">        </span><span class="c1">// image labels for solid voxels</span>
+<span class="w">   </span><span class="n">ComponentAffinity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.6</span><span class="w">  </span><span class="c1">// controls the wetting affinity for each label</span>
+<span class="w">   </span><span class="n">Restart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="p">}</span>
+<span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Bentheimer_LB_RelPerm_intermediate_oil_wet_Sw_0p37.raw&quot;</span>
+<span class="w">   </span><span class="n">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;8bit&quot;</span><span class="w">              </span><span class="c1">// data type</span>
+<span class="w">   </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">900</span><span class="p">,</span><span class="w"> </span><span class="mi">900</span><span class="p">,</span><span class="w"> </span><span class="mi">1600</span><span class="w">             </span><span class="c1">// size of original image</span>
+<span class="w">   </span><span class="n">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">                </span><span class="c1">// process grid</span>
+<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="w">              </span><span class="c1">// sub-domain size</span>
+<span class="w">   </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="w">         </span><span class="c1">// offset to read sub-domain</span>
+<span class="w">   </span><span class="n">InletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="w">          </span><span class="c1">// number of mixing layers at the inlet</span>
+<span class="w">   </span><span class="n">OutletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="w">         </span><span class="c1">// number of mixing layers at the outlet</span>
+<span class="w">   </span><span class="n">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.66</span><span class="w">            </span><span class="c1">// voxel length (in microns)</span>
+<span class="w">   </span><span class="n">ReadValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="c1">// labels within the original image</span>
+<span class="w">   </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">  </span><span class="c1">// associated labels to be used by LBPM</span>
+<span class="w">   </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                         </span><span class="c1">// boundary condition type (0 for periodic)</span>
+<span class="p">}</span>
+<span class="n">Analysis</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">analysis_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="w">           </span><span class="c1">// logging interval for timelog.csv</span>
+<span class="w">   </span><span class="n">subphase_analysis_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5000</span><span class="w">  </span><span class="c1">// loggging interval for subphase.csv</span>
+<span class="w">   </span><span class="n">visualization_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100000</span><span class="w">    </span><span class="c1">// interval to write visualization files</span>
+<span class="w">   </span><span class="n">N_threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w">                      </span><span class="c1">// number of analysis threads (GPU version only)</span>
+<span class="w">   </span><span class="n">restart_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000000</span><span class="w">         </span><span class="c1">// interval to write restart file</span>
+<span class="w">   </span><span class="n">restart_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Restart&quot;</span><span class="w">           </span><span class="c1">// base name of restart file</span>
+<span class="p">}</span>
+<span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">write_silo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">     </span><span class="c1">// write SILO databases with assigned variables</span>
+<span class="w">   </span><span class="n">save_8bit_raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">  </span><span class="c1">// write labeled 8-bit binary files with phase assignments</span>
+<span class="w">   </span><span class="n">save_phase_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">  </span><span class="c1">// save phase field within SILO database</span>
+<span class="w">   </span><span class="n">save_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="w">    </span><span class="c1">// save pressure field within SILO database</span>
+<span class="w">   </span><span class="n">save_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="w">    </span><span class="c1">// save velocity field within SILO database</span>
+<span class="p">}</span>
+<span class="n">FlowAdaptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">min_steady_timesteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100000</span><span class="w">     </span><span class="c1">// minimum number of timesteps per steady point</span>
+<span class="w">   </span><span class="n">max_steady_timesteps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">250000</span><span class="w">     </span><span class="c1">// maximum number of timesteps per steady point</span>
+<span class="w">   </span><span class="n">mass_fraction_factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.006</span><span class="w">      </span><span class="c1">// controls the rate of mass seeding in adaptive step</span>
+<span class="w">   </span><span class="n">fractional_flow_increment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.05</span><span class="w">  </span><span class="c1">// saturation change after each steady point</span>
+<span class="w">   </span><span class="n">endpoint_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="w">          </span><span class="c1">// endpoint exit criterion (based on flow rates)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="coreFlooding.html" class="btn btn-neutral float-left" title="Color model – Core Flooding" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="imageSequence.html" class="btn btn-neutral float-right" title="Color model – Image Sequence Protocol" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
