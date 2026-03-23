@@ -1,6 +1,4 @@
-name: deploy_guide
-
-# Deploy sphinx docs
+name: Deploy static content to Pages
 
 on:
   push:
@@ -14,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -27,6 +25,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug tree
+        run: |
+          pwd
+          ls
+          ls docs-sphinx || true
+          ls docs-sphinx/html || true
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -35,8 +40,6 @@ jobs:
         with:
           path: docs-sphinx/html
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-
