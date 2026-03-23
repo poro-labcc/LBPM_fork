@@ -4,7 +4,7 @@ name: deploy_guide
 
 on:
   push:
-    branches: ["main"]
+    branches: ["docs-sphinx"]
   workflow_dispatch:
 
 permissions:
