@@ -2,7 +2,7 @@ name: Deploy static content to Pages
 
 on:
   push:
-    branches: ["docs-sphinx"]
+    branches: ["master"]
   workflow_dispatch:
 
 permissions:
