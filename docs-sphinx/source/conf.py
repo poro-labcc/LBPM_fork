@@ -30,11 +30,19 @@ release = '1.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
 extensions = [
-    'sphinx.ext.imgmath',
-    'breathe',
-    'sphinx_rtd_size'
+    'sphinx.ext.mathjax',
+    'sphinx_rtd_size',
+    'sphinxcontrib.bibtex'
 ]
+
+math_number_all = True
+math_eqref_format = "Eq. ({number})"
+
+bibtex_bibfiles = ['references.bib']
+bibtex_encoding = 'utf-8'
+bibtex_default_style = 'unsrt'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -71,6 +79,10 @@ if os.environ.get('READTHEDOCS') != 'True':
 #    app.add_stylesheet("fix_rtd.css")
 
 sphinx_rtd_size_width = "100%"
+
+html_css_files = [
+    'css/eqno.css',
+]
 # -- Breathe configuration -------------------------------------------------
 
 # breathe_projects = {

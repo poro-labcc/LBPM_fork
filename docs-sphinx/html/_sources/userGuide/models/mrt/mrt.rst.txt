@@ -1,11 +1,11 @@
 ###############################################################################
-MRT model
+Single-Phase Pore-Scale Model
 ###############################################################################
 
-The LBPM single fluid model is implemented by combining a multi-relaxation time (MRT) D3Q19
-lattice Boltzmann equation (LBE) to solve for the momentum transport, recovering the Navier-Stokes
-equations to second order based on the Chapman-Enskog expansion. The MRT model is used to assess the
-permeability of digital rock images in either the Darcy or non-Darcy flow regimes. 
+The LBPM single fluid model is implemented by a multi-relaxation time (MRT) collision model in a D3Q19
+lattice representation of lattice Boltzmann equation (LBE) to solve the fluid momentum transport, recovering the Navier-Stokes
+equations. Beside the MRT scheme a set two-relaxation time (TRT) is used to avoid half-way bounce-back slip effects (Pan).The implemented 
+modeling is used to assess the permeability of digital rock images in either the Darcy or non-Darcy flow regimes. 
 
 A typical command to launch the LBPM color simulator is as follows
 
@@ -31,25 +31,25 @@ The kinematic viscosity is given by
 .. math::
    :nowrap:
 
-     $$
-       \nu = \frac{1}{3} \Big( \tau - \frac 12 \Big)
-     $$
+   $$
+      \nu = \frac{1}{3} \Big( \tau - \frac 12 \Big)
+   $$
 
 ****************************
 Model Formulation
 ****************************
 
 The LBE governing momentum transport is defined based on a MRT relaxation based on the D3Q19 discrete
-velocity set, which determines the values :math:`\bm{\xi}_q`
+velocity set, which determines the values :math:`\boldsymbol{\xi}_q`
 
 .. math::
    :nowrap:
 
    $$
-      f_q(\bm{x}_i + \bm{\xi}_q \delta t,t + \delta t) - f_q(\bm{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \bm{\xi}_q \cdot \frac{\bm{F}}{c_s^2} \;,
+      f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
    $$
 
-Where :math:`\bm{F}` is an external body force and :math:`c_s^2 = 1/3` is the speed of sound for the LB model.
+Where :math:`\boldsymbol{F}` is an external body force and :math:`c_s^2 = 1/3` is the speed of sound for the LB model.
 The moments are linearly indepdendent functions of the distributions:
 
 .. math::
@@ -200,7 +200,7 @@ the inlet or outlet, the ``Domain`` section of the database may specify the foll
 - ``InletLayerPhase = 2`` -- establish a reservoir of component B at the inlet
 - ``OutletLayerPhase = 1`` -- establish a reservoir of component A at the outlet
 
-  ****************************
+****************************
 Example Input File
 ****************************
 
@@ -227,3 +227,27 @@ Example Input File
    }
    Visualization {
    }
+
+****************************
+Benchmark Cases
+****************************
+
+.. list-table:: Benchmarks
+   :header-rows: 1
+   :widths: 30 30 30
+
+   * - :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc`
+     - 3D digital Rocks
+     - Multiscale Micromodels
+
+   * - .. image:: ../../../_static/images/bcc-bench.png
+          :width: 150px
+          :align: center
+
+     - .. image:: ../../../_static/images/bentheimer-3d.png
+          :width: 150px
+          :align: center
+
+     - .. image:: ../../../_static/images/M2-P.png
+          :width: 150px
+          :align: center

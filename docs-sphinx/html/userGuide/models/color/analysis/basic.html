@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/eqno.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +16,7 @@
         <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
         <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -46,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">Single-Phase Pore-Scale Model</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html">Color model</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../index.html#simulation-protocols">Simulation protocols</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html#analysis-capabilities">Analysis capabilities</a></li>
@@ -55,7 +58,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../index.html#example-data">Example data</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">MRT model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../cell/cell.html">Cell model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
@@ -69,6 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../developerGuide/index.html">Developer guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../examples/running.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../citations/citations.html">References</a></li>
 </ul>
 
         </div>
@@ -113,7 +116,7 @@ simulation measures to verfiy that no <code class="docutils literal notranslate"
 pressure and flow rate.</p>
 <p>The list of measures logged to <code class="docutils literal notranslate"><span class="pre">timelog.csv</span></code> are defined as follows.
 The region of space occupied by the wetting fluid is determined from the
-phase indicator field, <img class="math" src="../../../../_images/math/67e3eb05be5576bacbaae4289149a4b267710928.png" alt="\Omega_w:\phi&lt;0"/></p>
+phase indicator field, <span class="math notranslate nohighlight">\(\Omega_w:\phi&lt;0\)</span></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">sw</span></code> – water saturation (fluid component 2)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">krw</span></code> – water effective permeability</p></li>

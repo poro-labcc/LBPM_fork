@@ -8,9 +8,9 @@ Currently supported lattice Boltzmann models
    :glob:
    :maxdepth: 2
 
-   color/*
-
    mrt/*
+   
+   color/*
 
    cell/*
    

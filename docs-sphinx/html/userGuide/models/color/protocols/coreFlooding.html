@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/eqno.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +16,7 @@
         <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
         <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -46,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">Single-Phase Pore-Scale Model</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html">Color model</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html#simulation-protocols">Simulation protocols</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#analysis-capabilities">Analysis capabilities</a></li>
@@ -55,7 +58,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../index.html#example-data">Example data</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">MRT model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../cell/cell.html">Cell model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
@@ -69,6 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../developerGuide/index.html">Developer guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../examples/running.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../citations/citations.html">References</a></li>
 </ul>
 
         </div>
@@ -113,32 +116,32 @@ condition are available
 </div>
 <p>To match experimental conditions, it is usually important to match the capillary
 number, which is</p>
-<div class="math">
-<p><img src="../../../../_images/math/e5e3d1cc4cb0955e6df7055d51cf136ff3a7f411.png" alt="\mbox{Ca} = \frac{\mu u_z}{\gamma}"/></p>
-</div><p>where <img class="math" src="../../../../_images/math/4a3598141469c2555591e66606a1b86d4ec6dca9.png" alt="\mu"/> is the dynamic viscosity, <img class="math" src="../../../../_images/math/3082e27dc047af802bdd9b167afa561b4aaab9d2.png" alt="u_z"/> is the fluid
-(usually water) velocity and <img class="math" src="../../../../_images/math/34d137cf01c787ecda732761c3f95b0f65a6c3e9.png" alt="\gamma"/> is the interfacial tension.
+<div class="math notranslate nohighlight" id="equation-userguide-models-color-protocols-coreflooding-0">
+<span class="eqno">(1)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-0" title="Link to this equation">¶</a></span>\[\mbox{Ca} = \frac{\mu u_z}{\gamma}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mu\)</span> is the dynamic viscosity, <span class="math notranslate nohighlight">\(u_z\)</span> is the fluid
+(usually water) velocity and <span class="math notranslate nohighlight">\(\gamma\)</span> is the interfacial tension.
 The volumetric flow rate is related to the fluid velocity based on</p>
-<div class="math">
-<p><img src="../../../../_images/math/6d256feb058dc67d0971167ac57b6add63dd8bf5.png" alt="Q_z = \epsilon C_{xy} u_z"/></p>
-</div><p>where <img class="math" src="../../../../_images/math/ceac6c24ea6dcfce0df7b55ea9da16cd3e41b3ec.png" alt="C_{xy}"/> is the cross-sectional area and <img class="math" src="../../../../_images/math/0ad7b30534898f253002222f998f38001e604648.png" alt="\epsilon"/>
+<div class="math notranslate nohighlight" id="equation-userguide-models-color-protocols-coreflooding-1">
+<span class="eqno">(2)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-1" title="Link to this equation">¶</a></span>\[Q_z = \epsilon C_{xy} u_z\]</div>
+<p>where <span class="math notranslate nohighlight">\(C_{xy}\)</span> is the cross-sectional area and <span class="math notranslate nohighlight">\(\epsilon\)</span>
 is the porosity. Given a particular experimental system
 self-similar conditions can be determined for the lattice Boltzmann
-simulation by matching the non-dimensional <img class="math" src="../../../../_images/math/c5505dd54a2b885790013799be2ff46bbaf9d765.png" alt="\mbox{Ca}"/>. It is nearly
+simulation by matching the non-dimensional <span class="math notranslate nohighlight">\(\mbox{Ca}\)</span>. It is nearly
 awlays advantageous for the timestep to be as large as possible so
 that time-to-solution will be more favorable. This is accomplished by</p>
 <ul class="simple">
 <li><p>use a high value for the numerical surface tension (e.g. <code class="docutils literal notranslate"><span class="pre">alpha=1.0e-2</span></code>)</p></li>
 <li><p>use a small value for the fluid viscosity (e.g. <code class="docutils literal notranslate"><span class="pre">tau_w</span> <span class="pre">=</span> <span class="pre">0.7</span></code> and <code class="docutils literal notranslate"><span class="pre">tau_n</span> <span class="pre">=</span> <span class="pre">0.7</span></code> )</p></li>
-<li><p>determine the volumetric flow rate needed to match <img class="math" src="../../../../_images/math/c5505dd54a2b885790013799be2ff46bbaf9d765.png" alt="\mbox{Ca}"/></p></li>
+<li><p>determine the volumetric flow rate needed to match <span class="math notranslate nohighlight">\(\mbox{Ca}\)</span></p></li>
 </ul>
 <p>For the color LBM the interfacial tension is
-<img class="math" src="../../../../_images/math/4b188b25e71f7ec17902a48c8ae2260a5d2ffb0c.png" alt="\gamma = 6 \alpha"/> and the dynamic viscosity is <img class="math" src="../../../../_images/math/b1441204d7cdc606d11c147f9ed0f51e8674aca2.png" alt="\mu =  \rho(\tau-1/2)/3"/>,
+<span class="math notranslate nohighlight">\(\gamma = 6 \alpha\)</span> and the dynamic viscosity is <span class="math notranslate nohighlight">\(\mu =  \rho(\tau-1/2)/3\)</span>,
 where the units are relative to the lattice spacing, timestep and mass
 density. Agreemetn between the experimental and simulated values for
-<img class="math" src="../../../../_images/math/c5505dd54a2b885790013799be2ff46bbaf9d765.png" alt="\mbox{Ca}"/> is ensured by setting the volumetric flux</p>
-<div class="math">
-<p><img src="../../../../_images/math/b8b995d5e01c6415f1275123d110ceb8fc019def.png" alt="Q_z = \frac{\epsilon C_{xy} \gamma }{\mu} \mbox{Ca}"/></p>
-</div><p>where the LB units of the volumetric flux will be voxels per timestep.</p>
+<span class="math notranslate nohighlight">\(\mbox{Ca}\)</span> is ensured by setting the volumetric flux</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-color-protocols-coreflooding-2">
+<span class="eqno">(3)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-2" title="Link to this equation">¶</a></span>\[Q_z = \frac{\epsilon C_{xy} \gamma }{\mu} \mbox{Ca}\]</div>
+<p>where the LB units of the volumetric flux will be voxels per timestep.</p>
 <p>In some situations it may also be important to match other non-dimensional numbers,
 such as the viscosity ratio, density ratio, and/or Ohnesorge/Laplace number. This
 can be accomplished with an analogous procedure. Enforcing additional constraints

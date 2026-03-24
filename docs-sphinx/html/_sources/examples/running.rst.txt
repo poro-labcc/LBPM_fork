@@ -15,6 +15,8 @@ a basic introduction to working with LBPM.
 
    domain/*
 
+   SinglePhasePoreScale/*
+
    morphology/*	      
    
    color/*

@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/eqno.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,10 +16,11 @@
         <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
         <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="MRT model" href="../../mrt/mrt.html" />
+    <link rel="next" title="Cell model" href="../../cell/cell.html" />
     <link rel="prev" title="Color model – Basic Analysis" href="basic.html" /> 
 </head>
 
@@ -46,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">Single-Phase Pore-Scale Model</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html">Color model</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../index.html#simulation-protocols">Simulation protocols</a></li>
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html#analysis-capabilities">Analysis capabilities</a></li>
@@ -55,7 +58,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../index.html#example-data">Example data</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">MRT model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../cell/cell.html">Cell model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
@@ -69,6 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../developerGuide/index.html">Developer guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../examples/running.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../citations/citations.html">References</a></li>
 </ul>
 
         </div>
@@ -118,9 +121,9 @@ the performance in MLUPS provides an easy way to tune the analysis interval so t
 overall simulation performance is not subject to significant penalties.</p>
 <p>There are three main entities that are constructed for subphase analysis</p>
 <ul class="simple">
-<li><p><img class="math" src="../../../../_images/math/67e3eb05be5576bacbaae4289149a4b267710928.png" alt="\Omega_w:\phi&lt;0"/> : region of space filled by fluid w</p></li>
-<li><p><img class="math" src="../../../../_images/math/a9cf34eafb0868a8114273a77e699ab0e54ca7c3.png" alt="\Omega_n:\phi&lt;0"/> : region of space filled by fluid n</p></li>
-<li><p><img class="math" src="../../../../_images/math/c9b216e21da0734399e8733548e4da1626e6f4ad.png" alt="\Omega_i: |\nabla \phi|&lt;0 &gt; \epsilon"/> : region of space for the interface region</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega_w:\phi&lt;0\)</span> : region of space filled by fluid w</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega_n:\phi&lt;0\)</span> : region of space filled by fluid n</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega_i: |\nabla \phi|&lt;0 &gt; \epsilon\)</span> : region of space for the interface region</p></li>
 </ul>
 <p>The phase regions are defined identical to what is reported in <code class="docutils literal notranslate"><span class="pre">timelog.csv</span></code>.
 The interface region is defined explicitly as the portion of space where
@@ -139,31 +142,31 @@ for the following six entities</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">ic</span></code> – connected part of interface region</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> – disconnected part of interface region</p></li>
 </ul>
-<p>For each entity <img class="math" src="../../../../_images/math/9ec8cb23cc7b94f4672009d55de5625c1586c96e.png" alt="\Omega_k"/> with <img class="math" src="../../../../_images/math/b9fd770452bfe9d16091189ead842a151b931cfe.png" alt="k\in\{wc,wd,nc,nd,ic,id\}"/>
+<p>For each entity <span class="math notranslate nohighlight">\(\Omega_k\)</span> with <span class="math notranslate nohighlight">\(k\in\{wc,wd,nc,nd,ic,id\}\)</span>
 an isosurface is constructed to approximate the boundary of the region,
-<img class="math" src="../../../../_images/math/5d8dc57f375e29af14f591cb0a63d85d72c688b3.png" alt="\Gamma_k"/>. Once each region is identified, the following measures are determined</p>
+<span class="math notranslate nohighlight">\(\Gamma_k\)</span>. Once each region is identified, the following measures are determined</p>
 <p><strong>Geometric invariants</strong></p>
 <ul class="simple">
-<li><p>Volume – <img class="math" src="../../../../_images/math/c126fdebf9e4661fd7a2bf9f063979a3fc2738fc.png" alt="V_k=\int_{\Omega_k} dV"/></p></li>
-<li><p>Surface area – <img class="math" src="../../../../_images/math/136012920d4c76c7a4931a78e1886213c1a8816e.png" alt="A_k=\int_{\Gamma_k} dS"/></p></li>
-<li><p>Integral mean curvature – <img class="math" src="../../../../_images/math/4d3a9fcb2b62ddd4a8df7a1eed1efec76d5e9f8a.png" alt="H_k=\int_{\Gamma_k} \frac 12 (\kappa_1 + \kappa_2) dS"/></p></li>
-<li><p>Euler characteristic – <img class="math" src="../../../../_images/math/85a8a2d814790bdc62aea6ce6aa31755b5fc00f9.png" alt="\chi_k= \frac{1}{4\pi} \int_{\Gamma_k} \kappa_1 \kappa_2 dS"/></p></li>
+<li><p>Volume – <span class="math notranslate nohighlight">\(V_k=\int_{\Omega_k} dV\)</span></p></li>
+<li><p>Surface area – <span class="math notranslate nohighlight">\(A_k=\int_{\Gamma_k} dS\)</span></p></li>
+<li><p>Integral mean curvature – <span class="math notranslate nohighlight">\(H_k=\int_{\Gamma_k} \frac 12 (\kappa_1 + \kappa_2) dS\)</span></p></li>
+<li><p>Euler characteristic – <span class="math notranslate nohighlight">\(\chi_k= \frac{1}{4\pi} \int_{\Gamma_k} \kappa_1 \kappa_2 dS\)</span></p></li>
 </ul>
 <p><strong>Conserved quantities</strong></p>
 <ul class="simple">
-<li><p>Total mass within the region <img class="math" src="../../../../_images/math/e2f3019170a4092d80b58df7c5508b2d1609d983.png" alt="M_k=\int_{\Omega_k} \rho dV"/></p></li>
-<li><p>Total momentum within the region <img class="math" src="../../../../_images/math/245320410fe94d28567702fa2e578e1bd7985029.png" alt="\mathbf{P}_k=\int_{\Omega_k} \rho \mathbf{u} dV"/></p></li>
-<li><p>Total kinetic energy within the region <img class="math" src="../../../../_images/math/f526077ea5a0085fb711b90f32b3a278e4412e59.png" alt="K_k=\frac 12 \int_{\Omega_k} \rho \mathbf{u} \cdot \mathbf{u} dV"/></p></li>
+<li><p>Total mass within the region <span class="math notranslate nohighlight">\(M_k=\int_{\Omega_k} \rho dV\)</span></p></li>
+<li><p>Total momentum within the region <span class="math notranslate nohighlight">\(\mathbf{P}_k=\int_{\Omega_k} \rho \mathbf{u} dV\)</span></p></li>
+<li><p>Total kinetic energy within the region <span class="math notranslate nohighlight">\(K_k=\frac 12 \int_{\Omega_k} \rho \mathbf{u} \cdot \mathbf{u} dV\)</span></p></li>
 </ul>
 <p><strong>Thermodynamic quantities</strong></p>
 <ul class="simple">
-<li><p>Pressure – <img class="math" src="../../../../_images/math/96120fc92d260e57903df2fa4edbc7bcc1cc3d71.png" alt="p_k=\frac{1}{V_k}\int_{\Omega_k} p dV"/></p></li>
-<li><p>Solid wetting energy – <img class="math" src="../../../../_images/math/dcd7342426c797f17c7aa1e8ca87c90f03433a75.png" alt="\gamma_s=\int_{\Gamma_s}\gamma dS"/></p></li>
-<li><p>Viscous dissipation – <img class="math" src="../../../../_images/math/245f738007400b4f8035dd68f7ec21a6f35fed07.png" alt="\Phi_k=\int_{\Omega_k}\bm{\varepsilon} : \nabla \mathbf{u} dV"/></p></li>
+<li><p>Pressure – <span class="math notranslate nohighlight">\(p_k=\frac{1}{V_k}\int_{\Omega_k} p dV\)</span></p></li>
+<li><p>Solid wetting energy – <span class="math notranslate nohighlight">\(\gamma_s=\int_{\Gamma_s}\gamma dS\)</span></p></li>
+<li><p>Viscous dissipation – <span class="math notranslate nohighlight">\(\Phi_k=\int_{\Omega_k}\bm{\varepsilon} : \nabla \mathbf{u} dV\)</span></p></li>
 </ul>
 <p>The total solid wetting energy is determined by integrating the interfacial stresses in the
-immediate vicinity of the solid surface <img class="math" src="../../../../_images/math/81703be57544e19eb7e912829f3ca88f02cf97f6.png" alt="\Gamma_s"/>. The integral of the
-dissipation function is determined based on the viscous stress tensor, denoted by <img class="math" src="../../../../_images/math/ea58b77455eba84b95afa2c4b6f1659072972446.png" alt="\bm{\varepsilon}"/>.</p>
+immediate vicinity of the solid surface <span class="math notranslate nohighlight">\(\Gamma_s\)</span>. The integral of the
+dissipation function is determined based on the viscous stress tensor, denoted by <span class="math notranslate nohighlight">\(\bm{\varepsilon}\)</span>.</p>
 <p>The full list of measures are associated with the labels in <code class="docutils literal notranslate"><span class="pre">subphase.csv</span></code></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> – timestep</p></li>
@@ -257,7 +260,7 @@ dissipation function is determined based on the viscous stress tensor, denoted b
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="basic.html" class="btn btn-neutral float-left" title="Color model – Basic Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../mrt/mrt.html" class="btn btn-neutral float-right" title="MRT model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../../cell/cell.html" class="btn btn-neutral float-right" title="Cell model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

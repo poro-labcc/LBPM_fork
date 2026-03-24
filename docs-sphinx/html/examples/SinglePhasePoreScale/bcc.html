@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Domain &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/sphinx_rtd_size.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Publications" href="../../publications/publications.html" />
+    <link rel="prev" title="Membrane Charging Dynamics" href="../membrane/cellModel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userGuide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../running.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../domain/domain.html">Input Domain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../morphology/morphOpen.html">Morphological pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../color/fractionalFlow.html">Steady-state fractional flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../color/steadyState.html">Steady-state flow (color model)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../analysis/TwoPhase.html">Measuring Contact Angles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../membrane/cellModel.html">Membrane Charging Dynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../membrane/cellModel.html#example-output">Example Output</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../running.html#single-phase-pore-scale-model">Single-Phase Pore-Scale Model</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Input Domain</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../publications/publications.html">Publications</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../running.html">Examples</a></li>
+      <li class="breadcrumb-item active">Input Domain</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/SinglePhasePoreScale/bcc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="input-domain">
+<h1>Input Domain<a class="headerlink" href="#input-domain" title="Link to this heading">¶</a></h1>
+<p>LBPM provides a flexible framework to ingest 3D image data.
+To illustrate the basic capabilities, this tutorial considers a quasi-2D
+flow cell. Source files for the example are included in the LBPM repository
+in the directory <code class="docutils literal notranslate"><span class="pre">examples/DiscPack</span></code>. A simple python code is included
+to set up the flow domain.</p>
+<p>Based on LBPM convention, external boundary conditions are applied in the
+z-direction. This means that the domain should be set up so that the direction
+you want to set boundary conditions is aligned with the z-axis. For the quasi-2D
+example, a depth of <code class="docutils literal notranslate"><span class="pre">3</span></code> voxels is used for the x-direction. <em>Based on LBPM
+internal data structures at least three voxels must be provided in each direction</em>
+The specified domain decomposition must also observe this rule.</p>
+<p>Image data is stored internally within LBPM as signed 8-bit binary data. This means that
+up to 256 labels can be provided in the input image. LBPM convention takes all
+non-positive labels to be immobile (treated as solid). In this example, the solid regions
+are assigned a value of <code class="docutils literal notranslate"><span class="pre">0</span></code>.  It is possible to provide up to <code class="docutils literal notranslate"><span class="pre">128</span></code> different labels
+for the solid. Also, note that python supports only the unsigned 8-bit datatype. For the unsigned data
+type, labels assigned values <code class="docutils literal notranslate"><span class="pre">128,...255</span></code> in python will correspond to labels
+<code class="docutils literal notranslate"><span class="pre">-127,...-1</span></code> when read in as type <code class="docutils literal notranslate"><span class="pre">signed</span> <span class="pre">char</span></code> within LBPM.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+  <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
+  <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+  <span class="c1"># Set the size of the domain</span>
+  <span class="n">Nx</span><span class="o">=</span><span class="mi">3</span>
+  <span class="n">Ny</span><span class="o">=</span><span class="mi">128</span>
+  <span class="n">Nz</span><span class="o">=</span><span class="mi">128</span>
+  <span class="n">D</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;discs.csv&quot;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+  <span class="n">ID</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">Nx</span><span class="o">*</span><span class="n">Ny</span><span class="o">*</span><span class="n">Nz</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+  <span class="n">ID</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">Nz</span><span class="p">,</span><span class="n">Ny</span><span class="p">,</span><span class="n">Nx</span><span class="p">)</span>
+  <span class="c1"># Set the solid labels</span>
+  <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">D</span><span class="p">)):</span>
+     <span class="n">cx</span><span class="o">=</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;cx&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="n">dx</span>
+     <span class="n">cy</span><span class="o">=</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;cy&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">/</span><span class="n">dx</span>
+     <span class="n">r</span><span class="o">=</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">/</span><span class="n">dx</span>
+     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nz</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Ny</span><span class="p">):</span>
+           <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">cx</span><span class="o">-</span><span class="n">i</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">cx</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">cy</span><span class="o">-</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">cy</span><span class="o">-</span><span class="n">j</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">r</span><span class="o">*</span><span class="n">r</span> <span class="p">):</span>
+              <span class="n">ID</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+              <span class="n">ID</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+              <span class="n">ID</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="c1"># write input file to disc</span>
+<span class="n">ID</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="s2">&quot;discs_3x128x128.raw&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../membrane/cellModel.html" class="btn btn-neutral float-left" title="Membrane Charging Dynamics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../publications/publications.html" class="btn btn-neutral float-right" title="Publications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

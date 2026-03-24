@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/eqno.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,6 +16,7 @@
         <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
         <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
         <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -46,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">Single-Phase Pore-Scale Model</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html">Color model</a><ul class="current">
 <li class="toctree-l4 current"><a class="reference internal" href="../index.html#simulation-protocols">Simulation protocols</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../index.html#analysis-capabilities">Analysis capabilities</a></li>
@@ -55,7 +58,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../index.html#example-data">Example data</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">MRT model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../cell/cell.html">Cell model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
@@ -69,6 +71,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../developerGuide/index.html">Developer guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../examples/running.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../citations/citations.html">References</a></li>
 </ul>
 
         </div>
@@ -129,14 +132,13 @@ saturation of fluid A (negative capillary pressure).</p>
 <p>The simplest way to infer the capillary pressure is based on consideration of the average
 fluid pressures, which are logged to the output files <code class="docutils literal notranslate"><span class="pre">timelog.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">subphase.csv</span></code>.
 In the units of the lattice Boltzmann simulation, the interfacial tension is given
-as <img class="math" src="../../../../_images/math/ecf2b9a858b659751fd96077f06d067e7d238f2b.png" alt="\gamma_{wn} = 6 \alpha"/>. Suppose that the physical interfacial tension is given by
-<img class="math" src="../../../../_images/math/be947247009213ae0023a1d2b9eb3542ddbbe8db.png" alt="\gamma_{wn}^\prime"/>, provided in units of Pa-m. The capillary pressure in pascal will
+as <span class="math notranslate nohighlight">\(\gamma_{wn} = 6 \alpha\)</span>. Suppose that the physical interfacial tension is given by
+<span class="math notranslate nohighlight">\(\gamma_{wn}^\prime\)</span>, provided in units of Pa-m. The capillary pressure in pascal will
 then be given by</p>
-<div class="math">
-<p><img src="../../../../_images/math/09da1f7c501ffbdffdd15886cfdbc0fea27d9586.png" alt="$$
+<div class="math notranslate nohighlight" id="equation-userguide-models-color-protocols-centrifuge-0">
+$$
 p_c^\prime = \frac{\gamma_{wn}^\prime (p_n - p_w)}{\gamma_{wn} \Delta x}
-$$"/></p>
-</div><p>where <img class="math" src="../../../../_images/math/7c3282642d867109f551c02c4946b913e5c0a430.png" alt="\Delta x"/> is the voxel length in meters.</p>
+$$</div><p>where <span class="math notranslate nohighlight">\(\Delta x\)</span> is the voxel length in meters.</p>
 <p>To enable the <code class="docutils literal notranslate"><span class="pre">centrifuge</span></code> protocol such that the effective pressure of fluid B is higher
 than fluid A, the input file can be specified as below. Increasing the body force will lead to
 a larger capillary pressure.</p>

@@ -16,6 +16,7 @@ LBPM -- Documentation
    developerGuide/*
    examples/*
    publications/*
+   citations/*
 
 Indices and tables
 ==================

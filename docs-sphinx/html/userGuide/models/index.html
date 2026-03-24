@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/eqno.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -15,10 +16,11 @@
         <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
         <script src="../../_static/doctools.js?v=9bcbadda"></script>
         <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Color model" href="color/index.html" />
+    <link rel="next" title="Single-Phase Pore-Scale Model" href="mrt/mrt.html" />
     <link rel="prev" title="User Guide" href="../index.html" /> 
 </head>
 
@@ -46,8 +48,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">LBPM model summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mrt/mrt.html">Single-Phase Pore-Scale Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="color/index.html">Color model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mrt/mrt.html">MRT model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cell/cell.html">Cell model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
@@ -61,6 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../developerGuide/index.html">Developer guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples/running.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../citations/citations.html">References</a></li>
 </ul>
 
         </div>
@@ -93,6 +96,14 @@
 <p>Currently supported lattice Boltzmann models</p>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="mrt/mrt.html">Single-Phase Pore-Scale Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#model-parameters">Model parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#model-formulation">Model Formulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#boundary-conditions">Boundary Conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#example-input-file">Example Input File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#benchmark-cases">Benchmark Cases</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="color/index.html">Color model</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="color/index.html#simulation-protocols">Simulation protocols</a></li>
 <li class="toctree-l2"><a class="reference internal" href="color/index.html#analysis-capabilities">Analysis capabilities</a></li>
@@ -100,12 +111,6 @@
 <li class="toctree-l2"><a class="reference internal" href="color/index.html#model-formulation">Model Formulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="color/index.html#boundary-conditions">Boundary Conditions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="color/index.html#example-data">Example data</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="mrt/mrt.html">MRT model</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#model-parameters">Model parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#model-formulation">Model Formulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mrt/mrt.html#boundary-conditions">Boundary Conditions</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cell/cell.html">Cell model</a><ul>
@@ -136,7 +141,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="color/index.html" class="btn btn-neutral float-right" title="Color model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mrt/mrt.html" class="btn btn-neutral float-right" title="Single-Phase Pore-Scale Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
