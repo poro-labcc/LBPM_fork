@@ -38,23 +38,39 @@ void ScaLBL_MRTModel::ReadParams(string filename) {
     domain_db = db->getDatabase("Domain");
     mrt_db = db->getDatabase("MRT");
     vis_db = db->getDatabase("Visualization");
+    ana_db = db->getDatabase("Analysis");
 
-    tau = 1.0;
-    timestepMax = 100000;
-    ANALYSIS_INTERVAL = 1000;
-    tolerance = 1.0e-8;
-    Fx = Fy = 0.0;
-    Fz = 1.0e-5;
-    dout = 1.0;
-    din = 1.0;
+    tau                 = 1.0;
+    timestepMax         = 100000;
+    ANALYSIS_INTERVAL   = 1000;
+    VISUAL_INTERVAL     = 100001;
+    save_velocity       = true;
+    save_pressure       = false;
+    tolerance           = 1.0e-8;
+    Fx = Fy = Fz        = 0.0;
+    dout                = 1.0;
+    din                 = 1.0;
 
     // Color Model parameters
     if (mrt_db->keyExists("timestepMax")) {
         timestepMax = mrt_db->getScalar<int>("timestepMax");
     }
-    if (mrt_db->keyExists("analysis_interval")) {
-        ANALYSIS_INTERVAL = mrt_db->getScalar<int>("analysis_interval");
+    if (ana_db->keyExists("analysis_interval")) {
+        ANALYSIS_INTERVAL = ana_db->getScalar<int>("analysis_interval");
     }
+    if (ana_db->keyExists("visualization_interval")) {
+        VISUAL_INTERVAL = ana_db->getScalar<int>("visualization_interval");
+    }
+    else{
+        VISUAL_INTERVAL = timestepMax+1; // Saving only in the end by default
+    }
+    if (vis_db->keyExists("save_pressure")) {
+        save_pressure = vis_db->getScalar<bool>("save_pressure");
+    }
+    if (vis_db->keyExists("save_velocity")) {
+        save_velocity = vis_db->getScalar<bool>("save_velocity");
+    }
+
     if (mrt_db->keyExists("tolerance")) {
         tolerance = mrt_db->getScalar<double>("tolerance");
     }
@@ -107,6 +123,7 @@ void ScaLBL_MRTModel::SetDomain() {
     Velocity_x.resize(Nx, Ny, Nz);
     Velocity_y.resize(Nx, Ny, Nz);
     Velocity_z.resize(Nx, Ny, Nz);
+    Pressure_f.resize(Nx, Ny, Nz);
 
     for (int i = 0; i < Nx * Ny * Nz; i++)
         Dm->id[i] = 1; // initialize this way
@@ -329,11 +346,13 @@ void ScaLBL_MRTModel::Run() {
 
         if (timestep % ANALYSIS_INTERVAL == 0) {
             ScaLBL_D3Q19_Momentum(fq, Velocity, Np);
+            ScaLBL_D3Q19_Pressure(fq, Pressure, Np);
             ScaLBL_DeviceBarrier();
             comm.barrier();
             ScaLBL_Comm->RegularLayout(Map, &Velocity[0], Velocity_x);
             ScaLBL_Comm->RegularLayout(Map, &Velocity[Np], Velocity_y);
             ScaLBL_Comm->RegularLayout(Map, &Velocity[2 * Np], Velocity_z);
+            ScaLBL_Comm->RegularLayout(Map, &Pressure[0], Pressure_f);
 
             double count_loc = 0;
             double count;
@@ -391,9 +410,17 @@ void ScaLBL_MRTModel::Run() {
             Xs = Dm->Comm.sumReduce(Xs);
 
             double h = Dm->voxel_length;
-            double absperm =
-                h * h * mu * Mask->Porosity() * Mask->Porosity() * flow_rate / force_mag;
-	    absperm *= 1013.0; // Convert to mDarcy
+
+            // Calculate Permeability
+            double absperm = 0.0;
+            if (BoundaryCondition == 3){
+                absperm = h * h * mu * Mask->Porosity() * flow_rate / (Fz*(dout+din)/2   - (dout-din)/(Nz*nprocz*3.0));
+            }
+            else{
+                absperm = h * h * mu * Mask->Porosity() * flow_rate / (force_mag);
+            }
+
+            absperm *= 1013.0; // Convert to mDarcy
 
             if (rank == 0) {
                 printf("     %f\n", absperm);
@@ -405,6 +432,10 @@ void ScaLBL_MRTModel::Run() {
                         h * Hs, Xs, vax, vay, vaz, absperm);
                 fclose(log_file);
             }
+
+
+            if (timestep % VISUAL_INTERVAL == 0) SaveFields();
+
         }
     }
     //************************************************************************/
@@ -429,6 +460,98 @@ void ScaLBL_MRTModel::Run() {
         printf("********************************************************\n");
 }
 
+void ScaLBL_MRTModel::SaveFields() {
+    // This function saves the current content of Velocity and Pressure
+    // The content must be previously computed by ScaLBL_D3Q19_Momentum() and ScaLBL_D3Q19_Pressure()
+
+
+    // Define output format
+    auto format = vis_db->getWithDefault<string>("format", "silo");
+
+    if (vis_db->getWithDefault<bool>("write_silo", false)) {
+        // Create Mesh
+        std::vector<IO::MeshDataStruct> visData;
+        fillHalo<double> fillData(  Dm->Comm, Dm->rank_info,
+                                    {Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2},
+                                    {1, 1, 1}, 0, 1);
+        auto SignDistVar    = std::make_shared<IO::Variable>();
+        auto VxVar          = std::make_shared<IO::Variable>();
+        auto VyVar          = std::make_shared<IO::Variable>();
+        auto VzVar          = std::make_shared<IO::Variable>();
+        auto Press          = std::make_shared<IO::Variable>();
+
+        IO::initialize("", format, "false");
+
+        // Create the MeshDataStruct
+        visData.resize(1);
+        visData[0].meshName = "domain";
+        visData[0].mesh = std::make_shared<IO::DomainMesh>(
+            Dm->rank_info, Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2, Dm->Lx, Dm->Ly,
+            Dm->Lz);
+
+        // SAVE VARIABLES
+        unsigned int c_vars = 0;
+
+        // Save Distance Transform
+        SignDistVar->name = "SignDist";
+        SignDistVar->type = IO::VariableType::VolumeVariable;
+        SignDistVar->dim = 1;
+        SignDistVar->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
+        visData[0].vars.push_back(SignDistVar);
+        Array<double> &SignData = visData[0].vars[c_vars]->data;
+        ASSERT(visData[0].vars[c_vars]->name == "SignDist");
+        fillData.copy(Distance, SignData);
+        c_vars++;
+
+        if(save_velocity){
+            VxVar->name = "Velocity_x";
+            VxVar->type = IO::VariableType::VolumeVariable;
+            VxVar->dim = 1;
+            VxVar->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
+            visData[0].vars.push_back(VxVar);
+            Array<double> &VelxData = visData[0].vars[c_vars]->data;
+            ASSERT(visData[0].vars[c_vars]->name == "Velocity_x");
+            fillData.copy(Velocity_x, VelxData);
+            c_vars++;
+
+            VyVar->name = "Velocity_y";
+            VyVar->type = IO::VariableType::VolumeVariable;
+            VyVar->dim = 1;
+            VyVar->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
+            visData[0].vars.push_back(VyVar);
+            Array<double> &VelyData = visData[0].vars[c_vars]->data;
+            ASSERT(visData[0].vars[c_vars]->name == "Velocity_y");
+            fillData.copy(Velocity_y, VelyData);
+            c_vars++;
+
+            VzVar->name = "Velocity_z";
+            VzVar->type = IO::VariableType::VolumeVariable;
+            VzVar->dim = 1;
+            VzVar->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
+            visData[0].vars.push_back(VzVar);
+            Array<double> &VelzData = visData[0].vars[c_vars]->data;
+            ASSERT(visData[0].vars[c_vars]->name == "Velocity_z");
+            fillData.copy(Velocity_z, VelzData);
+            c_vars++;
+        }
+
+        if (save_pressure){
+            Press->name = "Pressure";
+            Press->type = IO::VariableType::VolumeVariable;
+            Press->dim = 1;
+            Press->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
+            visData[0].vars.push_back(Press);
+            Array<double> &PressData = visData[0].vars[c_vars]->data;
+            ASSERT(visData[0].vars[c_vars]->name == "Pressure");
+            fillData.copy(Pressure_f,  PressData);
+            c_vars++;
+        }
+
+        IO::writeData(timestep, visData, Dm->Comm);
+    }
+
+}
+
 void ScaLBL_MRTModel::VelocityField() {
 
     auto format = vis_db->getWithDefault<string>("format", "silo");
@@ -438,7 +561,7 @@ void ScaLBL_MRTModel::VelocityField() {
 	Morphology.UpdateMeshValues();
 	Morphology.ComputeLocal();
 	Morphology.Reduce();
-	
+
 	double count_loc=0;
 	double count;
 	double vax,vay,vaz;
@@ -450,7 +573,7 @@ void ScaLBL_MRTModel::VelocityField() {
 		vaz_loc += VELOCITY[2*Np+n];
 		count_loc+=1.0;
 	}
-	
+
 	for (int n=ScaLBL_Comm->FirstInterior(); n<ScaLBL_Comm->LastInterior(); n++){
 		vax_loc += VELOCITY[n];
 		vay_loc += VELOCITY[Np+n];
@@ -461,14 +584,14 @@ void ScaLBL_MRTModel::VelocityField() {
 	MPI_Allreduce(&vay_loc,&vay,1,MPI_DOUBLE,MPI_SUM,Mask->Comm);
 	MPI_Allreduce(&vaz_loc,&vaz,1,MPI_DOUBLE,MPI_SUM,Mask->Comm);
 	MPI_Allreduce(&count_loc,&count,1,MPI_DOUBLE,MPI_SUM,Mask->Comm);
-	
+
 	vax /= count;
 	vay /= count;
 	vaz /= count;
-	
+
 	double mu = (tau-0.5)/3.f;
 	if (rank==0) printf("Fx Fy Fz mu Vs As Js Xs vx vy vz\n");
-	if (rank==0) printf("%.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g\n",Fx, Fy, Fz, mu, 
+	if (rank==0) printf("%.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g\n",Fx, Fy, Fz, mu,
 						Morphology.V(),Morphology.A(),Morphology.J(),Morphology.X(),vax,vay,vaz);
 						*/
     vis_db = db->getDatabase("Visualization");
@@ -531,3 +654,5 @@ void ScaLBL_MRTModel::VelocityField() {
         IO::writeData(timestep, visData, Dm->Comm);
     }
 }
+
+

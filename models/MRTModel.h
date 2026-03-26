@@ -45,10 +45,11 @@ public:
     void Initialize();
     void Run();
     void VelocityField();
+    void SaveFields();
 
-    bool Restart, pBC;
+    bool Restart, pBC, save_pressure, save_velocity;
     int timestep, timestepMax;
-    int ANALYSIS_INTERVAL;
+    int ANALYSIS_INTERVAL, VISUAL_INTERVAL;
     int BoundaryCondition;
     double tau, mu;
     double Fx, Fy, Fz, flux;
@@ -67,6 +68,7 @@ public:
     std::shared_ptr<Database> domain_db;
     std::shared_ptr<Database> mrt_db;
     std::shared_ptr<Database> vis_db;
+    std::shared_ptr<Database> ana_db;
 
     IntArray Map;
     DoubleArray Distance;
@@ -80,6 +82,7 @@ public:
     DoubleArray Velocity_x;
     DoubleArray Velocity_y;
     DoubleArray Velocity_z;
+    DoubleArray Pressure_f;
 
 private:
     Utilities::MPI comm;
