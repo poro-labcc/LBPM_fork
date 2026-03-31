@@ -30,7 +30,7 @@ ScaLBL_ColorModel::ScaLBL_ColorModel(int RANK, int NP,
                                      const Utilities::MPI &COMM)
     : rank(RANK), nprocs(NP), Restart(0), timestep(0), timestepMax(0), tauA(0),
       tauB(0), rhoA(0), rhoB(0), alpha(0), beta(0), Fx(0), Fy(0), Fz(0),
-      flux(0), din(0), dout(0), inletA(0), inletB(0), outletA(0), outletB(0),
+      flux(0), din(0), dout(0), dp(0), inletA(0), inletB(0), outletA(0), outletB(0),
       Nx(0), Ny(0), Nz(0), N(0), Np(0), nprocx(0), nprocy(0), nprocz(0),
       BoundaryCondition(0), Lx(0), Ly(0), Lz(0), id(nullptr), NeighborSolid(nullptr),
       NeighborList(nullptr), dvcMap(nullptr), fq(nullptr), Aq(nullptr),
@@ -70,6 +70,7 @@ void ScaLBL_ColorModel::ReadParams(string filename) {
     beta = 0.95;
     Restart = false;
     din = dout = 1.0;
+    dp = 0.0;
     flux = 0.0;
 
     // Color Model parameters
@@ -107,6 +108,9 @@ void ScaLBL_ColorModel::ReadParams(string filename) {
     }
     if (color_db->keyExists("dout")) {
         dout = color_db->getScalar<double>("dout");
+    }
+    if (color_db->keyExists("dp")) {
+        dp = color_db->getScalar<double>("dp");
     }
     if (color_db->keyExists("flux")) {
         flux = color_db->getScalar<double>("flux");
@@ -165,11 +169,11 @@ void ScaLBL_ColorModel::ReadParams(string filename) {
         }
         domain_db->putScalar<int>("BC", BoundaryCondition);
     } else if (protocol == "fractional flow") {
-        if (BoundaryCondition != 0 && BoundaryCondition != 5) {
+        if (BoundaryCondition != 0 && BoundaryCondition != 5 && BoundaryCondition != 7) {
             BoundaryCondition = 0;
             if (rank == 0)
-                printf("WARNING: protocol (fractional flow) supports only full "
-                       "periodic boundary condition \n");
+                printf("WARNING: protocol (fractional flow) supports only "
+                       "periodic boundary condition (BC=0) or constant flux periodic boundary condition (BC=7) \n");
         }
         domain_db->putScalar<int>("BC", BoundaryCondition);
     } else if (protocol == "centrifuge") {
@@ -747,6 +751,16 @@ double ScaLBL_ColorModel::Run(int returntime) {
         } else if (BoundaryCondition == 5) {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        } else if (BoundaryCondition == 7) {
+            din =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_z(NeighborList, fq, flux, timestep);
+            dout =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_Z(NeighborList, fq, flux, timestep);
+            dp = (din - dout)/3.0f;
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
         }
         ScaLBL_D3Q19_AAodd_Color(NeighborList, dvcMap, fq, Aq, Bq, Den, Phi, NeighborSolid,
                                  Velocity, rhoA, rhoB, tauA, tauB, alpha, beta,
@@ -792,6 +806,16 @@ double ScaLBL_ColorModel::Run(int returntime) {
         } else if (BoundaryCondition == 5) {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        } else if (BoundaryCondition == 7) {
+            din =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_z(NeighborList, fq, flux, timestep);
+            dout =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_Z(NeighborList, fq, flux, timestep);
+            dp = (din - dout)/3.0f;
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
         }
         ScaLBL_D3Q19_AAeven_Color(dvcMap, fq, Aq, Bq, Den, Phi, NeighborSolid, Velocity, rhoA,
                                   rhoB, tauA, tauB, alpha, beta, Fx, Fy, Fz, Nx,
@@ -1199,6 +1223,16 @@ void ScaLBL_ColorModel::Run() {
         } else if (BoundaryCondition == 5) {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        } else if (BoundaryCondition == 7) {
+            din =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_z(NeighborList, fq, flux, timestep);
+            dout =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_Z(NeighborList, fq, flux, timestep);
+            dp = (din - dout)/3.0f;
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
         }
         ScaLBL_D3Q19_AAodd_Color(NeighborList, dvcMap, fq, Aq, Bq, Den, Phi, NeighborSolid,
                                  Velocity, rhoA, rhoB, tauA, tauB, alpha, beta,
@@ -1244,6 +1278,16 @@ void ScaLBL_ColorModel::Run() {
         } else if (BoundaryCondition == 5) {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        } else if (BoundaryCondition == 7) {
+            din =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_z(NeighborList, fq, flux, timestep);
+            dout =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_Z(NeighborList, fq, flux, timestep);
+            dp = (din - dout)/3.0f;
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
         }
         ScaLBL_D3Q19_AAeven_Color(dvcMap, fq, Aq, Bq, Den, Phi,  NeighborSolid, Velocity, rhoA,
                                   rhoB, tauA, tauB, alpha, beta, Fx, Fy, Fz, Nx,

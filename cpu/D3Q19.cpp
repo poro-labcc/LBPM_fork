@@ -404,6 +404,98 @@ extern "C" double ScaLBL_D3Q19_AAeven_Flux_BC_z(int *list, double *dist,
     return sum;
 }
 
+extern "C" double ScaLBL_D3Q19_AAodd_Flux_BC_Z(int *d_neighborList, int *list,
+                                               double *dist, double flux,
+                                               double area, int count, int Np) {
+    int idx, n;
+    int nread;
+
+    // distributions
+    double factor = 1.f / (area);
+    double sum = 0.f;
+
+    for (idx = 0; idx < count; idx++) {
+        n = list[idx];
+
+        double f0 = dist[n];
+
+        nread = d_neighborList[n];
+        double f1 = dist[nread];
+
+        nread = d_neighborList[n + 2 * Np];
+        double f3 = dist[nread];
+
+        nread = d_neighborList[n + 6 * Np];
+        double f7 = dist[nread];
+
+        nread = d_neighborList[n + 8 * Np];
+        double f9 = dist[nread];
+
+        nread = d_neighborList[n + 13 * Np];
+        double f14 = dist[nread];
+
+        nread = d_neighborList[n + 17 * Np];
+        double f18 = dist[nread];
+
+        nread = d_neighborList[n + Np];
+        double f2 = dist[nread];
+
+        nread = d_neighborList[n + 3 * Np];
+        double f4 = dist[nread];
+
+        nread = d_neighborList[n + 4 * Np];
+        double f5 = dist[nread];
+
+        nread = d_neighborList[n + 7 * Np];
+        double f8 = dist[nread];
+
+        nread = d_neighborList[n + 9 * Np];
+        double f10 = dist[nread];
+
+        nread = d_neighborList[n + 10 * Np];
+        double f11 = dist[nread];
+
+        nread = d_neighborList[n + 14 * Np];
+        double f15 = dist[nread];
+
+        sum += factor * (f0 + f1 + f2 + f3 + f4 + f7 + f8 + f9 + f10 +
+                         2 * (f5 + f11 + f14 + f15 + f18));
+    }
+
+    return sum;
+}
+
+extern "C" double ScaLBL_D3Q19_AAeven_Flux_BC_Z(int *list, double *dist,
+                                                double flux, double area,
+                                                int count, int Np) {
+    int idx, n;
+    // distributions
+    double factor = 1.f / (area);
+    double sum = 0.f;
+
+    for (idx = 0; idx < count; idx++) {
+        n = list[idx];
+        double f0 = dist[n];
+        double f1 = dist[2 * Np + n];
+        double f2 = dist[1 * Np + n];
+        double f3 = dist[4 * Np + n];
+        double f4 = dist[3 * Np + n];
+        double f5 = dist[6 * Np + n];
+        double f7 = dist[8 * Np + n];
+        double f8 = dist[7 * Np + n];
+        double f9 = dist[10 * Np + n];
+        double f10 = dist[9 * Np + n];
+        double f11 = dist[12 * Np + n];
+        double f14 = dist[13 * Np + n];
+        double f15 = dist[16 * Np + n];
+        double f18 = dist[17 * Np + n];
+        
+        sum += factor * (f0 + f1 + f2 + f3 + f4 + f7 + f8 + f9 + f10 +
+                         2 * (f5 + f11 + f14 + f15 + f18));
+    }
+    return sum;
+}
+
 extern "C" double ScaLBL_D3Q19_Flux_BC_Z(double *disteven, double *distodd,
                                          double flux, int Nx, int Ny, int Nz,
                                          int outlet) {
@@ -751,6 +843,143 @@ extern "C" void ScaLBL_D3Q19_AAodd_Pressure_BC_Z(int *d_neighborList, int *list,
         dist[nr13] = f13;
         dist[nr16] = f16;
         dist[nr17] = f17;
+        //...................................................
+    }
+}
+
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, double *dist,
+                                                  double dp, int count,
+                                                  int Np) {
+    // distributions
+    for (int idx = 0; idx < count; idx++) {
+        int n = list[idx];
+        double f5 = dist[6 * Np + n];
+        double f11 = dist[12 * Np + n];
+        double f14 = dist[13 * Np + n];
+        double f15 = dist[16 * Np + n];
+        double f18 = dist[17 * Np + n];
+
+        //...................................................
+        // Adding gradient pressure
+
+        double f5p = f5 + 0.05555555555555556 * dp*3.0f;
+        double f11p = f11 + 0.02777777777777778 * dp*3.0f;
+        double f14p = f14 + 0.02777777777777778 * dp*3.0f;
+        double f15p = f15 + 0.02777777777777778 * dp*3.0f;
+        double f18p = f18 + 0.02777777777777778 * dp*3.0f;
+
+        dist[6 * Np + n] = f5p;
+        dist[12 * Np + n] = f11p;
+        dist[13 * Np + n] = f14p;
+        dist[16 * Np + n] = f15p;
+        dist[17 * Np + n] = f18p;
+    }
+}
+
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, double *dist,
+                                                  double dp, int count,
+                                                  int Np) {
+    for (int idx = 0; idx < count; idx++) {
+        int n = list[idx];
+        //........................................................................
+        // Read distributions
+        //........................................................................
+        double f6 = dist[5 * Np + n];
+        double f12 = dist[11 * Np + n];
+        double f13 = dist[14 * Np + n];
+        double f16 = dist[15 * Np + n];
+        double f17 = dist[18 * Np + n];
+
+        //...................................................
+        // Adding gradient pressure
+
+        double f6p = f6 - 0.05555555555555556 * dp*3.0f;
+        double f12p = f12 - 0.02777777777777778 * dp*3.0f;
+        double f13p = f13 - 0.02777777777777778 * dp*3.0f;
+        double f16p = f16 - 0.02777777777777778 * dp*3.0f;
+        double f17p = f17 - 0.02777777777777778 * dp*3.0f;
+
+        dist[5 * Np + n] = f6p;
+        dist[11 * Np + n] = f12p;
+        dist[14 * Np + n] = f13p;
+        dist[15 * Np + n] = f16p;
+        dist[18 * Np + n] = f17p;
+        //...................................................
+    }
+}
+
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *d_neighborList, int *list,
+                                                 double *dist, double dp,
+                                                 int count, int Np) {
+    int nr5, nr11, nr14, nr15, nr18;
+
+    for (int idx = 0; idx < count; idx++) {
+        int n = list[idx];
+
+        // Unknown distributions
+        nr5 = d_neighborList[n + 4 * Np];
+        double f5 = dist[nr5];
+        nr11 = d_neighborList[n + 10 * Np];
+        double f11 = dist[nr11];
+        nr15 = d_neighborList[n + 14 * Np];
+        double f15 = dist[nr15];
+        nr14 = d_neighborList[n + 13 * Np];
+        double f14 = dist[nr14];
+        nr18 = d_neighborList[n + 17 * Np];
+        double f18 = dist[nr18];
+
+        //...................................................
+        // Adding gradient pressure
+
+        double f5p = f5 + 0.05555555555555556 * dp*3.0f;
+        double f11p = f11 + 0.02777777777777778 * dp*3.0f;
+        double f14p = f14 + 0.02777777777777778 * dp*3.0f;
+        double f15p = f15 + 0.02777777777777778 * dp*3.0f;
+        double f18p = f18 + 0.02777777777777778 * dp*3.0f;
+
+        dist[nr5] = f5p;
+        dist[nr11] = f11p;
+        dist[nr14] = f14p;
+        dist[nr15] = f15p;
+        dist[nr18] = f18p;
+    }
+}
+
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *d_neighborList, int *list,
+                                                 double *dist, double dp,
+                                                 int count, int Np) {
+    int nr6, nr12, nr13, nr16, nr17;
+
+    for (int idx = 0; idx < count; idx++) {
+        int n = list[idx];
+
+        // unknown distributions
+        nr6 = d_neighborList[n + 5 * Np];
+        double f6 = dist[nr6];
+        nr12 = d_neighborList[n + 11 * Np];
+        double f12 = dist[nr12];
+        nr16 = d_neighborList[n + 15 * Np];
+        double f16 = dist[nr16];
+        nr17 = d_neighborList[n + 16 * Np];
+        double f17 = dist[nr17];
+        nr13 = d_neighborList[n + 12 * Np];
+        double f13 = dist[nr13];
+
+        //...................................................
+        // Adding gradient pressure
+
+        double f6p = f6 - 0.05555555555555556 * dp*3.0f;
+        double f12p = f12 - 0.02777777777777778 * dp*3.0f;
+        double f13p = f13 - 0.02777777777777778 * dp*3.0f;
+        double f16p = f16 - 0.02777777777777778 * dp*3.0f;
+        double f17p = f17 - 0.02777777777777778 * dp*3.0f;
+
+        //........Store in "opposite" memory location..........
+        dist[nr6] = f6p;
+        dist[nr12] = f12p;
+        dist[nr13] = f13p;
+        dist[nr16] = f16p;
+        dist[nr17] = f17p;
         //...................................................
     }
 }

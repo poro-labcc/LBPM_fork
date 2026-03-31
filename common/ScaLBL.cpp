@@ -2496,13 +2496,13 @@ void ScaLBL_Communicator::BiRecvD3Q7AA(double *Aq, double *Bq) {
                        Bq, N);
     //...................................................................................
 
-    if (BoundaryCondition > 0 && kproc == 0) {
+    if (BoundaryCondition > 0 && BoundaryCondition != 7 && kproc == 0) {
         // don't unpack little z
         //...Packing for Z face(5,11,14,15,18)................................
         ScaLBL_D3Q7_Unpack(5, dvcRecvDist_Z, 0, recvCount_Z, recvbuf_Z, Aq, N);
         ScaLBL_D3Q7_Unpack(5, dvcRecvDist_Z, recvCount_Z, recvCount_Z,
                            recvbuf_Z, Bq, N);
-    } else if (BoundaryCondition > 0 && kproc == nprocz - 1) {
+    } else if (BoundaryCondition > 0 && BoundaryCondition != 7 && kproc == nprocz - 1) {
         // don't unpack big z
         //...Packing for z face(6,12,13,16,17)................................
         ScaLBL_D3Q7_Unpack(6, dvcRecvDist_z, 0, recvCount_z, recvbuf_z, Aq, N);
@@ -2624,7 +2624,7 @@ void ScaLBL_Communicator::RecvD3Q7AA(double *Aq, int Component) {
                        &Aq[Component * 7 * N], N);
     //...................................................................................
 
-    if (BoundaryCondition > 0) {
+    if (BoundaryCondition > 0 && BoundaryCondition != 7) {
         if (kproc != 0) {
             //...Packing for z face(6,12,13,16,17)................................
             ScaLBL_D3Q7_Unpack(6, dvcRecvDist_z, 0, recvCount_z, recvbuf_z,
@@ -2770,7 +2770,7 @@ void ScaLBL_Communicator::TriRecvD3Q7AA(double *Aq, double *Bq, double *Cq) {
                        recvbuf_Y, Cq, N);
     //...................................................................................
 
-    if (BoundaryCondition > 0 && kproc == 0) {
+    if (BoundaryCondition > 0 && BoundaryCondition != 7 &&  kproc == 0) {
         // don't unpack little z
         //...Packing for Z face(5,11,14,15,18)................................
         ScaLBL_D3Q7_Unpack(5, dvcRecvDist_Z, 0, recvCount_Z, recvbuf_Z, Aq, N);
@@ -2778,7 +2778,7 @@ void ScaLBL_Communicator::TriRecvD3Q7AA(double *Aq, double *Bq, double *Cq) {
                            recvbuf_Z, Bq, N);
         ScaLBL_D3Q7_Unpack(5, dvcRecvDist_Z, 2 * recvCount_Z, recvCount_Z,
                            recvbuf_Z, Cq, N);
-    } else if (BoundaryCondition > 0 && kproc == nprocz - 1) {
+    } else if (BoundaryCondition > 0 && BoundaryCondition != 7 && kproc == nprocz - 1) {
         // don't unpack big z
         //...Packing for z face(6,12,13,16,17)................................
         ScaLBL_D3Q7_Unpack(6, dvcRecvDist_z, 0, recvCount_z, recvbuf_z, Aq, N);
@@ -3033,6 +3033,34 @@ void ScaLBL_Communicator::D3Q19_Pressure_BC_Z(int *neighborList, double *fq,
     }
 }
 
+void ScaLBL_Communicator::D3Q19_PeriodicPressure_BC_z(int *neighborList,
+                                                      double *fq, double dp,
+                                                      int time) {
+    if (kproc == 0) {
+        if (time % 2 == 0) {
+            ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(dvcSendList_z, fq, dp,
+                                              sendCount_z, N);
+        } else {
+            ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(neighborList, dvcSendList_z, fq,
+                                             dp, sendCount_z, N);
+        }
+    }
+}
+
+void ScaLBL_Communicator::D3Q19_PeriodicPressure_BC_Z(int *neighborList,
+                                                      double *fq, double dp,
+                                                      int time) {
+    if (kproc == nprocz - 1) {
+        if (time % 2 == 0) {
+            ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(dvcSendList_Z, fq, dp,
+                                              sendCount_Z, N);
+        } else {
+            ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(neighborList, dvcSendList_Z, fq,
+                                             dp, sendCount_Z, N);
+        }
+    }
+}
+
 double ScaLBL_Communicator::D3Q19_Flux_BC_z(int *neighborList, double *fq,
                                             double flux, int time) {
     double sum, locsum, din;
@@ -3079,6 +3107,88 @@ double ScaLBL_Communicator::D3Q19_Flux_BC_z(int *neighborList, double *fq,
     }
     //printf("Inlet pressure = %f \n", din);
     return din;
+}
+
+double ScaLBL_Communicator::D3Q19_FluxCalculate_BC_z(int *neighborList, double *fq,
+                                            double flux, int time) {
+    double sum, locsum, din;
+    double LocInletArea, InletArea;
+
+    // Note that flux = rho_0 * Q
+
+    // Compute the inlet area
+    if (kproc == 0)
+        LocInletArea = double(sendCount_z);
+    else
+        LocInletArea = 0.f;
+
+    InletArea = MPI_COMM_SCALBL.sumReduce(LocInletArea);
+    //printf("Inlet area = %f \n", InletArea);
+
+    // Set the flux BC
+    locsum = 0.f;
+    if (time % 2 == 0) {
+        if (kproc == 0)
+            locsum = ScaLBL_D3Q19_AAeven_Flux_BC_z(dvcSendList_z, fq, flux,
+                                                   InletArea, sendCount_z, N);
+
+        sum = MPI_COMM_SCALBL.sumReduce(locsum);
+
+        din = flux / InletArea + sum;
+        //if (rank==0) printf("computed din (even) =%f \n",din);
+    } else {
+        if (kproc == 0)
+            locsum =
+                ScaLBL_D3Q19_AAodd_Flux_BC_z(neighborList, dvcSendList_z, fq,
+                                             flux, InletArea, sendCount_z, N);
+
+        sum = MPI_COMM_SCALBL.sumReduce(locsum);
+        din = flux / InletArea + sum;
+        //if (rank==0) printf("computed din (odd)=%f \n",din);
+    }
+    //printf("Inlet pressure = %f \n", din);
+    return din;
+}
+
+double ScaLBL_Communicator::D3Q19_FluxCalculate_BC_Z(int *neighborList, double *fq,
+                                            double flux, int time) {
+    double sum, locsum, dout;
+    double LocOutletArea, OutletArea;
+
+    // Note that flux = rho_0 * Q
+
+    // Compute the inlet area
+    if (kproc == nprocz - 1)
+        LocOutletArea = double(sendCount_Z);
+    else
+        LocOutletArea = 0.f;
+
+    OutletArea = MPI_COMM_SCALBL.sumReduce(LocOutletArea);
+    //printf("Inlet area = %f \n", InletArea);
+
+    // Set the flux BC
+    locsum = 0.f;
+    if (time % 2 == 0) {
+        if (kproc == nprocz - 1)
+            locsum = ScaLBL_D3Q19_AAeven_Flux_BC_Z(dvcSendList_Z, fq, flux,
+                                                   OutletArea, sendCount_Z, N);
+
+        sum = MPI_COMM_SCALBL.sumReduce(locsum);
+
+        dout = -flux / OutletArea + sum;
+        //if (rank==0) printf("computed din (even) =%f \n",din);
+    } else {
+        if (kproc == nprocz - 1)
+            locsum =
+                ScaLBL_D3Q19_AAodd_Flux_BC_Z(neighborList, dvcSendList_Z, fq,
+                                             flux, OutletArea, sendCount_Z, N);
+
+        sum = MPI_COMM_SCALBL.sumReduce(locsum);
+        dout = -flux / OutletArea + sum;
+        //if (rank==0) printf("computed din (odd)=%f \n",din);
+    }
+    //printf("Inlet pressure = %f \n", din);
+    return dout;
 }
 
 void ScaLBL_Communicator::D3Q19_Reflection_BC_z(double *fq) {

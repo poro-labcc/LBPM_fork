@@ -24,8 +24,8 @@
 
 ScaLBL_MRTModel::ScaLBL_MRTModel(int RANK, int NP, const Utilities::MPI &COMM)
     : rank(RANK), nprocs(NP), Restart(0), timestep(0), timestepMax(0), tau(0),
-      Fx(0), Fy(0), Fz(0), flux(0), din(0), dout(0), mu(0), Nx(0), Ny(0), Nz(0),
-      N(0), Np(0), nprocx(0), nprocy(0), nprocz(0), BoundaryCondition(0), Lx(0),
+      Fx(0), Fy(0), Fz(0), flux(0), din(0), dout(0), dp(0), mu(0), Nx(0), Ny(0),
+      Nz(0), N(0), Np(0), nprocx(0), nprocy(0), nprocz(0), BoundaryCondition(0), Lx(0),
       Ly(0), Lz(0), comm(COMM) {}
 
 
@@ -42,11 +42,13 @@ void ScaLBL_MRTModel::ReadParams(string filename) {
     tau = 1.0;
     timestepMax = 100000;
     ANALYSIS_INTERVAL = 1000;
+    // ANALYSIS_INTERVAL = 2;
     tolerance = 1.0e-8;
     Fx = Fy = 0.0;
     Fz = 1.0e-5;
     dout = 1.0;
     din = 1.0;
+    dp = 0.0;
 
     // Color Model parameters
     if (mrt_db->keyExists("timestepMax")) {
@@ -68,6 +70,9 @@ void ScaLBL_MRTModel::ReadParams(string filename) {
     }
     if (mrt_db->keyExists("Restart")) {
         Restart = mrt_db->getScalar<bool>("Restart");
+    }
+    if (mrt_db->keyExists("dp")) {
+        dp = mrt_db->getScalar<double>("dp");
     }
     if (mrt_db->keyExists("din")) {
         din = mrt_db->getScalar<double>("din");
@@ -298,6 +303,21 @@ void ScaLBL_MRTModel::Run() {
         } else if (BoundaryCondition == 5) {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        } else if (BoundaryCondition == 6) {
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
+        } else if (BoundaryCondition == 7) {
+            din =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_z(NeighborList, fq, flux, timestep);
+            dout =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_Z(NeighborList, fq, flux, timestep);
+            dp = (din - dout)/3.0f;
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
         }
         ScaLBL_D3Q19_AAodd_MRT(NeighborList, fq, 0, ScaLBL_Comm->LastExterior(),
                                Np, rlx_setA, rlx_setB, Fx, Fy, Fz);
@@ -320,6 +340,21 @@ void ScaLBL_MRTModel::Run() {
         } else if (BoundaryCondition == 5) {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        } else if (BoundaryCondition == 6) {
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
+        } else if (BoundaryCondition == 7) {
+            din =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_z(NeighborList, fq, flux, timestep);
+            dout =
+                ScaLBL_Comm->D3Q19_FluxCalculate_BC_Z(NeighborList, fq, flux, timestep);
+            dp = (din - dout)/3.0f;
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_z(NeighborList, fq, dp,
+                                                     timestep);
+            ScaLBL_Comm->D3Q19_PeriodicPressure_BC_Z(NeighborList, fq, dp,
+                                                     timestep);
         }
         ScaLBL_D3Q19_AAeven_MRT(fq, 0, ScaLBL_Comm->LastExterior(), Np,
                                 rlx_setA, rlx_setB, Fx, Fy, Fz);
@@ -392,6 +427,9 @@ void ScaLBL_MRTModel::Run() {
 
             double h = Dm->voxel_length;
             double absperm = h * h * mu * Mask->Porosity() * flow_rate / force_mag;
+            if (BoundaryCondition == 6 || BoundaryCondition == 7){
+                absperm = h * h * mu * Mask->Porosity() * flow_rate / (dp/((Nz-2)*nprocz));
+            }
 	    absperm *= 1013.0; // Convert to mDarcy
 
             if (rank == 0) {
@@ -526,7 +564,7 @@ void ScaLBL_MRTModel::VelocityField() {
         fillData.copy(Velocity_x, VelxData);
         fillData.copy(Velocity_y, VelyData);
         fillData.copy(Velocity_z, VelzData);
-        
+
         IO::writeData(timestep, visData, Dm->Comm);
     }
 }

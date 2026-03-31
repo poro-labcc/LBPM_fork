@@ -874,11 +874,34 @@ extern "C" void ScaLBL_D3Q19_AAeven_Pressure_BC_Z(int *list, double *dist,
                                                   double dout, int count,
                                                   int Np);
 
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *neighborList, int *list,
+                                                 double *dist, double dp,
+                                                 int count, int Np);
+
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *neighborList, int *list,
+                                                 double *dist, double dp,
+                                                 int count, int Np);
+
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, double *dist,
+                                                  double dp, int count,
+                                                  int Np);
+
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, double *dist,
+                                                  double dp, int count,
+                                                  int Np);
+
 extern "C" double ScaLBL_D3Q19_AAodd_Flux_BC_z(int *neighborList, int *list,
                                                double *dist, double flux,
                                                double area, int count, int N);
 
 extern "C" double ScaLBL_D3Q19_AAeven_Flux_BC_z(int *list, double *dist,
+                                                double flux, double area,
+                                                int count, int N);
+extern "C" double ScaLBL_D3Q19_AAodd_Flux_BC_Z(int *neighborList, int *list,
+                                               double *dist, double flux,
+                                               double area, int count, int N);
+
+extern "C" double ScaLBL_D3Q19_AAeven_Flux_BC_Z(int *list, double *dist,
                                                 double flux, double area,
                                                 int count, int N);
 
@@ -1149,9 +1172,17 @@ public:
                              int time);
     void D3Q19_Pressure_BC_Z(int *neighborList, double *fq, double dout,
                              int time);
+    void D3Q19_PeriodicPressure_BC_z(int *neighborList, double *fq, double dp,
+                                     int time);
+    void D3Q19_PeriodicPressure_BC_Z(int *neighborList, double *fq, double dp,
+                                     int time);
     void D3Q19_Reflection_BC_z(double *fq);
     void D3Q19_Reflection_BC_Z(double *fq);
     double D3Q19_Flux_BC_z(int *neighborList, double *fq, double flux,
+                           int time);
+    double D3Q19_FluxCalculate_BC_z(int *neighborList, double *fq, double flux,
+                           int time);
+    double D3Q19_FluxCalculate_BC_Z(int *neighborList, double *fq, double flux,
                            int time);
     void D3Q7_Poisson_Potential_BC_z(int *neighborList, double *fq, double Vin,
                                      int time);

@@ -1792,6 +1792,82 @@ __global__  void dvc_ScaLBL_D3Q19_AAeven_Pressure_BC_Z(int *list, double *dist, 
 		//...................................................
 	}
 }
+
+__global__  void dvc_ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, double *dist, double dp, int count, int Np)
+{
+	int idx, n;
+	// distributions
+	double f5,f11,f14,f15,f18;
+	double f5p,f11p,f14p,f15p,f18p;
+
+	idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if (idx < count){
+
+		n = list[idx];
+		f5 = dist[6 * Np + n];
+        f11 = dist[12 * Np + n];
+        f14 = dist[13 * Np + n];
+        f15 = dist[16 * Np + n];
+        f18 = dist[17 * Np + n];
+		//...................................................
+        // Adding gradient pressure
+
+        f5p = f5 + 0.05555555555555556 * dp*3.0f;
+        f11p = f11 + 0.02777777777777778 * dp*3.0f;
+        f14p = f14 + 0.02777777777777778 * dp*3.0f;
+        f15p = f15 + 0.02777777777777778 * dp*3.0f;
+        f18p = f18 + 0.02777777777777778 * dp*3.0f;
+
+		//........Store in "opposite" memory location..........
+		dist[6 * Np + n] = f5p;
+        dist[12 * Np + n] = f11p;
+        dist[13 * Np + n] = f14p;
+        dist[16 * Np + n] = f15p;
+        dist[17 * Np + n] = f18p;
+	}
+}
+
+__global__  void dvc_ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, double *dist, double dp, int count, int Np)
+{
+	int idx,n;
+	// distributions
+	double f6,f12,f13,f16,f17;
+	double f6p,f12p,f13p,f16p,f17p;
+
+	idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	// Loop over the boundary - threadblocks delineated by start...finish
+	if ( idx < count ){
+
+		n = list[idx];
+		//........................................................................
+		// Read distributions 
+		//........................................................................
+		f6 = dist[5 * Np + n];
+        f12 = dist[11 * Np + n];
+        f13 = dist[14 * Np + n];
+        f16 = dist[15 * Np + n];
+        f17 = dist[18 * Np + n];
+		
+		//...................................................
+        // Adding gradient pressure
+
+        f6p = f6 - 0.05555555555555556 * dp*3.0f;
+        f12p = f12 - 0.02777777777777778 * dp*3.0f;
+        f13p = f13 - 0.02777777777777778 * dp*3.0f;
+        f16p = f16 - 0.02777777777777778 * dp*3.0f;
+        f17p = f17 - 0.02777777777777778 * dp*3.0f;
+
+		dist[5 * Np + n] = f6p;
+        dist[11 * Np + n] = f12p;
+        dist[14 * Np + n] = f13p;
+        dist[15 * Np + n] = f16p;
+        dist[18 * Np + n] = f17p;
+		//...................................................
+	}
+}
+
 __global__  void dvc_ScaLBL_D3Q19_Reflection_BC_z(int *list, double *dist, int count, int Np){
 	int idx, n;
 	idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -2010,6 +2086,99 @@ __global__  void dvc_ScaLBL_D3Q19_AAodd_Pressure_BC_Z(int *d_neighborList, int *
 	}
 }
 
+__global__  void dvc_ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *d_neighborList, int *list, double *dist, double dp, int count, int Np)
+{
+	int idx, n;
+	int nr5,nr11,nr14,nr15,nr18;
+	// distributions
+	double f5,f11,f14,f15,f18;
+	double f5p,f11p,f14p,f15p,f18p;
+
+	idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if (idx < count){
+		
+		n = list[idx];
+		// Unknown distributions
+        nr5 = d_neighborList[n + 4 * Np];
+        f5 = dist[nr5];
+        nr11 = d_neighborList[n + 10 * Np];
+        f11 = dist[nr11];
+        nr15 = d_neighborList[n + 14 * Np];
+        f15 = dist[nr15];
+        nr14 = d_neighborList[n + 13 * Np];
+        f14 = dist[nr14];
+        nr18 = d_neighborList[n + 17 * Np];
+        f18 = dist[nr18];
+
+		//...................................................
+        // Adding gradient pressure
+
+        f5p = f5 + 0.05555555555555556 * dp*3.0f;
+        f11p = f11 + 0.02777777777777778 * dp*3.0f;
+        f14p = f14 + 0.02777777777777778 * dp*3.0f;
+        f15p = f15 + 0.02777777777777778 * dp*3.0f;
+        f18p = f18 + 0.02777777777777778 * dp*3.0f;
+
+		// Unknown distributions
+		nr5 = d_neighborList[n+4*Np];
+		nr11 = d_neighborList[n+10*Np];
+		nr15 = d_neighborList[n+14*Np];
+		nr14 = d_neighborList[n+13*Np];
+		nr18 = d_neighborList[n+17*Np];
+		
+		dist[nr5] = f5p;
+        dist[nr11] = f11p;
+        dist[nr14] = f14p;
+        dist[nr15] = f15p;
+        dist[nr18] = f18p;
+	}
+}
+
+__global__  void dvc_ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *d_neighborList, int *list, double *dist, double dp, int count, int Np)
+{
+	int idx,n;
+	int nr6,nr12,nr13,nr16,nr17;
+	// distributions
+	double f6,f12,f13,f16,f17;
+	double f6p,f12p,f13p,f16p,f17p;
+
+	idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	// Loop over the boundary - threadblocks delineated by start...finish
+	if ( idx < count ){
+
+		n = list[idx];
+		// unknown distributions
+        nr6 = d_neighborList[n + 5 * Np];
+        f6 = dist[nr6];
+        nr12 = d_neighborList[n + 11 * Np];
+        f12 = dist[nr12];
+        nr16 = d_neighborList[n + 15 * Np];
+        f16 = dist[nr16];
+        nr17 = d_neighborList[n + 16 * Np];
+        f17 = dist[nr17];
+        nr13 = d_neighborList[n + 12 * Np];
+        f13 = dist[nr13];
+
+		//...................................................
+        // Adding gradient pressure
+
+        double f6p = f6 - 0.05555555555555556 * dp*3.0f;
+        double f12p = f12 - 0.02777777777777778 * dp*3.0f;
+        double f13p = f13 - 0.02777777777777778 * dp*3.0f;
+        double f16p = f16 - 0.02777777777777778 * dp*3.0f;
+        double f17p = f17 - 0.02777777777777778 * dp*3.0f;
+
+        //........Store in "opposite" memory location..........
+        dist[nr6] = f6p;
+        dist[nr12] = f12p;
+        dist[nr13] = f13p;
+        dist[nr16] = f16p;
+        dist[nr17] = f17p;
+		//...................................................
+	}
+}
 
 __global__  void dvc_ScaLBL_D3Q19_AAeven_Flux_BC_z(int *list, double *dist, double flux, double Area, 
 		double *dvcsum, int count, int Np)
@@ -2053,7 +2222,6 @@ __global__  void dvc_ScaLBL_D3Q19_AAeven_Flux_BC_z(int *list, double *dist, doub
 
     if (g.thread_rank() == 0) atomicAdd(dvcsum, block_sum);
 }
-
 
 __global__  void dvc_ScaLBL_D3Q19_AAodd_Flux_BC_z(int *d_neighborList, int *list, double *dist, double flux, 
 		double Area, double *dvcsum, int count, int Np)
@@ -2129,6 +2297,123 @@ __global__  void dvc_ScaLBL_D3Q19_AAodd_Flux_BC_z(int *d_neighborList, int *list
     if (g.thread_rank() == 0) atomicAdd(dvcsum, block_sum);
 }
 
+__global__  void dvc_ScaLBL_D3Q19_AAeven_Flux_BC_Z(int *list, double *dist, double flux, double Area, 
+		double *dvcsum, int count, int Np)
+{
+	int idx, n;
+	// distributions
+	double f0,f1,f2,f3,f4,f5,f7,f8,f9;
+	double f10,f11,f14,f15,f18;
+	double factor = 1.f/(Area);
+	double sum = 0.f;
+
+	idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if (idx < count){
+		
+		n = list[idx];
+		f0 = dist[n];
+		f1 = dist[2*Np+n];
+		f2 = dist[1*Np+n];
+		f3 = dist[4*Np+n];
+		f4 = dist[3*Np+n];
+		f5 = dist[6*Np+n];
+		f7 = dist[8*Np+n];
+		f8 = dist[7*Np+n];
+		f9 = dist[10*Np+n];
+		f10 = dist[9*Np+n];
+		f11 = dist[12*Np+n];
+		f14 = dist[13*Np+n];
+		f15 = dist[16*Np+n];
+		f18 = dist[17*Np+n];
+		sum = factor*(f0+f1+f2+f3+f4+f7+f8+f9+f10 + 2*(f5+f11+f14+f15+f18));
+	}
+
+	//sum = blockReduceSum(sum);
+	//if (threadIdx.x==0)
+	//   atomicAdd(dvcsum, sum);
+	
+    extern __shared__ double temp[];
+    thread_group g = this_thread_block();
+    double block_sum = reduce_sum(g, temp, sum);
+
+    if (g.thread_rank() == 0) atomicAdd(dvcsum, block_sum);
+}
+
+
+__global__  void dvc_ScaLBL_D3Q19_AAodd_Flux_BC_Z(int *d_neighborList, int *list, double *dist, double flux, 
+		double Area, double *dvcsum, int count, int Np)
+{
+	int idx, n;
+	int nread;
+
+	// distributions
+	double f0,f1,f2,f3,f4,f5,f7,f8,f9;
+	double f10,f11,f14,f15,f18;
+	double factor = 1.f/(Area);
+	double sum = 0.f;
+
+	idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+	if (idx < count){
+		
+		n = list[idx];
+				
+		f0 = dist[n];
+		
+		nread = d_neighborList[n];
+		f1 = dist[nread];
+
+		nread = d_neighborList[n+2*Np];
+		f3 = dist[nread];
+
+		nread = d_neighborList[n+6*Np];
+		f7 = dist[nread];
+
+		nread = d_neighborList[n+8*Np];
+		f9 = dist[nread];
+
+		nread = d_neighborList[n+13*Np];
+		f14 = dist[nread];
+
+		nread = d_neighborList[n+17*Np];
+		f18 = dist[nread];
+
+		nread = d_neighborList[n+Np];
+		f2 = dist[nread];
+
+		nread = d_neighborList[n+3*Np];
+		f4 = dist[nread];
+
+		nread = d_neighborList[n+4*Np];
+		f5 = dist[nread];
+
+		nread = d_neighborList[n+7*Np];
+		f8 = dist[nread];
+
+		nread = d_neighborList[n+9*Np];
+		f10 = dist[nread];
+
+		nread = d_neighborList[n+10*Np];
+		f11 = dist[nread];
+
+		nread = d_neighborList[n+14*Np];
+		f15 = dist[nread];
+
+		sum = factor*(f0+f1+f2+f3+f4+f7+f8+f9+f10 + 2*(f5+f11+f14+f15+f18));
+
+	}
+
+	//sum = blockReduceSum(sum);
+	//if (threadIdx.x==0)
+	//   atomicAdd(dvcsum, sum);
+	
+    extern __shared__ double temp[];
+    thread_group g = this_thread_block();
+    double block_sum = reduce_sum(g, temp, sum);
+
+    if (g.thread_rank() == 0) atomicAdd(dvcsum, block_sum);
+}
 
 __global__  void dvc_D3Q19_Velocity_BC_z(double *disteven, double *distodd, double uz,
 		int Nx, int Ny, int Nz)
@@ -2598,6 +2883,41 @@ extern "C" void ScaLBL_D3Q19_AAodd_Pressure_BC_Z(int *neighborList, int *list, d
 	}
 }
 
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, double *dist, double dp, int count, int N){
+	int GRID = count / 512 + 1;
+	dvc_ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z<<<GRID,512>>>(list, dist, dp, count, N);
+	cudaError_t err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z (kernel): %s \n",cudaGetErrorString(err));
+	}
+}
+
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, double *dist, double dp, int count, int N){
+	int GRID = count / 512 + 1;
+	dvc_ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z<<<GRID,512>>>(list, dist, dp, count, N);
+	cudaError_t err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z (kernel): %s \n",cudaGetErrorString(err));
+	}
+}
+
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *neighborList, int *list, double *dist, double dp, int count, int N){
+	int GRID = count / 512 + 1;
+	dvc_ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z<<<GRID,512>>>(neighborList, list, dist, dp, count, N);
+	cudaError_t err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z (kernel): %s \n",cudaGetErrorString(err));
+	}
+}
+
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *neighborList, int *list, double *dist, double dp, int count, int N){
+	int GRID = count / 512 + 1;
+	dvc_ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z<<<GRID,512>>>(neighborList, list, dist, dp, count, N);
+	cudaError_t err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z (kernel): %s \n",cudaGetErrorString(err));
+	}
+}
 
 extern "C" double ScaLBL_D3Q19_AAeven_Flux_BC_z(int *list, double *dist, double flux, double area, 
 		 int count, int N){
@@ -2683,6 +3003,92 @@ extern "C" double ScaLBL_D3Q19_AAodd_Flux_BC_z(int *neighborList, int *list, dou
 	cudaFree(dvcsum);
 
 	return din;
+}
+
+extern "C" double ScaLBL_D3Q19_AAeven_Flux_BC_Z(int *list, double *dist, double flux, double area, 
+		 int count, int N){
+
+	int GRID = count / 512 + 1;
+
+	// IMPORTANT -- this routine may fail if Nx*Ny > 512*512
+	if (count > 512*512){
+		printf("WARNING (ScaLBL_D3Q19_Flux_BC_Z): CUDA reduction operation may fail if count > 512*512");
+	}
+
+	// Allocate memory to store the sums
+	double dout;
+	double sum[1];
+ 	double *dvcsum;
+	cudaMalloc((void **)&dvcsum,sizeof(double)*count);
+	cudaMemset(dvcsum,0,sizeof(double)*count);
+	int sharedBytes = 512*sizeof(double);
+	
+	cudaError_t err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAeven_Flux_BC_Z (memory allocation): %s \n",cudaGetErrorString(err));
+	}
+
+	// compute the local flux and store the result
+	dvc_ScaLBL_D3Q19_AAeven_Flux_BC_Z<<<GRID,512,sharedBytes>>>(list, dist, flux, area, dvcsum, count, N);
+	err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAeven_Flux_BC_Z (kernel): %s \n",cudaGetErrorString(err));
+	}
+
+	// Now read the total flux
+	cudaMemcpy(&sum[0],dvcsum,sizeof(double),cudaMemcpyDeviceToHost);
+	dout=sum[0];
+	err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAeven_Flux_BC_Z (reduction): %s \n",cudaGetErrorString(err));
+	}
+
+	// free the memory needed for reduction
+	cudaFree(dvcsum);
+
+	return dout;
+}
+
+extern "C" double ScaLBL_D3Q19_AAodd_Flux_BC_Z(int *neighborList, int *list, double *dist, double flux, 
+		double area, int count, int N){
+
+	int GRID = count / 512 + 1;
+
+	// IMPORTANT -- this routine may fail if Nx*Ny > 512*512
+	if (count > 512*512){
+		printf("WARNING (ScaLBL_D3Q19_AAodd_Flux_BC_Z): CUDA reduction operation may fail if count > 512*512");
+	}
+
+	// Allocate memory to store the sums
+	double dout;
+	double sum[1];
+ 	double *dvcsum;
+	cudaMalloc((void **)&dvcsum,sizeof(double)*count);
+	cudaMemset(dvcsum,0,sizeof(double)*count);
+	int sharedBytes = 512*sizeof(double);
+	cudaError_t err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAodd_Flux_BC_Z (memory allocation): %s \n",cudaGetErrorString(err));
+	}
+
+	// compute the local flux and store the result
+	dvc_ScaLBL_D3Q19_AAodd_Flux_BC_Z<<<GRID,512,sharedBytes>>>(neighborList, list, dist, flux, area, dvcsum, count, N);
+	err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAodd_Flux_BC_Z (kernel): %s \n",cudaGetErrorString(err));
+	}
+	// Now read the total flux
+	cudaMemcpy(&sum[0],dvcsum,sizeof(double),cudaMemcpyDeviceToHost);
+	dout=sum[0];
+	err = cudaGetLastError();
+	if (cudaSuccess != err){
+		printf("CUDA error in ScaLBL_D3Q19_AAodd_Flux_BC_Z (reduction): %s \n",cudaGetErrorString(err));
+	}
+
+	// free the memory needed for reduction
+	cudaFree(dvcsum);
+
+	return dout;
 }
 
 extern "C" double ScaLBL_D3Q19_Flux_BC_Z(double *disteven, double *distodd, double flux, int Nx, int Ny, int Nz, int outlet){

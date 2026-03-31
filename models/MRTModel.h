@@ -52,7 +52,7 @@ public:
     int BoundaryCondition;
     double tau, mu;
     double Fx, Fy, Fz, flux;
-    double din, dout;
+    double din, dout, dp;
     double tolerance;
 
     int Nx, Ny, Nz, N, Np;
