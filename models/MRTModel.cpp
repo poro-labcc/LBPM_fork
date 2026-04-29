@@ -514,7 +514,7 @@ void ScaLBL_MRTModel::SaveFields() {
         auto VzVar          = std::make_shared<IO::Variable>();
         auto Press          = std::make_shared<IO::Variable>();
 
-        IO::initialize("", format, "false");
+        IO::initialize("", format, false);
 
         // Create the MeshDataStruct
         visData.resize(1);
