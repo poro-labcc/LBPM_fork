@@ -127,6 +127,7 @@ void ScaLBL_MRTModel::SetDomain() {
     Velocity_x.resize(Nx, Ny, Nz);
     Velocity_y.resize(Nx, Ny, Nz);
     Velocity_z.resize(Nx, Ny, Nz);
+    Pressure_f.resize(Nx, Ny, Nz);
 
     for (int i = 0; i < Nx * Ny * Nz; i++)
         Dm->id[i] = 1; // initialize this way
