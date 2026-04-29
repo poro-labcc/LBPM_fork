@@ -9,7 +9,7 @@
 #include "common/Array.h"
 #include "common/Communication.h"
 #include "common/MPI.h"
-
+#include "IO/silo.h"
 
 #ifdef USE_SILO
 #include <silo.h>
