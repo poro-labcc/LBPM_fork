@@ -865,7 +865,8 @@ void ScaLBL_GreyscaleModel::VelocityField() {
     auto SignDistVar = std::make_shared<IO::Variable>();
     auto PressureVar = std::make_shared<IO::Variable>();
 
-    IO::initialize("", "silo", "false");
+    std::string format = vis_db->getWithDefault<string>("format", "silo");
+    IO::initialize("",format , false);
     // Create the MeshDataStruct
     visData.resize(1);
     visData[0].meshName = "domain";
