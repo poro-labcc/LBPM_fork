@@ -316,29 +316,31 @@ void ScaLBL_GreyscaleModel::AssignComponentLabels(
     double *Porosity, double *Permeability,
     const vector<std::string> &File_poro,
     const vector<std::string> &File_perm) {
-    double *Porosity_host, *Permeability_host;
-    Porosity_host = new double[N];
-    Permeability_host = new double[N];
+
     double POROSITY = 0.f;
     double PERMEABILITY = 0.f;
+
     //Initialize a weighted porosity after considering grey voxels
     double GreyPorosity_loc = 0.0;
     GreyPorosity = 0.0;
-    //double label_count_loc = 0.0;
-    //double label_count_glb = 0.0;
 
-    Mask->ReadFromFile(File_poro[0], File_poro[1], Porosity_host);
-    Mask->ReadFromFile(File_perm[0], File_perm[1], Permeability_host);
+    std::vector<double> Porosity_host(N, 0.0);
+    std::vector<double> Permeability_host(N, 0.0);
+
+    Mask->ReadFromFile(File_poro[0], File_poro[1], Porosity_host.data());
+    Mask->ReadFromFile(File_perm[0], File_perm[1], Permeability_host.data());
 
     for (int k = 0; k < Nz; k++) {
         for (int j = 0; j < Ny; j++) {
             for (int i = 0; i < Nx; i++) {
                 int idx = Map(i, j, k);
-                if (!(idx < 0)) {
+
+                if (idx >= 0) {
                     int n = k * Nx * Ny + j * Nx + i;
                     POROSITY = Porosity_host[n];
                     PERMEABILITY = Permeability_host[n];
-                    if (POROSITY <= 0.0) {
+
+                    if (POROSITY <= 0.0 || POROSITY > 1.0) {
                         ERROR("Error: Porosity for grey voxels must be 0.0 < "
                               "Porosity <= 1.0 !\n");
                     } else if (PERMEABILITY <= 0.0) {
@@ -346,15 +348,19 @@ void ScaLBL_GreyscaleModel::AssignComponentLabels(
                               "0.0 ! \n");
                     } else {
                         Porosity[idx] = POROSITY;
-                        Permeability[idx] = PERMEABILITY;
+
+                        Permeability[idx] =
+                            PERMEABILITY / Dm->voxel_length / Dm->voxel_length;
+
                         GreyPorosity_loc += POROSITY;
-                        //label_count_loc += 1.0;
                     }
                 }
             }
         }
     }
+
     GreyPorosity = Dm->Comm.sumReduce(GreyPorosity_loc);
+
     GreyPorosity =
         GreyPorosity / double((Nx - 2) * (Ny - 2) * (Nz - 2) * nprocs);
 
@@ -364,8 +370,6 @@ void ScaLBL_GreyscaleModel::AssignComponentLabels(
                "is %.3g\n",
                GreyPorosity);
     }
-    delete[] Porosity_host;
-    delete[] Permeability_host;
 }
 
 void ScaLBL_GreyscaleModel::Create() {
