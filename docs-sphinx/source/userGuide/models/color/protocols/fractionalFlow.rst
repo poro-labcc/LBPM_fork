@@ -45,9 +45,10 @@ from the velocity :math:`\mathbf{u}_i`
    :nowrap:
 
    $$
-      W_i = \frac{ U_\epsilon + |\mathbf{u}_i|}{U_\epsilon + \max{|\mathbf{u}_i|}}
-   $$
 
+      W_i = \frac{ U_\epsilon + |\mathbf{u}_i|}{U_\epsilon + \max{|\mathbf{u}_i|}}
+
+   $$
 where :math:`\max{|\mathbf{u}_i|}` is the maximum flow speed within fluid :math:`i` and
 :math:`U_\epsilon` is a threshold speed that is set to minimize the influence of spurious
 currents on the mass seeding algorithm. The sum of the weighting function is used to normalize

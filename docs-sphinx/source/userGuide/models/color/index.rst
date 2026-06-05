@@ -72,17 +72,17 @@ Two LBEs are constructed to model the mass transport, incorporating the anti-dif
    :nowrap:
 
    $$
-   A_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2} 
-       + \beta  \frac{N_b}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big] \;
+   A_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2} 
+       + \beta  \frac{N_b}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big] \;
    $$
 
 .. math::
    :nowrap:
 
    $$
-   B_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) = 
-       w_q N_b \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2}
-       - \beta  \frac{N_a}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big]\;, 
+   B_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) = 
+       w_q N_b \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2}
+       - \beta  \frac{N_a}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big]\;, 
    $$
 
 The number density for each fluid is obtained from the sum of the mass transport distributions
@@ -94,7 +94,6 @@ The number density for each fluid is obtained from the sum of the mass transport
    N_a = \sum_q A_q\;, \quad    N_b = \sum_q B_q\; 
    $$
 
-   
 The phase indicator field is then defined as 
 
 .. math::
@@ -131,7 +130,6 @@ where
     \nu_n = \frac{1}{3}\Big(\tau_n - \frac{1}{2} \Big) \;.
    $$
 
-
 These values are then used to model the momentum transport.
 The LBE governing momentum transport is defined based on a MRT relaxation process with additional
 terms to account for the interfacial stresses
@@ -140,10 +138,10 @@ terms to account for the interfacial stresses
    :nowrap:
 
    $$
-      f_q(\bm{x}_i + \bm{\xi}_q \delta t,t + \delta t) - f_q(\bm{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \bm{\xi}_q \cdot \frac{\bm{F}}{c_s^2} \;,
+      f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
    $$
 
-Where :math:`\bm{F}` is an external body force and :math:`c_s^2 = 1/3` is the speed of sound for the LB model.
+Where :math:`\boldsymbol{F}` is an external body force and :math:`c_s^2 = 1/3` is the speed of sound for the LB model.
 The moments are linearly indepdendent:
 
 .. math::
@@ -153,7 +151,6 @@ The moments are linearly indepdendent:
       m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
    $$
 
-   
 The relaxation parameters are determined from the relaxation time:
 
 .. math::
@@ -162,14 +159,13 @@ The relaxation parameters are determined from the relaxation time:
    $$
      \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu \;,
    $$
-   
+
 .. math::
    :nowrap:
       
-    $$
+   $$
      \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;,
    $$
-
 The non-zero equilibrium moments are defined as
 
 .. math::
@@ -177,68 +173,68 @@ The non-zero equilibrium moments are defined as
 
    $$
      m_1^{eq} = 19\frac{ j_x^2+j_y^2+j_z^2}{\rho_0} - 11\rho - 19 \alpha |\textbf{C}|, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
    $$
      m_2^{eq} = 3\rho - \frac{11( j_x^2+j_y^2+j_z^2)}{2\rho_0}, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
    $$
      m_4^{eq} = -\frac{2 j_x}{3}, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
    $$
      m_6^{eq} = -\frac{2 j_y}{3}, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
    $$
      m_8^{eq} = -\frac{2 j_z}{3}, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho_0}+ \alpha \frac{|\textbf{C}|}{2}(2n_x^2-n_y^2-n_z^2), \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho_0} + \alpha \frac{|\textbf{C}|}{2}(n_y^2-n_z^2), \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{13}^{eq} = \frac{j_x j_y}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_y\;, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{14}^{eq} = \frac{j_y j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_y n_z\;, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{15}^{eq} = \frac{j_x j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_z\;. 
    $$
 
@@ -257,7 +253,7 @@ and the unit normal vector is
    :nowrap:
 
    $$
-     \bm{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
+     \boldsymbol{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
    $$
    
 ****************************

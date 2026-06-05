@@ -59,6 +59,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
@@ -132,31 +134,31 @@ and the saturation of fluid B at which fluid B ceases to percolate, <span class=
 The endpoints should be independently specified for each class of microporosity that is labeled
 in the input image. Between the endpoint values, the effective permeability is paramaterized based on the value</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-0">
- $$
+$$
  S_{ab} = \frac{S_b - S_b^{r,b}}{S_b^{r,a} - S_b^{r,b}}
- $$</div><p>At the endpoints, the effective permeability is provided as an input parameter for
+$$</div><p>At the endpoints, the effective permeability is provided as an input parameter for
 each fluid. When <span class="math notranslate nohighlight">\(S_b=S_b^{r,b}\)</span> the effective permeability of fluid B is
 zero and <span class="math notranslate nohighlight">\(K_a=K^{r,a}\)</span>. Between the endpoints the Corey model predicts the
 effective permeability for fluid A according to</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-1">
-   $$
+$$
    K_a = K^{r,a} (1-S_{ab})^{\lambda^a}
-   $$</div><p>where <span class="math notranslate nohighlight">\(\lambda^a=2\)</span> is the Corey exponent. Likewise,
+$$</div><p>where <span class="math notranslate nohighlight">\(\lambda^a=2\)</span> is the Corey exponent. Likewise,
 When <span class="math notranslate nohighlight">\(S_b=S_b^{r,a}\)</span> the effective permeability for fluid A will be zero,
 and <span class="math notranslate nohighlight">\(K_b=K^{r,b}\)</span> with</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-2">
-   $$
+$$
    K_b = K^{r,b} S_{ab}^{\lambda^b}
-   $$</div><p>Two LBEs are constructed to model the mass transport,</p>
+$$</div><p>Two LBEs are constructed to model the mass transport,</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-3">
 $$
-A_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2}
-    + \beta  \frac{N_b}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big] \;
+A_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2}
+    + \beta  \frac{N_b}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big] \;
 $$</div><div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-4">
 $$
-B_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) =
-    w_q N_b \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2}
-    - \beta  \frac{N_a}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big]\;,
+B_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) =
+    w_q N_b \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2}
+    - \beta  \frac{N_a}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big]\;,
 $$</div><p>The number density for each fluid is obtained from the sum of the mass transport distributions</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-5">
 $$
@@ -172,9 +174,9 @@ is smaller than the interface width produced from the color model. Within grey v
 two fluids are permitted to freely mix between the endpoints. Beyond the endpoints, the recoloring
 term is used to drive spontaneous imbibition into the grey voxels</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-7">
-   $$
+$$
    R_c =
-   $$</div><p>The fluid density and kinematic viscosity are determined based on linear interpolation</p>
+$$</div><p>The fluid density and kinematic viscosity are determined based on linear interpolation</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-8">
 $$
  \rho_0 = \frac{(1+\phi) \rho_n}{2}+ \frac{(1-\phi) \rho_w}{2} \;,
@@ -189,31 +191,31 @@ $$
 $$</div><p>These values are then used to model the momentum transport.</p>
 <p>A D3Q19 LBE is constructed to describe the momentum transport</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-11">
-   $$
-   f_q(\bm{x}_i + \bm{\xi}_q \delta t,t + \delta t) - f_q(\bm{x}_i,t) =
+$$
+   f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) =
    \sum^{Q-1}_{k=0} M^{-1}_{qk} S_{kk} (m_k^{eq}-m_k)  + \sum^{Q-1}_{k=0} M^{-1}_{qk} (1-\frac{S_{kk}}{2}) \hat{F}_q\;,
-   $$</div><p>The force is imposed based on the construction developed by Guo et al</p>
+$$</div><p>The force is imposed based on the construction developed by Guo et al</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-12">
-   $$
-   F_i = \rho_0 \omega_i \left[\frac{\bm{e}_i \cdot \bm{a}}{c_s^2} +
-   \frac{\bm{u} \bm{a}:(\bm{e}_i \bm{e}_i -c_s^2 \mathcal{I})}{\epsilon c_s^4}   \right] ,
-   $$</div><p>The acceleration includes contributions due to the external driving force <span class="math notranslate nohighlight">\(\bm{g}\)</span>
-as well as a drag force due to the permeability <span class="math notranslate nohighlight">\(K\)</span> and flow rate <span class="math notranslate nohighlight">\(\bm{u}\)</span> with the
+$$
+   F_i = \rho_0 \omega_i \left[\frac{\boldsymbol{e}_i \cdot \boldsymbol{a}}{c_s^2} +
+   \frac{\boldsymbol{u} \boldsymbol{a}:(\boldsymbol{e}_i \boldsymbol{e}_i -c_s^2 \mathcal{I})}{\epsilon c_s^4}   \right] ,
+$$</div><p>The acceleration includes contributions due to the external driving force <span class="math notranslate nohighlight">\(\boldsymbol{g}\)</span>
+as well as a drag force due to the permeability <span class="math notranslate nohighlight">\(K\)</span> and flow rate <span class="math notranslate nohighlight">\(\boldsymbol{u}\)</span> with the
 porosity <span class="math notranslate nohighlight">\(\epsilon\)</span> and  viscosity <span class="math notranslate nohighlight">\(\nu\)</span> determining the net forces acting within
 a grey voxel</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-13">
-   $$
-   \bm{a} = - \frac{\epsilon \nu}{K} \bm{u} + \bm{F}_{cp}/\rho_0 + \epsilon \bm{g},
-   $$</div><p>The flow velocity is defined as</p>
+$$
+   \boldsymbol{a} = - \frac{\epsilon \nu}{K} \boldsymbol{u} + \boldsymbol{F}_{cp}/\rho_0 + \epsilon \boldsymbol{g},
+$$</div><p>The flow velocity is defined as</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-14">
-   $$
-   \rho_0 \bm{u} = \sum_i \bm{e}_i f_i + \frac{\delta t}{2} \rho_0 \bm{a}.
-   $$</div><p>Combining the previous expressions,</p>
+$$
+   \rho_0 \boldsymbol{u} = \sum_i \boldsymbol{e}_i f_i + \frac{\delta t}{2} \rho_0 \boldsymbol{a}.
+$$</div><p>Combining the previous expressions,</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-15">
-   $$
-   \bm{u} = \frac{\frac{1}{\rho_0}\sum_i \bm{e}_i f_i + \frac{\delta t}{2}\epsilon \bm{g} +
-   \frac{\delta t}{2} \frac{\bm{F}_{cp}}{\rho_0}}{1+ \frac{\delta t}{2} \frac{\epsilon \nu}{K}}
-   $$</div><p>Where <span class="math notranslate nohighlight">\(\bm{F}\)</span> is an external body force and <span class="math notranslate nohighlight">\(c_s^2 = 1/3\)</span> is the speed of sound for the LB model.
+$$
+   \boldsymbol{u} = \frac{\frac{1}{\rho_0}\sum_i \boldsymbol{e}_i f_i + \frac{\delta t}{2}\epsilon \boldsymbol{g} +
+   \frac{\delta t}{2} \frac{\boldsymbol{F}_{cp}}{\rho_0}}{1+ \frac{\delta t}{2} \frac{\epsilon \nu}{K}}
+$$</div><p>Where <span class="math notranslate nohighlight">\(\boldsymbol{F}\)</span> is an external body force and <span class="math notranslate nohighlight">\(c_s^2 = 1/3\)</span> is the speed of sound for the LB model.
 The moments are linearly indepdendent:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-16">
 $$
@@ -223,7 +225,7 @@ $$</div><p>The relaxation parameters are determined from the relaxation time:</p
 $$
   \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu \;,
 $$</div><div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-18">
- $$
+$$
   \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;,
 $$</div><p>The non-zero equilibrium moments are defined as</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-19">
@@ -263,7 +265,7 @@ $$
 $$</div><p>and the unit normal vector is</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-greyscalecolor-greyscalecolor-30">
 $$
-  \bm{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
+  \boldsymbol{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
 $$</div></section>
 <section id="boundary-conditions">
 <h2>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading">¶</a></h2>

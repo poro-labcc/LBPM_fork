@@ -44,11 +44,9 @@ in the input image. Between the endpoint values, the effective permeability is p
 .. math::
    :nowrap:
 
-    $$
+   $$
     S_{ab} = \frac{S_b - S_b^{r,b}}{S_b^{r,a} - S_b^{r,b}}
-    $$
-
-
+   $$
 At the endpoints, the effective permeability is provided as an input parameter for
 each fluid. When :math:`S_b=S_b^{r,b}` the effective permeability of fluid B is
 zero and :math:`K_a=K^{r,a}`. Between the endpoints the Corey model predicts the
@@ -58,10 +56,9 @@ effective permeability for fluid A according to
 .. math::
    :nowrap:
 
-      $$
+   $$
       K_a = K^{r,a} (1-S_{ab})^{\lambda^a}
-      $$
-
+   $$
 where :math:`\lambda^a=2` is the Corey exponent. Likewise, 
 When :math:`S_b=S_b^{r,a}` the effective permeability for fluid A will be zero,
 and :math:`K_b=K^{r,b}` with 
@@ -69,30 +66,26 @@ and :math:`K_b=K^{r,b}` with
 .. math::
    :nowrap:
 
-      $$
+   $$
       K_b = K^{r,b} S_{ab}^{\lambda^b}
-      $$
-
-      
+   $$
 Two LBEs are constructed to model the mass transport,
 
 .. math::
    :nowrap:
 
    $$
-   A_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2} 
-       + \beta  \frac{N_b}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big] \;
+   A_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2} 
+       + \beta  \frac{N_b}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big] \;
    $$
-
 .. math::
    :nowrap:
 
    $$
-   B_q(\bm{x} + \bm{\xi}_q \delta t, t+\delta t) = 
-       w_q N_b \Big[1 + \frac{\bm{u} \cdot \bm{\xi}_q}{c_s^2}
-       - \beta  \frac{N_a}{N_a+N_b} \bm{n} \cdot \bm{\xi}_q\Big]\;, 
+   B_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) = 
+       w_q N_b \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2}
+       - \beta  \frac{N_a}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big]\;, 
    $$
-
 The number density for each fluid is obtained from the sum of the mass transport distributions
 
 .. math::
@@ -101,8 +94,6 @@ The number density for each fluid is obtained from the sum of the mass transport
    $$
    N_a = \sum_q A_q\;, \quad    N_b = \sum_q B_q\; 
    $$
-
-   
 The phase indicator field is then defined as 
 
 .. math::
@@ -123,9 +114,9 @@ term is used to drive spontaneous imbibition into the grey voxels
 .. math::
    :nowrap:
 
-      $$
+   $$
       R_c = 
-      $$
+   $$
 
 The fluid density and kinematic viscosity are determined based on linear interpolation
 
@@ -154,7 +145,6 @@ where
     \nu_n = \frac{1}{3}\Big(\tau_n - \frac{1}{2} \Big) \;.
    $$
 
-
 These values are then used to model the momentum transport.
 
 
@@ -163,56 +153,50 @@ A D3Q19 LBE is constructed to describe the momentum transport
 .. math::
    :nowrap:
 
-      $$
-      f_q(\bm{x}_i + \bm{\xi}_q \delta t,t + \delta t) - f_q(\bm{x}_i,t) =
+   $$
+      f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) =
       \sum^{Q-1}_{k=0} M^{-1}_{qk} S_{kk} (m_k^{eq}-m_k)  + \sum^{Q-1}_{k=0} M^{-1}_{qk} (1-\frac{S_{kk}}{2}) \hat{F}_q\;,
-      $$
-
+   $$
 
 The force is imposed based on the construction developed by Guo et al
 
 .. math::
    :nowrap:
 
-      $$
-      F_i = \rho_0 \omega_i \left[\frac{\bm{e}_i \cdot \bm{a}}{c_s^2} +
-      \frac{\bm{u} \bm{a}:(\bm{e}_i \bm{e}_i -c_s^2 \mathcal{I})}{\epsilon c_s^4}   \right] ,
-      $$
+   $$
+      F_i = \rho_0 \omega_i \left[\frac{\boldsymbol{e}_i \cdot \boldsymbol{a}}{c_s^2} +
+      \frac{\boldsymbol{u} \boldsymbol{a}:(\boldsymbol{e}_i \boldsymbol{e}_i -c_s^2 \mathcal{I})}{\epsilon c_s^4}   \right] ,
+   $$
 
-
-The acceleration includes contributions due to the external driving force :math:`\bm{g}`
-as well as a drag force due to the permeability :math:`K` and flow rate :math:`\bm{u}` with the
+The acceleration includes contributions due to the external driving force :math:`\boldsymbol{g}`
+as well as a drag force due to the permeability :math:`K` and flow rate :math:`\boldsymbol{u}` with the
 porosity :math:`\epsilon` and  viscosity :math:`\nu` determining the net forces acting within
 a grey voxel
 
 .. math::
    :nowrap:
 
-      $$
-      \bm{a} = - \frac{\epsilon \nu}{K} \bm{u} + \bm{F}_{cp}/\rho_0 + \epsilon \bm{g},
-      $$
-
+   $$
+      \boldsymbol{a} = - \frac{\epsilon \nu}{K} \boldsymbol{u} + \boldsymbol{F}_{cp}/\rho_0 + \epsilon \boldsymbol{g},
+   $$
 The flow velocity is defined as
 
 .. math::
    :nowrap:
 
-      $$
-      \rho_0 \bm{u} = \sum_i \bm{e}_i f_i + \frac{\delta t}{2} \rho_0 \bm{a}.
-      $$
-
+   $$
+      \rho_0 \boldsymbol{u} = \sum_i \boldsymbol{e}_i f_i + \frac{\delta t}{2} \rho_0 \boldsymbol{a}.
+   $$
 Combining the previous expressions, 
 
 .. math::
    :nowrap:
 
-      $$
-      \bm{u} = \frac{\frac{1}{\rho_0}\sum_i \bm{e}_i f_i + \frac{\delta t}{2}\epsilon \bm{g} +
-      \frac{\delta t}{2} \frac{\bm{F}_{cp}}{\rho_0}}{1+ \frac{\delta t}{2} \frac{\epsilon \nu}{K}}
-      $$
-
-
-Where :math:`\bm{F}` is an external body force and :math:`c_s^2 = 1/3` is the speed of sound for the LB model.
+   $$
+      \boldsymbol{u} = \frac{\frac{1}{\rho_0}\sum_i \boldsymbol{e}_i f_i + \frac{\delta t}{2}\epsilon \boldsymbol{g} +
+      \frac{\delta t}{2} \frac{\boldsymbol{F}_{cp}}{\rho_0}}{1+ \frac{\delta t}{2} \frac{\epsilon \nu}{K}}
+   $$
+Where :math:`\boldsymbol{F}` is an external body force and :math:`c_s^2 = 1/3` is the speed of sound for the LB model.
 The moments are linearly indepdendent:
 
 .. math::
@@ -221,8 +205,6 @@ The moments are linearly indepdendent:
    $$
       m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
    $$
-
-   
 The relaxation parameters are determined from the relaxation time:
 
 .. math::
@@ -231,14 +213,12 @@ The relaxation parameters are determined from the relaxation time:
    $$
      \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu \;,
    $$
-   
 .. math::
    :nowrap:
       
-    $$
+   $$
      \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;,
    $$
-
 The non-zero equilibrium moments are defined as
 
 
@@ -247,68 +227,64 @@ The non-zero equilibrium moments are defined as
 
    $$
      m_1^{eq} = 19\frac{ j_x^2+j_y^2+j_z^2}{\rho_0} - 11\rho - 19 \alpha |\textbf{C}|, \\
-   $$     
-
+   $$
 .. math::
    :nowrap:
 
    $$
      m_2^{eq} = 3\rho - \frac{11( j_x^2+j_y^2+j_z^2)}{2\rho_0}, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
    $$
      m_4^{eq} = -\frac{2 j_x}{3}, \\
-   $$     
-
+   $$
 .. math::
    :nowrap:
 
    $$
      m_6^{eq} = -\frac{2 j_y}{3}, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
    $$
      m_8^{eq} = -\frac{2 j_z}{3}, \\
-   $$     
-
+   $$
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho_0}+ \alpha \frac{|\textbf{C}|}{2}(2n_x^2-n_y^2-n_z^2), \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho_0} + \alpha \frac{|\textbf{C}|}{2}(n_y^2-n_z^2), \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{13}^{eq} = \frac{j_x j_y}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_y\;, \\
-   $$     
+   $$
 
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{14}^{eq} = \frac{j_y j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_y n_z\;, \\
-   $$     
-
+   $$
 .. math::
    :nowrap:
 
-   $$     
+   $$
      m_{15}^{eq} = \frac{j_x j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_z\;. 
    $$
 
@@ -327,12 +303,9 @@ and the unit normal vector is
    :nowrap:
 
    $$
-     \bm{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
+     \boldsymbol{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
    $$
-
-
-
-
+   
 ****************************
 Boundary Conditions
 ****************************

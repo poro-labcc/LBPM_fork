@@ -41,9 +41,10 @@ then be given by
    :nowrap:
 
    $$
-   p_c^\prime = \frac{\gamma_{wn}^\prime (p_n - p_w)}{\gamma_{wn} \Delta x}
-   $$
 
+   p_c^\prime = \frac{\gamma_{wn}^\prime (p_n - p_w)}{\gamma_{wn} \Delta x}
+
+   $$
 where :math:`\Delta x` is the voxel length in meters. 
 
 To enable the ``centrifuge`` protocol such that the effective pressure of fluid B is higher

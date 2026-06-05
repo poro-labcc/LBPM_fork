@@ -8,12 +8,31 @@ by the relaxation time of the collision model (:math:`\tau`), and the absolute p
 to mitigate its effects as demonstrated by :cite:t:`pan2006`. It should be noted that this
 relationship is directly influenced by the collision model and the boundary conditions 
 employed in the model. The problem of creeping flow over a periodic body-centered cubic 
-(BCC) is explored in order to compare the present results with :cite:`pan2006`.
+(BCC) is explored in order to compare the present results with :cite:t:`pan2006`.
 
 .. math::
 	
 	k^{*}=\displaystyle\frac{1}{6\pi a d^{*}}
 
+where :math:`a` is the sphere radius and :math:`d^{*}` is dimensionless drag force represented by
+
+.. math::
+
+	d^{*}=\displaystyle\frac{6\pi a \rho \nu }{F_{D}}
+
+being :math:`\rho` the fluid density, :math:`\nu` the kinematic viscosity, :math:`F_{D}` the drag force. The 
+dimensionless drag force can be also determined by the geometric propertie of solid volume 
+fraction :math:`c` as a expansion function given by
+
+.. math::
+
+	d^{*}=\displaystyle\sum_{n=0}^{30}\alpha_{n}\chi^{n}, \quad\quad 
+	\chi=\left(\displaystyle\frac{c}{c_{max}}\right)^{1/3}, \quad\quad c=\displaystyle\frac{8\pi a^{3}}{3L^{3}}, 
+	\quad\quad c_{\max}=\displaystyle\frac{\sqrt{3}\pi}{8},
+
+where :math:`L` is the length of the cube, :math:`\chi` the relation between the solid volume and 
+maximum solid volume and :math:`\alpha_{n}` the coefficients obtained by :cite:t:`sangani1982slow`. The 
+permeability in the dimensional form corresponds to  :math:`k=k^{*}(2a)^{2}`. 
 
 LBPM provides a flexible framework to ingest 3D image data.
 To illustrate the basic capabilities, this tutorial considers a quasi-2D

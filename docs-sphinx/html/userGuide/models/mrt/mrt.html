@@ -49,8 +49,9 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Single-Phase Pore-Scale Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lbm-formulation">LBM Formulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-lbpm-permeability-simulator">Run lbpm_permeability_simulator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#model-parameters">Model parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#model-formulation">Model Formulation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#example-input-file">Example Input File</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#benchmark-cases">Benchmark Cases</a></li>
@@ -61,6 +62,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
@@ -103,9 +106,59 @@
 <h1>Single-Phase Pore-Scale Model<a class="headerlink" href="#single-phase-pore-scale-model" title="Link to this heading">¶</a></h1>
 <p>The LBPM single fluid model is implemented by a multi-relaxation time (MRT) collision model in a D3Q19
 lattice representation of lattice Boltzmann equation (LBE) to solve the fluid momentum transport, recovering the Navier-Stokes
-equations. Beside the MRT scheme a set two-relaxation time (TRT) is used to avoid half-way bounce-back slip effects (Pan).The implemented
+equations. Beside the MRT scheme a set two-relaxation time (TRT) is used to avoid half-way bounce-back slip effects <span id="id1">[<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>. The implemented
 modeling is used to assess the permeability of digital rock images in either the Darcy or non-Darcy flow regimes.</p>
-<p>A typical command to launch the LBPM color simulator is as follows</p>
+<section id="lbm-formulation">
+<h2>LBM Formulation<a class="headerlink" href="#lbm-formulation" title="Link to this heading">¶</a></h2>
+<p>The LBE governing momentum transport is defined based on a MRT scheme based on the D3Q19 discrete
+velocity set, which determines the values <span class="math notranslate nohighlight">\(\boldsymbol{\xi}_q\)</span></p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-0">
+$$
+   f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
+$$</div><p>where <span class="math notranslate nohighlight">\(\boldsymbol{F}\)</span> is an external body force, <span class="math notranslate nohighlight">\(c_s^2 = 1/3\)</span> is the speed of sound and <span class="math notranslate nohighlight">\(\boldsymbol{\xi}_q\)</span> are the unit lattice vectors for the Lattice discretization:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-1">
+$$
+   \boldsymbol{\xi}_q=\xi_{q,\alpha} =\left\{
+   \begin{array}{llll}
+      \alpha=0, &amp; \{0,0,0\}, &amp; \text{for } q = 0, &amp; w_{0}=1/3 \\[4pt]
+      \alpha=x, &amp; \{\pm 1,0,0\}, &amp; \text{for } q = 1,2, &amp; w_{1,2}=1/18 \\[4pt]
+      \alpha=y, &amp; \{0,\pm 1,0\}, &amp; \text{for } q = 3,4, &amp; w_{3,4}=1/18 \\[4pt]
+      \alpha=z, &amp; \{0,0,\pm 1\}, &amp; \text{for } q = 5,6, &amp; w_{5,6}=1/18 \\[4pt]
+      \alpha=x,y,&amp; \{\pm 1,\pm 1,0\}, &amp; \text{for } q = 7,8,9,10, &amp; w_{7,8,9,10}=1/36 \\[4pt]
+      \alpha=x,z,&amp; \{\pm 1,0,\pm 1\}, &amp; \text{for } q = 11,12,13,14, &amp; w_{11,12,13,14}=1/36 \\[4pt]
+      \alpha=y,z,&amp; \{0,\pm 1,\pm 1\}, &amp; \text{for } q = 15,16,17,18, &amp; w_{15,16,17,18}=1/36 .
+   \end{array}\right.
+$$</div><p>The moments are linearly indepdendent functions of the distributions (Present Grand-Schimidt base):</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-2">
+$$
+   m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
+$$</div><p>The non-zero equilibrium moments are</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-3">
+$$
+  m_1^{eq} = 19\frac{j_x^2+j_y^2+j_z^2}{\rho} - 11\rho \;, \qquad m_2^{eq} = 3\rho - \frac{11}{2} \frac{j_x^2+j_y^2+j_z^2}{\rho} \;,
+$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-4">
+$$
+  m_4^{eq} = -\frac 2 3 j_x \;, \qquad m_6^{eq} = -\frac 2 3 j_y \;, \qquad m_8^{eq} = -\frac 2 3 j_z \;,
+$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-5">
+$$
+  m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho}\;, \qquad m_{10}^{eq} = -\frac{2j_x^2-j_y^2-j_z^2}{2\rho} \;,
+$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-6">
+$$
+  m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho} \;, \qquad m_{12}^{eq} = -\frac{j_y^2-j_z^2}{2\rho} \;,
+$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-7">
+$$
+  m_{13}^{eq} = \frac{j_x j_y}{\rho} \;, \qquad m_{14}^{eq} = \frac{j_y j_z}{\rho} \;, \qquad m_{15}^{eq} = \frac{j_x j_z}{\rho} \;.
+$$</div><p>The relaxation parameters are determined based on the relaxation time <span class="math notranslate nohighlight">\(\tau\)</span></p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-8">
+$$
+  \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu = \frac{1}{\tau} \;,
+$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-9">
+$$
+  \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;.
+$$</div></section>
+<section id="run-lbpm-permeability-simulator">
+<h2>Run lbpm_permeability_simulator<a class="headerlink" href="#run-lbpm-permeability-simulator" title="Link to this heading">¶</a></h2>
+<p>A typical command to launch the LBPM single-phase simulator is as follows</p>
 <p><code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">mpirun</span> <span class="pre">-np</span> <span class="pre">$NUMPROCS</span> <span class="pre">lbpm_permeability_simulator</span> <span class="pre">input.db</span>
 <span class="pre">`</span></code></p>
@@ -113,74 +166,21 @@ modeling is used to assess the permeability of digital rock images in either the
 the name of the input database that provides the simulation parameters.
 Note that the specific syntax to launch MPI tasks may vary depending on your system.
 For additional details please refer to your local system documentation.</p>
+</section>
 <section id="model-parameters">
 <h2>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h2>
 <p>The essential model parameters for the single-phase MRT model are</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> – control the fluid viscosity – <span class="math notranslate nohighlight">\(0.7 &lt; \tau &lt; 1.5\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> – control the fluid viscosity – <span class="math notranslate nohighlight">\(0.5 &lt; \tau &lt; \infty\)</span></p></li>
 </ul>
-<p>The kinematic viscosity is given by</p>
-<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-0">
+<p>The kinematic viscosity in LBM scale is given by</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-10">
 $$
-   \nu = \frac{1}{3} \Big( \tau - \frac 12 \Big)
-$$</div></section>
-<section id="model-formulation">
-<h2>Model Formulation<a class="headerlink" href="#model-formulation" title="Link to this heading">¶</a></h2>
-<p>The LBE governing momentum transport is defined based on a MRT relaxation based on the D3Q19 discrete
-velocity set, which determines the values <span class="math notranslate nohighlight">\(\boldsymbol{\xi}_q\)</span></p>
-<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-1">
-$$
-   f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
-$$</div><p>Where <span class="math notranslate nohighlight">\(\boldsymbol{F}\)</span> is an external body force and <span class="math notranslate nohighlight">\(c_s^2 = 1/3\)</span> is the speed of sound for the LB model.
-The moments are linearly indepdendent functions of the distributions:</p>
-<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-2">
-$$
-   m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
-$$</div><p>The non-zero equilibrium moments are</p>
-<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-3">
-$$
-  m_1^{eq} = 19\frac{j_x^2+j_y^2+j_z^2}{\rho} - 11\rho \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-4">
-$$
-  m_2^{eq} = 3\rho - \frac{11}{2} \frac{j_x^2+j_y^2+j_z^2}{\rho} \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-5">
-$$
-  m_4^{eq} = -\frac 2 3 j_x \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-6">
-$$
-  m_6^{eq} = -\frac 2 3 j_y \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-7">
-$$
-  m_8^{eq} = -\frac 2 3 j_z \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-8">
-$$
-  m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho}\;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-9">
-$$
-  m_{10}^{eq} = -\frac{2j_x^2-j_y^2-j_z^2)}{2\rho} \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-10">
-$$
-  m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho} \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-11">
-$$
-  m_{12}^{eq} = -\frac{j_y^2-j_z^2}{2\rho} \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-12">
-$$
-  m_{13}^{eq} = \frac{j_x j_y}{\rho} \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-13">
-$$
-  m_{14}^{eq} = \frac{j_y j_z}{\rho} \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-14">
-$$
-  m_{15}^{eq} = \frac{j_x j_z}{\rho} \;,
-$$</div><p>The relaxation parameters are determined based on the relaxation time <span class="math notranslate nohighlight">\(\tau\)</span></p>
-<div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-15">
-$$
-  \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu = \frac{1}{\tau} \;,
-$$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-16">
- $$
-  \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;,
-$$</div></section>
+   \nu = \frac{1}{3} \left( \tau - \frac 12 \right).
+$$</div><p>Numerical simulations may become unstable for values of <span class="math notranslate nohighlight">\(\tau\)</span> close to 0.5, corresponding to vanishing viscosity. The stability
+range of <span class="math notranslate nohighlight">\(\tau\)</span> is investigated in the benchmark tests <a class="reference internal" href="../../../examples/SinglePhasePoreScale/bcc/bcc.html"><span class="doc">Body-Centered Cubic</span></a> and XX. Additionally,
+the parameters governing fluid flow through the medium depend on the selected boundary condition, as discussed in the Boundary Conditions section below.</p>
+</section>
 <section id="boundary-conditions">
 <h2>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading">¶</a></h2>
 <p>The following external boundary conditions are supported by <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>
@@ -242,8 +242,8 @@ the inlet or outlet, the <code class="docutils literal notranslate"><span class=
 </section>
 <section id="benchmark-cases">
 <h2>Benchmark Cases<a class="headerlink" href="#benchmark-cases" title="Link to this heading">¶</a></h2>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Benchmarks</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Benchmarks</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 33.3%" />
 <col style="width: 33.3%" />

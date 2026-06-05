@@ -20,4 +20,6 @@ Currently supported lattice Boltzmann models
 
    freeEnergy/*
 
+   morph/*
+
    

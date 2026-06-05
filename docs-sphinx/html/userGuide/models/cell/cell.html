@@ -60,6 +60,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
@@ -110,34 +112,50 @@ The lattice Boltzmann formulation is described below.</p>
 Nernst-Planck equation.</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-0">
 $$
+
   \frac{\partial C_k}{\partial t} + \nabla \cdot \mathbf{j}_k = 0
+
 $$</div><p>where</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-1">
 $$
+
   \mathbf{j}_k = C_k \mathbf{u} - D_k \Big( \nabla C_k + \frac{z_k C_k}{V_T} \nabla \psi\Big)
+
+
+
 $$</div><p>A LBM solution is developed using a three-dimensional, seven velocity (D3Q7) lattice structure for each species. Each distribution is associated with a particular discrete velocity, such that the concentration is given  by their sum,</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-2">
 $$
+
  C_k  = \sum_{q=0}^{6} f^k_q \;.
+
 $$</div><p>Lattice Boltzmann equations (LBEs) are defined to determine the evolution of the distributions</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-3">
 $$
- f^{k}_q (\mathbf{x}_n + \bm{\xi}_q \Delta t, t+ \Delta t)-
+
+ f^{k}_q (\mathbf{x}_n + \boldsymbol{\xi}_q \Delta t, t+ \Delta t)-
      f^{k}_q (\mathbf{x}_n, t) = \frac{1}{\lambda_k}
      \Big( f^{k}_q - f^{eq}_q \Big)\;,
+
 $$</div><p>where the relaxation time <span class="math notranslate nohighlight">\(\lambda_k\)</span> controls the bulk diffusion coefficient,</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-4">
 $$
+
     D_k = c_s^2\Big( \lambda_k - \frac 12\Big)\;.
+
 $$</div><p>The speed of sound for the D3Q7 lattice model is <span class="math notranslate nohighlight">\(c_s^2 = \frac 14\)</span> and the weights are <span class="math notranslate nohighlight">\(W_0 = 1/4\)</span> and <span class="math notranslate nohighlight">\(W_1,\ldots, W_6 = 1/8\)</span>.
 Equilibrium distributions are established from the fact that molecular velocity distribution follows a Gaussian distribution within the bulk fluids,</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-5">
 $$
-       f^{eq}_q = W_q C_k \Big[ 1 + \frac{\bm{\xi_q}\cdot \mathbf{u}^\prime}{c_s^2} \Big]\;.
+
+       f^{eq}_q = W_q C_k \Big[ 1 + \frac{\boldsymbol{\xi_q}\cdot \mathbf{u}^\prime}{c_s^2} \Big]\;.
+
 $$</div><p>The velocity is given by</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-6">
 $$
+
  \mathbf{u}^\prime = \mathbf{u} - \frac{z_k D_k}{V_T} \nabla \psi \;.
+
 $$</div><p>Keys for the Nernst-Planck solver are provided in the <code class="docutils literal notranslate"><span class="pre">Ion</span></code> section of the input file database. Supported keys are</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">use_membrane</span></code> – set up a membrane structure (defaults to <code class="docutils literal notranslate"><span class="pre">true</span></code> if not specified)</p></li>
@@ -162,41 +180,55 @@ $$</div><p>Keys for the Nernst-Planck solver are provided in the <code class="do
 <p>The LBPM Gauss’s law solver is designed to solve for the electric field in an ionic fluid.</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-7">
 $$
+
  \nabla^2_{fe} \psi (\mathbf{x}_i) = \frac{1}{6 \Delta x^2}
- \Bigg( 2 \sum_{q=1}^{6} \psi(\mathbf{x}_i + \bm{\xi}_q \Delta t)
-   +  \sum_{q=7}^{18} \psi(\mathbf{x}_i + \bm{\xi}_q \Delta t)
+ \Bigg( 2 \sum_{q=1}^{6} \psi(\mathbf{x}_i + \boldsymbol{\xi}_q \Delta t)
+   +  \sum_{q=7}^{18} \psi(\mathbf{x}_i + \boldsymbol{\xi}_q \Delta t)
 - 24 \psi (\mathbf{x}_i) \Bigg) \;,
- $$</div><p>The equilibrium functions are defined as</p>
+
+$$</div><p>The equilibrium functions are defined as</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-8">
 $$
+
  g_q^{eq} =  w_q \psi\;,
+
 $$</div><p>where <span class="math notranslate nohighlight">\(w_0=1/2\)</span>, <span class="math notranslate nohighlight">\(w_q=1/24\)</span> for <span class="math notranslate nohighlight">\(q=1,\ldots,6\)</span> and <span class="math notranslate nohighlight">\(w_q=1/48\)</span> for <span class="math notranslate nohighlight">\(q=7,\ldots,18\)</span></p>
 <p>which implies that</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-9">
 $$
+
  \psi = \sum_{q=0}^{Q} g_q^{eq}\;.
- $$</div><p>Given a particular initial condition for <span class="math notranslate nohighlight">\(\psi\)</span>, let us consider application of the standard D3Q19 streaming step based on the equilibrium distributions</p>
+
+$$</div><p>Given a particular initial condition for <span class="math notranslate nohighlight">\(\psi\)</span>, let us consider application of the standard D3Q19 streaming step based on the equilibrium distributions</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-10">
 $$
- g_q^\prime(\mathbf{x}, t) = g_q^{eq}(\mathbf{x}-\bm{\xi}_q\Delta t, t+ \Delta t)\;.
+
+ g_q^\prime(\mathbf{x}, t) = g_q^{eq}(\mathbf{x}-\boldsymbol{\xi}_q\Delta t, t+ \Delta t)\;.
+
 $$</div><p>Relative to the solution of Gauss’s law, the error is given by</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-11">
 $$
+
 \varepsilon_{\psi} =
 8 \Big[ -g_0 +  \sum_{q=1}^Q g_q^\prime(\mathbf{x}, t) \Big]
 + \frac{\rho_e}{\epsilon_r \epsilon_0} \;.
+
 $$</div><p>Using the fact that <span class="math notranslate nohighlight">\(f_0 = W_0 \psi\)</span>, we can compute the value
 <span class="math notranslate nohighlight">\(\psi^\prime\)</span> that would kill the error. We set <span class="math notranslate nohighlight">\(\varepsilon_{\psi}=0\)</span>
 and rearrange terms to obtain</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-12">
 $$
+
 \psi^\prime (\mathbf{x},t) = \frac{1}{W_0}\Big[   \sum_{q=1}^Q g_q^\prime(\mathbf{x}, t)
 + \frac{1}{8}\frac{\rho_e}{\epsilon_r \epsilon_0}\Big]  \;.
+
 $$</div><p>The local value of the potential is then updated based on a relaxation scheme, which is controlled by the relaxation time <span class="math notranslate nohighlight">\(\tau_\psi\)</span></p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-13">
 $$
+
 \psi(\mathbf{x},t+\Delta t) \leftarrow \Big(1 - \frac{1}{\tau_\psi} \Big )\psi (\mathbf{x},t)
 + \frac{1}{\tau_\psi} \psi^\prime (\mathbf{x},t)\;.
+
 $$</div><p>The algorithm can then proceed to the next timestep.</p>
 <p>Keys to control the Gauss’s law solver are specified in the <code class="docutils literal notranslate"><span class="pre">Poisson</span></code> section of the input database.
 Supported keys are:</p>
@@ -229,31 +261,43 @@ interior and exterior. See the script <code class="docutils literal notranslate"
 <li><p><code class="docutils literal notranslate"><span class="pre">ReadType</span></code> – this should be <code class="docutils literal notranslate"><span class="pre">&quot;swc&quot;</span></code> (required since <code class="docutils literal notranslate"><span class="pre">&quot;8bit&quot;</span></code> is the internal default)</p></li>
 </ul>
 <p>Example input files for both cases are stored within the LBPM repository, located at <code class="docutils literal notranslate"><span class="pre">example/SingleCell/</span></code></p>
-<p>The membrane simply prevents the diffusion of ions. All lattice links crossing the membrane are stored in a dedicated data structure so that transport is decoupled from the bulk regions. Suppose that site <span class="math notranslate nohighlight">\(\mathbf{x}_{q\ell}\)</span> is inside the membrane and <span class="math notranslate nohighlight">\(\mathbf{x}_{p\ell}\)</span> is outside the membrane, with <span class="math notranslate nohighlight">\(\mathbf{x}_{p \ell } = \mathbf{x}_{q\ell} + \bm{\xi}_q \Delta t\)</span>. For each species <span class="math notranslate nohighlight">\(k\)</span>, transport across each link <span class="math notranslate nohighlight">\(\ell\)</span> is controlled by a pair of coefficients, <span class="math notranslate nohighlight">\(\alpha^k_{\ell p}\)</span> and <span class="math notranslate nohighlight">\(\alpha^k_{\ell q}\)</span>. Ions transported from the outside to the inside are transported by the particular distribution that is associated with the direction <span class="math notranslate nohighlight">\(\xi_q\)</span></p>
+<p>The membrane simply prevents the diffusion of ions. All lattice links crossing the membrane are stored in a dedicated data structure so that transport is decoupled from the bulk regions. Suppose that site <span class="math notranslate nohighlight">\(\mathbf{x}_{q\ell}\)</span> is inside the membrane and <span class="math notranslate nohighlight">\(\mathbf{x}_{p\ell}\)</span> is outside the membrane, with <span class="math notranslate nohighlight">\(\mathbf{x}_{p \ell } = \mathbf{x}_{q\ell} + \boldsymbol{\xi}_q \Delta t\)</span>. For each species <span class="math notranslate nohighlight">\(k\)</span>, transport across each link <span class="math notranslate nohighlight">\(\ell\)</span> is controlled by a pair of coefficients, <span class="math notranslate nohighlight">\(\alpha^k_{\ell p}\)</span> and <span class="math notranslate nohighlight">\(\alpha^k_{\ell q}\)</span>. Ions transported from the outside to the inside are transported by the particular distribution that is associated with the direction <span class="math notranslate nohighlight">\(\xi_q\)</span></p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-14">
 $$
+
 { f_{q}^{k \prime} (\mathbf{x}_{q \ell})  \gets (1-\alpha^k_{\ell q}) f_{q}^{k} (\mathbf{x}_{q\ell}) + \alpha^k_{\ell p } f_{ p}^{k}  (\mathbf{x}_{p\ell})}
+
 $$</div><p>Similarly, for ions transported from the inside to the outside</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-15">
 $$
+
 {f_{p}^{k \prime} (\mathbf{x}_{p\ell})  \gets (1-\alpha^k_{\ell p}) f_{p}^{k} (\mathbf{x}_{p\ell}) + \alpha^k_{\ell q } f_{q}^{k}  (\mathbf{x}_{q\ell})}
+
 $$</div><p>The basic closure relationship that is implemented is for voltage-gated ion channels.
 Let <span class="math notranslate nohighlight">\(\Delta \psi_\ell = \psi(\mathbf{x}_{p\ell} ,t) - \psi(\mathbf{x}_{q\ell},t)\)</span> be the membrane potential across link <span class="math notranslate nohighlight">\(\ell\)</span>. Since <span class="math notranslate nohighlight">\(\psi\)</span> is determined based on the charge density, <span class="math notranslate nohighlight">\(\Delta \psi_\ell\)</span> can vary with both space and time. The behavior of the gate is implmented as follows,</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-16">
 $$
+
 \Delta \psi_\ell &gt; \tilde{V}_m\; \Rightarrow \; \mbox{gate is open} \; \Rightarrow \; \alpha^{k}_{q \ell} = \alpha_{1} + \alpha_2\;,
+
 $$</div><p>and</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-17">
 $$
+
 \Delta \psi_\ell \le \tilde{V}_m\; \Rightarrow  \; \mbox{gate is closed}\; \Rightarrow \; \alpha^{{k}}_{q \ell} = \alpha_1\;
- $$</div><p>where <span class="math notranslate nohighlight">\(\tilde{V}_m\)</span> is the membrane voltage threshold that controls gate. Mass conservation dictates that</p>
+
+$$</div><p>where <span class="math notranslate nohighlight">\(\tilde{V}_m\)</span> is the membrane voltage threshold that controls gate. Mass conservation dictates that</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-18">
- $$
+$$
+
  \alpha_1 \ge 0\;, \quad \alpha_2 \ge 0\;, \quad \alpha_1 + \alpha_2 \le 1\;.
- $$</div><p>The rule is enforced based on the Heaviside function, as follows</p>
+
+$$</div><p>The rule is enforced based on the Heaviside function, as follows</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-19">
 $$
+
 \alpha_{\ell q}^{k} (\Delta \psi_\ell) = \alpha_1 + \alpha_2 H\big(\Delta \psi_\ell - \tilde{V}_m \big)\;.
+
 $$</div><p>Note that different coefficients are specified for each ion in the model.</p>
 <p>Keys for the membrane model are set in the <code class="docutils literal notranslate"><span class="pre">Membrane</span></code> section of the input file database.  Supported keys are</p>
 <ul class="simple">

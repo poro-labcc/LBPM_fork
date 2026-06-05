@@ -100,9 +100,22 @@ by the relaxation time of the collision model (<span class="math notranslate noh
 to mitigate its effects as demonstrated by <span id="id1">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>. It should be noted that this
 relationship is directly influenced by the collision model and the boundary conditions
 employed in the model. The problem of creeping flow over a periodic body-centered cubic
-(BCC) is explored in order to compare the present results with <span id="id2">[<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>.</p>
+(BCC) is explored in order to compare the present results with <span id="id2">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>.</p>
 <div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-0">
 <span class="eqno">(1)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-0" title="Link to this equation">¶</a></span>\[k^{*}=\displaystyle\frac{1}{6\pi a d^{*}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(a\)</span> is the sphere radius and <span class="math notranslate nohighlight">\(d^{*}\)</span> is dimensionless drag force represented by</p>
+<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-1">
+<span class="eqno">(2)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-1" title="Link to this equation">¶</a></span>\[d^{*}=\displaystyle\frac{6\pi a \rho \nu }{F_{D}}\]</div>
+<p>being <span class="math notranslate nohighlight">\(\rho\)</span> the fluid density, <span class="math notranslate nohighlight">\(\nu\)</span> the kinematic viscosity, <span class="math notranslate nohighlight">\(F_{D}\)</span> the drag force. The
+dimensionless drag force can be also determined by the geometric propertie of solid volume
+fraction <span class="math notranslate nohighlight">\(c\)</span> as a expansion function given by</p>
+<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-2">
+<span class="eqno">(3)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-2" title="Link to this equation">¶</a></span>\[d^{*}=\displaystyle\sum_{n=0}^{30}\alpha_{n}\chi^{n}, \quad\quad
+\chi=\left(\displaystyle\frac{c}{c_{max}}\right)^{1/3}, \quad\quad c=\displaystyle\frac{8\pi a^{3}}{3L^{3}},
+\quad\quad c_{\max}=\displaystyle\frac{\sqrt{3}\pi}{8},\]</div>
+<p>where <span class="math notranslate nohighlight">\(L\)</span> is the length of the cube, <span class="math notranslate nohighlight">\(\chi\)</span> the relation between the solid volume and
+maximum solid volume and <span class="math notranslate nohighlight">\(\alpha_{n}\)</span> the coefficients obtained by <span id="id3">Sangani and Acrivos [<a class="reference internal" href="../../../citations/citations.html#id5" title="Ashok Shantilal Sangani and A Acrivos. Slow flow through a periodic array of spheres. International Journal of Multiphase Flow, 8(4):343–360, 1982.">2</a>]</span>. The
+permeability in the dimensional form corresponds to  <span class="math notranslate nohighlight">\(k=k^{*}(2a)^{2}\)</span>.</p>
 <p>LBPM provides a flexible framework to ingest 3D image data.
 To illustrate the basic capabilities, this tutorial considers a quasi-2D
 flow cell. Source files for the example are included in the LBPM repository

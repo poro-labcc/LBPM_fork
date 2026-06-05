@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital drainage &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Visualizing simulation data with visit" href="../../visualization/visit.html" />
+    <link rel="prev" title="Full Morphology Method" href="ylm-comp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mrt/mrt.html">Single-Phase Pore-Scale Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Color model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Greyscale model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Digital drainage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#input">Input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output">Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benchmark">Benchmark</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">Digital drainage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/morph/ylm-inc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="digital-drainage">
+<h1>Digital drainage<a class="headerlink" href="#digital-drainage" title="Link to this heading">¶</a></h1>
+<p>LBPM includes a routine to perform digital drainage experiments through the Full Morphology method. The <code class="docutils literal notranslate"><span class="pre">ylm-inc</span></code> algorithm performs non-wetting fluid intrusion by introducing spheres with progressively decreasing radius in the porous media.</p>
+<p>The invaded fluid connection to the inlet face is checked to simulate the invasion as it happens on the physical experiment. At the same time, the expelled fluid is considered incompressible, so there is a residual saturation left at the end of the process.</p>
+<p>At each diameter, the routine identifies the fluid voxels in contact to the solid matrix to perform a digital aging. These interface voxels are saved with different labels and this labem map can be exported to other routines such as <code class="docutils literal notranslate"><span class="pre">lbpm_color_simulator</span></code> to set different wettabilities.</p>
+<section id="input">
+<h2>Input<a class="headerlink" href="#input" title="Link to this heading">¶</a></h2>
+<p>The input file format is given by</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;example.raw&quot;</span>
+<span class="w">      </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="w">            </span><span class="c1">// domain size</span>
+<span class="w">      </span><span class="n">VoxelLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w">     </span><span class="c1">// solid, vacuum, injected, pore (PORE NÃO FAZ SENTIDO)</span>
+<span class="w">      </span><span class="p">}</span>
+
+<span class="n">YLM</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">Diameters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">         </span><span class="c1">// smallest, biggest, step</span>
+<span class="w">      </span><span class="n">ImageRoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;img&quot;</span><span class="w">            </span><span class="c1">// name files</span>
+<span class="w">      </span><span class="n">ImageDir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;folder&quot;</span><span class="w">          </span><span class="c1">// folder in which data is saved</span>
+<span class="w">      </span><span class="n">WhichImage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;all&quot;</span><span class="w">           </span><span class="c1">// which image to save: all, last, none</span>
+<span class="w">      </span><span class="n">Direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">          </span><span class="c1">// axis of intrusion (accepts negative values)</span>
+<span class="w">      </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Once this has been set, <code class="docutils literal notranslate"><span class="pre">ylm-inc</span></code> routine is launched via</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="nv">$LBPM_DIR</span>/tests/ylm-inc<span class="w"> </span>input.db
+</pre></div>
+</div>
+<p>Note that this routine does not run in parallel computation.</p>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading">¶</a></h2>
+<p>The expected output is a folder which contains the <code class="docutils literal notranslate"><span class="pre">.raw</span></code> files specified on the input file, and a <code class="docutils literal notranslate"><span class="pre">.dat</span></code> file which gives information about the saturations versus diameter points:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c1"># ##################################################################</span>
+<span class="c1"># Arquivo criado com o comando:  /home/bernardo.gehlen/zabot/build2/ylm 4 ./config40-1.cfg</span>
+<span class="c1"># No diretorio:  /home/bernardo.gehlen/bentheimer1600/ylm-results/stat-inc</span>
+<span class="c1"># Em:  15:32:09  Jun 13 2025</span>
+<span class="c1">#</span>
+<span class="c1">#   * Image width  (x) (px)     : 555</span>
+<span class="c1">#   * Image height (y) (px)     : 555</span>
+<span class="c1">#   * Image planes (z) (px)     : 987</span>
+<span class="c1">#   * Number of porous pixels   : 68976436</span>
+<span class="c1">#</span>
+<span class="c1"># Coluna  1: Step</span>
+<span class="c1"># Coluna  2: Diameter (px)</span>
+<span class="c1"># Coluna  3: Number of pixels occupied by inlet fluid.</span>
+<span class="c1"># Coluna  4: Number of pixels occupied by inlet fluid / Number of porous pixels</span>
+<span class="c1"># Coluna  5: Number of pixels occupied by outlet fluid.</span>
+<span class="c1"># Coluna  6: Number of pixels occupied by outlet fluid  / Number of porous pixels</span>
+<span class="c1"># ##################################################################</span>
+<span class="m">0</span><span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">212364</span><span class="w"> </span><span class="m">0</span>.00307879<span class="w"> </span><span class="m">68764072</span><span class="w"> </span><span class="m">0</span>.996921
+<span class="m">1</span><span class="w"> </span><span class="m">49</span><span class="w"> </span><span class="m">215917</span><span class="w"> </span><span class="m">0</span>.0031303<span class="w"> </span><span class="m">68760519</span><span class="w"> </span><span class="m">0</span>.99687
+<span class="m">2</span><span class="w"> </span><span class="m">48</span><span class="w"> </span><span class="m">221605</span><span class="w"> </span><span class="m">0</span>.00321276<span class="w"> </span><span class="m">68754831</span><span class="w"> </span><span class="m">0</span>.996787
+<span class="m">3</span><span class="w"> </span><span class="m">47</span><span class="w"> </span><span class="m">226588</span><span class="w"> </span><span class="m">0</span>.00328501<span class="w"> </span><span class="m">68749848</span><span class="w"> </span><span class="m">0</span>.996715
+<span class="m">4</span><span class="w"> </span><span class="m">46</span><span class="w"> </span><span class="m">234476</span><span class="w"> </span><span class="m">0</span>.00339936<span class="w"> </span><span class="m">68741960</span><span class="w"> </span><span class="m">0</span>.996601
+<span class="m">5</span><span class="w"> </span><span class="m">45</span><span class="w"> </span><span class="m">243315</span><span class="w"> </span><span class="m">0</span>.00352751<span class="w"> </span><span class="m">68733121</span><span class="w"> </span><span class="m">0</span>.996472
+<span class="m">6</span><span class="w"> </span><span class="m">44</span><span class="w"> </span><span class="m">252077</span><span class="w"> </span><span class="m">0</span>.00365454<span class="w"> </span><span class="m">68724359</span><span class="w"> </span><span class="m">0</span>.996345
+<span class="m">7</span><span class="w"> </span><span class="m">43</span><span class="w"> </span><span class="m">259305</span><span class="w"> </span><span class="m">0</span>.00375933<span class="w"> </span><span class="m">68717131</span><span class="w"> </span><span class="m">0</span>.996241
+<span class="m">8</span><span class="w"> </span><span class="m">42</span><span class="w"> </span><span class="m">1833473</span><span class="w"> </span><span class="m">0</span>.0265812<span class="w"> </span><span class="m">67142963</span><span class="w"> </span><span class="m">0</span>.973419
+<span class="m">9</span><span class="w"> </span><span class="m">41</span><span class="w"> </span><span class="m">1871125</span><span class="w"> </span><span class="m">0</span>.027127<span class="w"> </span><span class="m">67105311</span><span class="w"> </span><span class="m">0</span>.972873
+<span class="m">10</span><span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="m">1909781</span><span class="w"> </span><span class="m">0</span>.0276874<span class="w"> </span><span class="m">67066655</span><span class="w"> </span><span class="m">0</span>.972313
+<span class="m">11</span><span class="w"> </span><span class="m">39</span><span class="w"> </span><span class="m">1939199</span><span class="w"> </span><span class="m">0</span>.0281139<span class="w"> </span><span class="m">67037237</span><span class="w"> </span><span class="m">0</span>.971886
+<span class="m">12</span><span class="w"> </span><span class="m">38</span><span class="w"> </span><span class="m">1983019</span><span class="w"> </span><span class="m">0</span>.0287492<span class="w"> </span><span class="m">66993417</span><span class="w"> </span><span class="m">0</span>.971251
+<span class="m">13</span><span class="w"> </span><span class="m">37</span><span class="w"> </span><span class="m">2007757</span><span class="w"> </span><span class="m">0</span>.0291079<span class="w"> </span><span class="m">66968679</span><span class="w"> </span><span class="m">0</span>.970892
+<span class="m">14</span><span class="w"> </span><span class="m">36</span><span class="w"> </span><span class="m">2047387</span><span class="w"> </span><span class="m">0</span>.0296824<span class="w"> </span><span class="m">66929049</span><span class="w"> </span><span class="m">0</span>.970318
+<span class="m">15</span><span class="w"> </span><span class="m">35</span><span class="w"> </span><span class="m">2067882</span><span class="w"> </span><span class="m">0</span>.0299795<span class="w"> </span><span class="m">66908554</span><span class="w"> </span><span class="m">0</span>.97002
+<span class="m">16</span><span class="w"> </span><span class="m">34</span><span class="w"> </span><span class="m">2098069</span><span class="w"> </span><span class="m">0</span>.0304172<span class="w"> </span><span class="m">66878367</span><span class="w"> </span><span class="m">0</span>.969583
+<span class="m">17</span><span class="w"> </span><span class="m">33</span><span class="w"> </span><span class="m">2162340</span><span class="w"> </span><span class="m">0</span>.031349<span class="w"> </span><span class="m">66814096</span><span class="w"> </span><span class="m">0</span>.968651
+<span class="m">18</span><span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="m">2215249</span><span class="w"> </span><span class="m">0</span>.032116<span class="w"> </span><span class="m">66761187</span><span class="w"> </span><span class="m">0</span>.967884
+<span class="m">19</span><span class="w"> </span><span class="m">31</span><span class="w"> </span><span class="m">2286474</span><span class="w"> </span><span class="m">0</span>.0331486<span class="w"> </span><span class="m">66689962</span><span class="w"> </span><span class="m">0</span>.966851
+<span class="m">20</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="m">6270383</span><span class="w"> </span><span class="m">0</span>.0909062<span class="w"> </span><span class="m">62706053</span><span class="w"> </span><span class="m">0</span>.909094
+<span class="m">21</span><span class="w"> </span><span class="m">29</span><span class="w"> </span><span class="m">6390763</span><span class="w"> </span><span class="m">0</span>.0926514<span class="w"> </span><span class="m">62585673</span><span class="w"> </span><span class="m">0</span>.907349
+<span class="m">22</span><span class="w"> </span><span class="m">28</span><span class="w"> </span><span class="m">6615930</span><span class="w"> </span><span class="m">0</span>.0959158<span class="w"> </span><span class="m">62360506</span><span class="w"> </span><span class="m">0</span>.904084
+<span class="m">23</span><span class="w"> </span><span class="m">27</span><span class="w"> </span><span class="m">6908625</span><span class="w"> </span><span class="m">0</span>.100159<span class="w"> </span><span class="m">62067811</span><span class="w"> </span><span class="m">0</span>.899841
+<span class="m">24</span><span class="w"> </span><span class="m">26</span><span class="w"> </span><span class="m">7128589</span><span class="w"> </span><span class="m">0</span>.103348<span class="w"> </span><span class="m">61847847</span><span class="w"> </span><span class="m">0</span>.896652
+<span class="m">25</span><span class="w"> </span><span class="m">25</span><span class="w"> </span><span class="m">7252013</span><span class="w"> </span><span class="m">0</span>.105138<span class="w"> </span><span class="m">61724423</span><span class="w"> </span><span class="m">0</span>.894862
+<span class="m">26</span><span class="w"> </span><span class="m">24</span><span class="w"> </span><span class="m">7540882</span><span class="w"> </span><span class="m">0</span>.109325<span class="w"> </span><span class="m">61435554</span><span class="w"> </span><span class="m">0</span>.890675
+<span class="m">27</span><span class="w"> </span><span class="m">23</span><span class="w"> </span><span class="m">7732966</span><span class="w"> </span><span class="m">0</span>.11211<span class="w"> </span><span class="m">61243470</span><span class="w"> </span><span class="m">0</span>.88789
+<span class="m">28</span><span class="w"> </span><span class="m">22</span><span class="w"> </span><span class="m">8071233</span><span class="w"> </span><span class="m">0</span>.117014<span class="w"> </span><span class="m">60905203</span><span class="w"> </span><span class="m">0</span>.882986
+<span class="m">29</span><span class="w"> </span><span class="m">21</span><span class="w"> </span><span class="m">8215388</span><span class="w"> </span><span class="m">0</span>.119104<span class="w"> </span><span class="m">60761048</span><span class="w"> </span><span class="m">0</span>.880896
+<span class="m">30</span><span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="m">11056183</span><span class="w"> </span><span class="m">0</span>.160289<span class="w"> </span><span class="m">57920253</span><span class="w"> </span><span class="m">0</span>.839711
+<span class="m">31</span><span class="w"> </span><span class="m">19</span><span class="w"> </span><span class="m">11347104</span><span class="w"> </span><span class="m">0</span>.164507<span class="w"> </span><span class="m">57629332</span><span class="w"> </span><span class="m">0</span>.835493
+<span class="m">32</span><span class="w"> </span><span class="m">18</span><span class="w"> </span><span class="m">13725341</span><span class="w"> </span><span class="m">0</span>.198986<span class="w"> </span><span class="m">55251095</span><span class="w"> </span><span class="m">0</span>.801014
+<span class="m">33</span><span class="w"> </span><span class="m">17</span><span class="w"> </span><span class="m">14826146</span><span class="w"> </span><span class="m">0</span>.214945<span class="w"> </span><span class="m">54150290</span><span class="w"> </span><span class="m">0</span>.785055
+<span class="m">34</span><span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">15676837</span><span class="w"> </span><span class="m">0</span>.227278<span class="w"> </span><span class="m">53299599</span><span class="w"> </span><span class="m">0</span>.772722
+<span class="m">35</span><span class="w"> </span><span class="m">15</span><span class="w"> </span><span class="m">16861145</span><span class="w"> </span><span class="m">0</span>.244448<span class="w"> </span><span class="m">52115291</span><span class="w"> </span><span class="m">0</span>.755552
+<span class="m">36</span><span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="m">18151732</span><span class="w"> </span><span class="m">0</span>.263158<span class="w"> </span><span class="m">50824704</span><span class="w"> </span><span class="m">0</span>.736842
+<span class="m">37</span><span class="w"> </span><span class="m">13</span><span class="w"> </span><span class="m">45847019</span><span class="w"> </span><span class="m">0</span>.664677<span class="w"> </span><span class="m">23129417</span><span class="w"> </span><span class="m">0</span>.335323
+<span class="m">38</span><span class="w"> </span><span class="m">12</span><span class="w"> </span><span class="m">51307983</span><span class="w"> </span><span class="m">0</span>.743848<span class="w"> </span><span class="m">17668453</span><span class="w"> </span><span class="m">0</span>.256152
+<span class="m">39</span><span class="w"> </span><span class="m">11</span><span class="w"> </span><span class="m">54389114</span><span class="w"> </span><span class="m">0</span>.788517<span class="w"> </span><span class="m">14587322</span><span class="w"> </span><span class="m">0</span>.211483
+<span class="m">40</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">57246455</span><span class="w"> </span><span class="m">0</span>.829942<span class="w"> </span><span class="m">11729981</span><span class="w"> </span><span class="m">0</span>.170058
+<span class="m">41</span><span class="w"> </span><span class="m">9</span><span class="w"> </span><span class="m">58603786</span><span class="w"> </span><span class="m">0</span>.84962<span class="w"> </span><span class="m">10372650</span><span class="w"> </span><span class="m">0</span>.15038
+<span class="m">42</span><span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="m">59434281</span><span class="w"> </span><span class="m">0</span>.861661<span class="w"> </span><span class="m">9542155</span><span class="w"> </span><span class="m">0</span>.138339
+<span class="m">43</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="m">59480955</span><span class="w"> </span><span class="m">0</span>.862337<span class="w"> </span><span class="m">9495481</span><span class="w"> </span><span class="m">0</span>.137663
+<span class="m">44</span><span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">59525826</span><span class="w"> </span><span class="m">0</span>.862988<span class="w"> </span><span class="m">9450610</span><span class="w"> </span><span class="m">0</span>.137012
+<span class="m">45</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="m">59543127</span><span class="w"> </span><span class="m">0</span>.863239<span class="w"> </span><span class="m">9433309</span><span class="w"> </span><span class="m">0</span>.136761
+<span class="m">46</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">59555053</span><span class="w"> </span><span class="m">0</span>.863412<span class="w"> </span><span class="m">9421383</span><span class="w"> </span><span class="m">0</span>.136588
+<span class="m">47</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">59555695</span><span class="w"> </span><span class="m">0</span>.863421<span class="w"> </span><span class="m">9420741</span><span class="w"> </span><span class="m">0</span>.136579
+<span class="m">48</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">59566289</span><span class="w"> </span><span class="m">0</span>.863574<span class="w"> </span><span class="m">9410147</span><span class="w"> </span><span class="m">0</span>.136426
+<span class="m">49</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">59566289</span><span class="w"> </span><span class="m">0</span>.863574<span class="w"> </span><span class="m">9410147</span><span class="w"> </span><span class="m">0</span>.136426
+</pre></div>
+</div>
+</section>
+<section id="benchmark">
+<h2>Benchmark<a class="headerlink" href="#benchmark" title="Link to this heading">¶</a></h2>
+<p>A pore-throat geometry is used to demonstrate the final state of the simulation. The output <code class="docutils literal notranslate"><span class="pre">.raw</span></code> file contains the final fluid distribution with the following voxel labels:</p>
+<ul class="simple">
+<li><p>0 (green): Solid matrix</p></li>
+<li><p>1 (orange): Displaced fluid that remains trapped (residual saturation)</p></li>
+<li><p>2 (red): injected fluid that forms the main connected path.</p></li>
+</ul>
+<p>In addition, the digital aging analysis generates a map of the fluid-solid interfaces. The voxels at this interface are labeled as:</p>
+<ul class="simple">
+<li><p>-1 (blue): Interface between the displaced fluid and the solid</p></li>
+<li><p>-2 (white): Interaface between the injected fluid and the solid</p></li>
+</ul>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../../_images/ylm-drainage.png"><img alt="morphdrain" src="../../../_images/ylm-drainage.png" style="width: 50%;" />
+</a>
+</figure>
+<p>Final <code class="docutils literal notranslate"><span class="pre">.raw</span></code> image given by the routine for a benchmark. Different shades of blue are different labels and may be used to set wettabilities.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../../_images/lbpm-drainage.png"><img alt="morphdrain" src="../../../_images/lbpm-drainage.png" style="width: 50%;" />
+</a>
+</figure>
+<p>Image given by <code class="docutils literal notranslate"><span class="pre">lbpm_color_simulator</span></code> with Ca =  5e-4.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ylm-comp.html" class="btn btn-neutral float-left" title="Full Morphology Method" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../visualization/visit.html" class="btn btn-neutral float-right" title="Visualizing simulation data with visit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
