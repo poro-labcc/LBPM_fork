@@ -39,7 +39,7 @@ where :math:`\boldsymbol{F}` is an external body force, :math:`c_s^2 = 1/3` is t
    $$
 
 
-The moments are linearly indepdendent functions of the distributions (Present Grand-Schimidt base):
+The moments defined in the Gram--Schmidt basis are linearly independent functions of the distribution functions:
 
 .. math::
    :nowrap:
