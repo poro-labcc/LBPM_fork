@@ -111,7 +111,7 @@ modeling is used to assess the permeability of digital rock images in either the
 <section id="lbm-formulation">
 <h2>LBM Formulation<a class="headerlink" href="#lbm-formulation" title="Link to this heading">¶</a></h2>
 <p>The LBE governing momentum transport is defined based on a MRT scheme based on the D3Q19 discrete
-velocity set, which determines the values <span class="math notranslate nohighlight">\(\boldsymbol{\xi}_q\)</span></p>
+velocity set:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-0">
 $$
    f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
@@ -131,8 +131,30 @@ $$
 $$</div><p>The moments are linearly indepdendent functions of the distributions (Present Grand-Schimidt base):</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-2">
 $$
-   m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
-$$</div><p>The non-zero equilibrium moments are</p>
+   m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(
+   \begin{array}{rrrrrrrrrrrrrrrrrrr}
+   1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 \\
+   -30 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 \\
+   12 &amp; -4 &amp; -4 &amp; -4 &amp; -4 &amp; -4 &amp; -4 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 \\
+   0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 \\
+   0 &amp; -4 &amp; 4 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 \\
+   0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 \\
+   0 &amp; 0 &amp; 0 &amp; -4 &amp; 4 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; -1 &amp; 1 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -4 &amp; 4 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; -1 &amp; 1 \\
+   0 &amp; 2 &amp; 2 &amp; -1 &amp; -1 &amp; -1 &amp; -1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 \\
+   0 &amp; -4 &amp; -4 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 \\
+   0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 \\
+   0 &amp; 0 &amp; 0 &amp; -2 &amp; -2 &amp; 2 &amp; 2 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; -1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; -1 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; -1 &amp; 0 &amp; 0 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 \\
+   0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; 1 &amp; -1
+   \end{array}
+   \right),
+$$</div><p>and the non-conserved equilibrium moments are then obtained following the moment-based approach proposed by <span id="id2">d'Humières [<a class="reference internal" href="../../../citations/citations.html#id6" title="Dominique d'Humières. Multiple–relaxation–time lattice boltzmann models in three dimensions. Philosophical Transactions of the Royal Society of London. Series A: Mathematical, Physical and Engineering Sciences, 360(1792):437–451, 2002.">2</a>]</span>, in which selected equilibrium moments are explicitly enforced:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-3">
 $$
   m_1^{eq} = 19\frac{j_x^2+j_y^2+j_z^2}{\rho} - 11\rho \;, \qquad m_2^{eq} = 3\rho - \frac{11}{2} \frac{j_x^2+j_y^2+j_z^2}{\rho} \;,
@@ -148,14 +170,20 @@ $$
 $$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-7">
 $$
   m_{13}^{eq} = \frac{j_x j_y}{\rho} \;, \qquad m_{14}^{eq} = \frac{j_y j_z}{\rho} \;, \qquad m_{15}^{eq} = \frac{j_x j_z}{\rho} \;.
-$$</div><p>The relaxation parameters are determined based on the relaxation time <span class="math notranslate nohighlight">\(\tau\)</span></p>
+$$</div><p>The relaxation parameters are determined based on the relaxation time <span class="math notranslate nohighlight">\(\tau\)</span>:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-8">
 $$
   \lambda_1 =  \lambda_2=  \lambda_9 = \lambda_{10}= \lambda_{11}= \lambda_{12}= \lambda_{13}= \lambda_{14}= \lambda_{15} = s_\nu = \frac{1}{\tau} \;,
 $$</div><div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-9">
 $$
   \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;.
-$$</div></section>
+$$</div><p>where <span class="math notranslate nohighlight">\(\tau\)</span> is related to the kinematic viscosity of the fluid by
+<span class="math notranslate nohighlight">\(\nu = (\tau - 1/2)/3\)</span>. The relation imposed on the even relaxation
+times enforces the no-slip velocity condition exactly at a position
+one-half lattice spacing from the solid boundary. Consequently, it
+leads to a viscosity-independent numerical error in the permeability
+estimate <span id="id3">[<a class="reference internal" href="../../../citations/citations.html#id7" title="Dominique d’Humières and Irina Ginzburg. Viscosity independent numerical errors for lattice boltzmann models: from recurrence equations to “magic” collision numbers. Computers &amp; Mathematics with Applications, 58(5):823–840, 2009.">3</a>]</span>.</p>
+</section>
 <section id="run-lbpm-permeability-simulator">
 <h2>Run lbpm_permeability_simulator<a class="headerlink" href="#run-lbpm-permeability-simulator" title="Link to this heading">¶</a></h2>
 <p>A typical command to launch the LBPM single-phase simulator is as follows</p>
@@ -242,8 +270,8 @@ the inlet or outlet, the <code class="docutils literal notranslate"><span class=
 </section>
 <section id="benchmark-cases">
 <h2>Benchmark Cases<a class="headerlink" href="#benchmark-cases" title="Link to this heading">¶</a></h2>
-<table class="docutils align-default" id="id2">
-<caption><span class="caption-text">Benchmarks</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Benchmarks</span><a class="headerlink" href="#id4" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 33.3%" />
 <col style="width: 33.3%" />

@@ -12,7 +12,7 @@ LBM Formulation
 ****************************
 
 The LBE governing momentum transport is defined based on a MRT scheme based on the D3Q19 discrete
-velocity set, which determines the values :math:`\boldsymbol{\xi}_q`
+velocity set:
 
 .. math::
    :nowrap:
@@ -45,9 +45,32 @@ The moments are linearly indepdendent functions of the distributions (Present Gr
    :nowrap:
 
    $$
-      m_k = \sum_{q=0}^{18} M_{qk} f_q\;.
+      m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(
+      \begin{array}{rrrrrrrrrrrrrrrrrrr}
+      1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+      -30 & -11 & -11 & -11 & -11 & -11 & -11 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 \\
+      12 & -4 & -4 & -4 & -4 & -4 & -4 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+      0 & 1 & -1 & 0 & 0 & 0 & 0 & 1 & -1 & 1 & -1 & 0 & 0 & 1 & -1 & 1 & -1 & 0 & 0 \\
+      0 & -4 & 4 & 0 & 0 & 0 & 0 & 1 & -1 & 1 & -1 & 0 & 0 & 1 & -1 & 1 & -1 & 0 & 0 \\
+      0 & 0 & 0 & 1 & -1 & 0 & 0 & 1 & -1 & 0 & 0 & 1 & -1 & -1 & 1 & 0 & 0 & 1 & -1 \\
+      0 & 0 & 0 & -4 & 4 & 0 & 0 & 1 & -1 & 0 & 0 & 1 & -1 & -1 & 1 & 0 & 0 & 1 & -1 \\
+      0 & 0 & 0 & 0 & 0 & 1 & -1 & 0 & 0 & 1 & -1 & 1 & -1 & 0 & 0 & -1 & 1 & -1 & 1 \\
+      0 & 0 & 0 & 0 & 0 & -4 & 4 & 0 & 0 & 1 & -1 & 1 & -1 & 0 & 0 & -1 & 1 & -1 & 1 \\
+      0 & 2 & 2 & -1 & -1 & -1 & -1 & 1 & 1 & 1 & 1 & -2 & -2 & 1 & 1 & 1 & 1 & -2 & -2 \\
+      0 & -4 & -4 & 2 & 2 & 2 & 2 & 1 & 1 & 1 & 1 & -2 & -2 & 1 & 1 & 1 & 1 & -2 & -2 \\
+      0 & 0 & 0 & 1 & 1 & -1 & -1 & 1 & 1 & -1 & -1 & 0 & 0 & 1 & 1 & -1 & -1 & 0 & 0 \\
+      0 & 0 & 0 & -2 & -2 & 2 & 2 & 1 & 1 & -1 & -1 & 0 & 0 & 1 & 1 & -1 & -1 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & -1 & -1 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & -1 & -1 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & -1 & -1 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & -1 & -1 & 1 & 0 & 0 & 1 & -1 & -1 & 1 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 & 1 & 0 & 0 & 1 & -1 & 1 & -1 & 0 & 0 & 1 & -1 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & -1 & -1 & 1 & 0 & 0 & -1 & 1 & 1 & -1
+      \end{array}
+      \right),
    $$
-The non-zero equilibrium moments are
+
+and the non-conserved equilibrium moments are then obtained following the moment-based approach proposed by :cite:t:`d2002multiple`, in which selected equilibrium moments are explicitly enforced:
 
 .. math::
    :nowrap:
@@ -84,7 +107,7 @@ The non-zero equilibrium moments are
      m_{13}^{eq} = \frac{j_x j_y}{\rho} \;, \qquad m_{14}^{eq} = \frac{j_y j_z}{\rho} \;, \qquad m_{15}^{eq} = \frac{j_x j_z}{\rho} \;.
    $$
 
-The relaxation parameters are determined based on the relaxation time :math:`\tau`
+The relaxation parameters are determined based on the relaxation time :math:`\tau`:
 
 .. math::
    :nowrap:
@@ -98,6 +121,13 @@ The relaxation parameters are determined based on the relaxation time :math:`\ta
    $$
      \lambda_{4}= \lambda_{6}= \lambda_{8} = \lambda_{16} = \lambda_{17} = \lambda_{18}= \frac{8(2-s_\nu)}{8-s_\nu} \;.
    $$
+
+where :math:`\tau` is related to the kinematic viscosity of the fluid by
+:math:`\nu = (\tau - 1/2)/3`. The relation imposed on the even relaxation
+times enforces the no-slip velocity condition exactly at a position
+one-half lattice spacing from the solid boundary. Consequently, it
+leads to a viscosity-independent numerical error in the permeability
+estimate :cite:p:`d2009viscosity`.
 
 ****************************
 Run lbpm_permeability_simulator
