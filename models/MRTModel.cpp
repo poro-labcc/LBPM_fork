@@ -395,7 +395,7 @@ void ScaLBL_MRTModel::Run() {
 	    absperm *= 1013.0; // Convert to mDarcy
 
             if (rank == 0) {
-                printf("     %f\n", absperm);
+                printf("     %f\n", absperm/1013.0);
                 FILE *log_file = fopen("Permeability.csv", "a");
                 fprintf(log_file,
                         "%i %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g "

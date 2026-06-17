@@ -8,14 +8,14 @@
 extern "C" {
     void ScaLBL_D3Q19_AAeven_SteadyPhase(double *dist, int start, int finish,
                                          int Np, double Fx, double Fy, double Fz,
-                                         double *ColorGrad, int *Phi, double tau_A, double tau_B, double *Velocity);
+                                         double *ColorGrad, int *Phi, double tau_A, double tau_B, double *Velocity, double factor);
 
     void ScaLBL_D3Q19_AAodd_SteadyPhase(int *neighborList, double *dist,
                                         int start, int finish, int Np,
                                         double Fx, double Fy, double Fz,
-                                        double *ColorGrad, int *Phi, double tau_A, double tau_B, double *Velocity);
+                                        double *ColorGrad, int *Phi, double tau_A, double tau_B, double *Velocity, double factor);
 
-    void SteadyComputeVelocity(double *dist, double *vel, double *pressure_out, int Np, double Fx, double Fy, double Fz, double *ColorGrad);
+    void SteadyComputeVelocity(double *dist, double *vel, double *pressure_out, int Np, double Fx, double Fy, double Fz, double *ColorGrad, double factor);
 }
 
 namespace {
@@ -57,6 +57,7 @@ void ScaLBL_SteadyPhaseModel::ReadParams(string filename) {
     tau_A = steady_db->getWithDefault<double>("tauA", 1.0);
     tau_B = steady_db->getWithDefault<double>("tauB", 1.0);
     sigma = steady_db->getWithDefault<double>("sigma", 2.0);
+    factor = steady_db->getWithDefault<double>("factor", -2.0);
 
     if (steady_db->keyExists("din"))
         din = steady_db->getScalar<double>("din");
@@ -298,9 +299,9 @@ void ScaLBL_SteadyPhaseModel::ComputeNormals() {
                     SmoothPhi(i, j, k) = HostPhi(i, j, k);
     }
 
-    int cx[19] = {0,1,-1,0,0,0,0,1,-1,1,-1,1,-1,1,-1,0,0,0,0};
-    int cy[19] = {0,0,0,1,-1,0,0,1,-1,-1,1,0,0,0,0,-1,1,-1,1};
-    int cz[19] = {0,0,0,0,0,1,-1,0,0,0,0,1,-1,-1,1,-1,1,1,-1};
+    int cx[19] = {0, 1, -1, 0,  0, 0,  0, 1, -1,  1, -1, 1, -1,  1, -1, 0, 0,   0,  0};
+    int cy[19] = {0, 0,  0, 1, -1, 0,  0, 1, -1, -1,  1, 0,  0,  0,  0, 1, -1,  1, -1};
+    int cz[19] = {0, 0,  0, 0,  0, 1, -1, 0,  0,  0,  0, 1, -1, -1,  1, 1, -1, -1,  1};
     double w[19] = {1./3., 1./18.,1./18.,1./18.,1./18.,1./18.,1./18., 1./36., 1./36., 1./36., 1./36., 1./36., 1./36., 1./36., 1./36., 1./36., 1./36., 1./36., 1./36.};
 
     for (int k = 1; k < Nz - 1; k++) {
@@ -417,7 +418,7 @@ void ScaLBL_SteadyPhaseModel::Run() {
     while (timestep < timestepMax && error > tolerance) {
         timestep++;
         ScaLBL_Comm->SendD3Q19AA(fq);
-        ScaLBL_D3Q19_AAodd_SteadyPhase(NeighborList, fq, ScaLBL_Comm->FirstInterior(), ScaLBL_Comm->LastInterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity);
+        ScaLBL_D3Q19_AAodd_SteadyPhase(NeighborList, fq, ScaLBL_Comm->FirstInterior(), ScaLBL_Comm->LastInterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity, factor);
         ScaLBL_Comm->RecvD3Q19AA(fq);
         if (BoundaryCondition == 3) {
             ScaLBL_Comm->D3Q19_Pressure_BC_z(NeighborList, fq, din, timestep);
@@ -429,14 +430,14 @@ void ScaLBL_SteadyPhaseModel::Run() {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
         }
-        ScaLBL_D3Q19_AAodd_SteadyPhase(NeighborList, fq, 0, ScaLBL_Comm->LastExterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity);
+        ScaLBL_D3Q19_AAodd_SteadyPhase(NeighborList, fq, 0, ScaLBL_Comm->LastExterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity, factor);
         
         ScaLBL_DeviceBarrier();
         comm.barrier();
 
         timestep++;
         ScaLBL_Comm->SendD3Q19AA(fq);
-        ScaLBL_D3Q19_AAeven_SteadyPhase(fq, ScaLBL_Comm->FirstInterior(), ScaLBL_Comm->LastInterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity);
+        ScaLBL_D3Q19_AAeven_SteadyPhase(fq, ScaLBL_Comm->FirstInterior(), ScaLBL_Comm->LastInterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity, factor);
         ScaLBL_Comm->RecvD3Q19AA(fq);
         if (BoundaryCondition == 3) {
             ScaLBL_Comm->D3Q19_Pressure_BC_z(NeighborList, fq, din, timestep);
@@ -449,13 +450,13 @@ void ScaLBL_SteadyPhaseModel::Run() {
             ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
             ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
         }
-        ScaLBL_D3Q19_AAeven_SteadyPhase(fq, 0, ScaLBL_Comm->LastExterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity);
+        ScaLBL_D3Q19_AAeven_SteadyPhase(fq, 0, ScaLBL_Comm->LastExterior(), Np, Fx, Fy, Fz, ColorGrad, Phi, tau_A, tau_B, Velocity, factor);
         
         ScaLBL_DeviceBarrier();
         comm.barrier();
 
         if (timestep % ANALYSIS_INTERVAL == 0) {
-            SteadyComputeVelocity(fq, Velocity, Pressure, Np, Fx, Fy, Fz, ColorGrad);
+            SteadyComputeVelocity(fq, Velocity, Pressure, Np, Fx, Fy, Fz, ColorGrad, factor);
             ScaLBL_DeviceBarrier();
             comm.barrier();
 
