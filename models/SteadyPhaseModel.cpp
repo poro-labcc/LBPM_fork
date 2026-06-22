@@ -5,6 +5,8 @@
 #include <chrono>
 #include <vector>
 
+typedef Array<float> FloatArray;
+
 extern "C" {
     void ScaLBL_D3Q19_AAeven_SteadyPhase(double *dist, int start, int finish,
                                          int Np, double Fx, double Fy, double Fz,
@@ -183,20 +185,23 @@ void ScaLBL_SteadyPhaseModel::Create() {
         printf("Allocating distributions \n");
     dist_mem_size = Np * sizeof(double);
     neighborSize = 18 * (Np * sizeof(int));
+
+    ScaLBL_AllocateDeviceMemory((void **)&Phi, Np * sizeof(int));
+    ScaLBL_AllocateDeviceMemory((void **)&ColorGrad, 3 * dist_mem_size);
+    ComputeNormals();
+
     ScaLBL_AllocateDeviceMemory((void **)&NeighborList, neighborSize);
     ScaLBL_AllocateDeviceMemory((void **)&fq, 19 * dist_mem_size);
     ScaLBL_AllocateDeviceMemory((void **)&Pressure, sizeof(double) * Np);
     ScaLBL_AllocateDeviceMemory((void **)&Velocity, 3 * sizeof(double) * Np);
-    ScaLBL_AllocateDeviceMemory((void **)&Phi, Np * sizeof(int));
-    ScaLBL_AllocateDeviceMemory((void **)&ColorGrad, 3 * dist_mem_size);
 
-    ComputeNormals();
 
     if (rank == 0)
         printf("Setting up device map and neighbor list \n");
-
+    
     ScaLBL_CopyToDevice(NeighborList, neighborList, neighborSize);
     comm.barrier();
+    delete [] neighborList;
     double MLUPS = ScaLBL_Comm->GetPerformance(NeighborList, fq, Np);
     printf("  MLPUS=%f from rank %i\n", MLUPS, rank);
 }
@@ -460,13 +465,26 @@ void ScaLBL_SteadyPhaseModel::Run() {
             ScaLBL_DeviceBarrier();
             comm.barrier();
 
-            DoubleArray Velocity_x(Nx, Ny, Nz);
-            DoubleArray Velocity_y(Nx, Ny, Nz);
-            DoubleArray Velocity_z(Nx, Ny, Nz);
+            FloatArray Velocity_x(Nx, Ny, Nz);
+            FloatArray Velocity_y(Nx, Ny, Nz);
+            FloatArray Velocity_z(Nx, Ny, Nz);
             
-            ScaLBL_Comm->RegularLayout(Map, &Velocity[0], Velocity_x);
-            ScaLBL_Comm->RegularLayout(Map, &Velocity[Np], Velocity_y);
-            ScaLBL_Comm->RegularLayout(Map, &Velocity[2 * Np], Velocity_z);
+            Velocity_x.fill(0.0f);
+            Velocity_y.fill(0.0f);
+            Velocity_z.fill(0.0f);
+
+            for (int k = 0; k < Nz; k++) {
+                for (int j = 0; j < Ny; j++) {
+                    for (int i = 0; i < Nx; i++) {
+                        int id = Map(i, j, k);
+                        if (id >= 0) {
+                            Velocity_x(i, j, k) = (float)Velocity[id];
+                            Velocity_y(i, j, k) = (float)Velocity[Np + id];
+                            Velocity_z(i, j, k) = (float)Velocity[2 * Np + id];
+                        }
+                    }
+                }
+            }
 
             double vax_loc_A = 0.0, vay_loc_A = 0.0, vaz_loc_A = 0.0;
             double count_loc_A = 0.0;
@@ -585,76 +603,119 @@ void ScaLBL_SteadyPhaseModel::Run() {
 
 void ScaLBL_SteadyPhaseModel::VelocityField() {
     auto format = vis_db->getWithDefault<std::string>("format", "silo");
-    if (vis_db->getWithDefault<bool>("write_silo", false)) {
-        
-        DoubleArray Vel_x(Nx, Ny, Nz), Vel_y(Nx, Ny, Nz), Vel_z(Nx, Ny, Nz);
-        DoubleArray Norm_x(Nx, Ny, Nz), Norm_y(Nx, Ny, Nz), Norm_z(Nx, Ny, Nz);
-        
-        DoubleArray PhaseHost(Nx, Ny, Nz);
-        DoubleArray PressureHost(Nx, Ny, Nz); 
+    if (!vis_db->getWithDefault<bool>("write_silo", false)) return;
 
-        ScaLBL_Comm->RegularLayout(Map, &Velocity[0], Vel_x);
-        ScaLBL_Comm->RegularLayout(Map, &Velocity[Np], Vel_y);
-        ScaLBL_Comm->RegularLayout(Map, &Velocity[2 * Np], Vel_z);
-        ScaLBL_Comm->RegularLayout(Map, &ColorGrad[0], Norm_x);
-        ScaLBL_Comm->RegularLayout(Map, &ColorGrad[Np], Norm_y);
-        ScaLBL_Comm->RegularLayout(Map, &ColorGrad[2 * Np], Norm_z);
-        ScaLBL_Comm->RegularLayout(Map, &Pressure[0], PressureHost); 
+    bool save_phase    = vis_db->getWithDefault<bool>("save_phase", true);
+    bool save_velocity = vis_db->getWithDefault<bool>("save_velocity", true);
+    bool save_normal   = vis_db->getWithDefault<bool>("save_normal", false);
+    bool save_signdist = vis_db->getWithDefault<bool>("save_signdistance", false);
+    bool save_pressure = vis_db->getWithDefault<bool>("save_pressure", true);
 
+    IO::initialize("", format, false);
+    std::vector<IO::MeshDataStruct> visData(1);
+    visData[0].meshName = "domain";
+    visData[0].mesh = std::make_shared<IO::DomainMesh>(Dm->rank_info, Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2, Dm->Lx, Dm->Ly, Dm->Lz);
+    
+    int var_index = 0;
+    auto add_variable = [&](const std::string& name) {
+        auto var = std::make_shared<IO::Variable>();
+        var->name = name;
+        var->type = IO::VariableType::VolumeVariable;
+        var->dim = 1;
+        var->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
+        visData[0].vars.push_back(var);
+        return var_index++;
+    };
+
+    int idx_phase = -1, idx_velx = -1, idx_vely = -1, idx_velz = -1;
+    int idx_normx = -1, idx_normy = -1, idx_normz = -1;
+    int idx_signdist = -1, idx_pressure = -1;
+
+    if (save_phase)     idx_phase = add_variable("Phase");
+    if (save_velocity) {
+        idx_velx = add_variable("Velocity_x");
+        idx_vely = add_variable("Velocity_y");
+        idx_velz = add_variable("Velocity_z");
+    }
+    if (save_normal) {
+        idx_normx = add_variable("Normal_x");
+        idx_normy = add_variable("Normal_y");
+        idx_normz = add_variable("Normal_z");
+    }
+    if (save_signdist)  idx_signdist = add_variable("SignDistance");
+    if (save_pressure)  idx_pressure = add_variable("Pressure");
+
+    fillHalo<double> fillData(Dm->Comm, Dm->rank_info, {Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2}, {1, 1, 1}, 0, 1);
+    
+    if (save_phase && idx_phase >= 0) {
+        Array<unsigned char> PhaseHost(Nx, Ny, Nz);
         std::vector<int> h_Phi_1D(Np);
-        
         ScaLBL_CopyToHost(h_Phi_1D.data(), Phi, Np * sizeof(int));
         
-        PhaseHost.fill(0.0);
+        PhaseHost.fill(0);
         for (int k = 0; k < Nz; k++) {
             for (int j = 0; j < Ny; j++) {
                 for (int i = 0; i < Nx; i++) {
                     int id = Map(i, j, k);
                     if (id >= 0) {
                         int raw_phi = h_Phi_1D[id];
-                        if (raw_phi == -1) {
-                            PhaseHost(i, j, k) = 2.0;
-                        } else if (raw_phi == 1) {
-                            PhaseHost(i, j, k) = 1.0;
-                        } else {
-                            PhaseHost(i, j, k) = 0.0;
-                        }
+                        if (raw_phi == -1) PhaseHost(i, j, k) = 2;
+                        else if (raw_phi == 1) PhaseHost(i, j, k) = 1;
+                        else PhaseHost(i, j, k) = 0;
                     }
                 }
             }
         }
+        fillData.copy(PhaseHost, visData[0].vars[idx_phase]->data);
+    } 
 
-        IO::initialize("", format, false);
-        std::vector<IO::MeshDataStruct> visData(1);
-        visData[0].meshName = "domain";
-        visData[0].mesh = std::make_shared<IO::DomainMesh>(Dm->rank_info, Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2, Dm->Lx, Dm->Ly, Dm->Lz);
-        
-        std::vector<std::string> varNames = {
-            "Phase", "Velocity_x", "Velocity_y", "Velocity_z", 
-            "Normal_x", "Normal_y", "Normal_z", "SignDistance", "Pressure"
-        };
-        
-        for(int i = 0; i < 9; i++) {
-            auto var = std::make_shared<IO::Variable>();
-            var->name = varNames[i];
-            var->type = IO::VariableType::VolumeVariable;
-            var->dim = 1;
-            var->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
-            visData[0].vars.push_back(var);
+    if (save_velocity) {
+        {
+            DoubleArray Vel_x(Nx, Ny, Nz);
+            ScaLBL_Comm->RegularLayout(Map, &Velocity[0], Vel_x);
+            fillData.copy(Vel_x, visData[0].vars[idx_velx]->data);
         }
-
-        fillHalo<double> fillData(Dm->Comm, Dm->rank_info, {Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2}, {1, 1, 1}, 0, 1);
-        
-        fillData.copy(PhaseHost,    visData[0].vars[0]->data);
-        fillData.copy(Vel_x,        visData[0].vars[1]->data);
-        fillData.copy(Vel_y,        visData[0].vars[2]->data);
-        fillData.copy(Vel_z,        visData[0].vars[3]->data);
-        fillData.copy(Norm_x,       visData[0].vars[4]->data);
-        fillData.copy(Norm_y,       visData[0].vars[5]->data);
-        fillData.copy(Norm_z,       visData[0].vars[6]->data);
-        fillData.copy(SignDistance, visData[0].vars[7]->data);
-        fillData.copy(PressureHost, visData[0].vars[8]->data);
-        
-        IO::writeData(timestep, visData, Dm->Comm);
+        {
+            DoubleArray Vel_y(Nx, Ny, Nz);
+            ScaLBL_Comm->RegularLayout(Map, &Velocity[Np], Vel_y);
+            fillData.copy(Vel_y, visData[0].vars[idx_vely]->data);
+        }
+        {
+            DoubleArray Vel_z(Nx, Ny, Nz);
+            ScaLBL_Comm->RegularLayout(Map, &Velocity[2 * Np], Vel_z);
+            fillData.copy(Vel_z, visData[0].vars[idx_velz]->data);
+        }
     }
+
+    if (save_normal) {
+        {
+            DoubleArray Norm_x(Nx, Ny, Nz);
+            ScaLBL_Comm->RegularLayout(Map, &ColorGrad[0], Norm_x);
+            fillData.copy(Norm_x, visData[0].vars[idx_normx]->data);
+        }
+        {
+            DoubleArray Norm_y(Nx, Ny, Nz);
+            ScaLBL_Comm->RegularLayout(Map, &ColorGrad[Np], Norm_y);
+            fillData.copy(Norm_y, visData[0].vars[idx_normy]->data);
+        }
+        {
+            DoubleArray Norm_z(Nx, Ny, Nz);
+            ScaLBL_Comm->RegularLayout(Map, &ColorGrad[2 * Np], Norm_z);
+            fillData.copy(Norm_z, visData[0].vars[idx_normz]->data);
+        }
+    }
+
+    if (save_signdist && idx_signdist >= 0) {
+        fillData.copy(SignDistance, visData[0].vars[idx_signdist]->data);
+    }
+
+    if (save_pressure && idx_pressure >= 0) {
+        {
+            DoubleArray Pressure_field(Nx, Ny, Nz);
+            ScaLBL_Comm->RegularLayout(Map, &Pressure[0], Pressure_field);
+            fillData.copy(Pressure_field, visData[0].vars[idx_pressure]->data);
+        }
+    }
+    
+    IO::writeData(timestep, visData, Dm->Comm);
 }
