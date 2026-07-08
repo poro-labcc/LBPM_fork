@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Domain Decomposition (lbpm_serial_decomp) &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Visualizing simulation data with visit" href="../../visualization/visit.html" />
+    <link rel="prev" title="Digital drainage" href="../morph/ylm-inc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html">LBPM model summary</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#lbpm-support-routines">LBPM Support Routines</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Domain Decomposition (lbpm_serial_decomp)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">Domain Decomposition (lbpm_serial_decomp)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/domain/domain.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="domain-decomposition-lbpm-serial-decomp">
+<h1>Domain Decomposition (lbpm_serial_decomp)<a class="headerlink" href="#domain-decomposition-lbpm-serial-decomp" title="Link to this heading">¶</a></h1>
+<p>In order to perform simulations using large digital rock images, it is typically necessary to
+break the volumetric image into sub-regions so that different processing elements can operate
+on the data in parallel. This procedure is known as domain decomposition. In LBPM, the domain
+decomposition is performed using a regular process grid such that each processing element is
+assigned an equally-sized sub-region of the original image. The volumetric image will thus be
+sub-divided in a fashion analogous to the image depicted below</p>
+<a class="reference internal image-reference" href="../../../_images/domain-decomp.png"><img alt="../../../_images/domain-decomp.png" class="align-center" src="../../../_images/domain-decomp.png" style="width: 350px;" />
+</a>
+<p>Information regarding the intended domain structure and domain decomposition must be provided to LBPM from an input file. Input
+files are available from several of the examples contained in the <code class="docutils literal notranslate"><span class="pre">example/</span></code> directory, e.g. given the name <code class="docutils literal notranslate"><span class="pre">input.db</span></code>. LBPM
+relies on a input database structure to provide key information, which are separated by category. The <code class="docutils literal notranslate"><span class="pre">Domain</span></code> category is used
+to specify information about domain structure, and is required for most tools within LBPM. However, all fields of the input
+database are not required for all simulation tools. An example of how the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> category of an input database for the Bentheimer rock</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain {
+   Filename = &quot;mask_water_flooded_water_and_oil.raw&quot;
+   ReadType = &quot;16bit&quot;  // data type
+   N = 601, 594, 1311  // size of original image
+   nproc = 2, 2, 2     // process grid
+   n = 300, 297, 300   // sub-domain size
+   voxel_length = 7.0  // voxel length (in microns)
+   ReadValues = 0, 1, 2  // labels within the original image
+   WriteValues = 0, 2, 1 // associated labels to be used by LBPM
+   BC = 0                // boundary condition type (0 for periodic)
+}
+</pre></div>
+</div>
+<p><strong>Note spacing – spaces should separate assigned variables from</strong> <code class="docutils literal notranslate"><span class="pre">=</span></code> <strong>and after</strong> <code class="docutils literal notranslate"><span class="pre">,</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section is the only required category that is needed to perform domain decomposition.
+Other categories in the database provide model-specific information (as will be discussed in subsequent
+tutorials). If category is not needed by a particular model, it will be ignored.</p>
+<p>In order to perform a domain decomposition, it is imperative that the user provide the following fields:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Filename</span></code> – where to read the input image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">601,</span> <span class="pre">594,</span> <span class="pre">1311</span></code> – the size of the input image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nproc</span> <span class="pre">=</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2</span></code> – the number of sub-regions in the process grid in each direction</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">=</span> <span class="pre">300,</span> <span class="pre">297,</span> <span class="pre">300</span></code> – the dimensions of the sub-domain</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadValues</span></code> – list of labels in the original image</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WriteValues</span></code> – list of labels to be used by LBPM</p></li>
+</ol>
+<p>Since it is not possible to perform domain decomposition without this information, the executable will
+throw an exception and fail if these fields are not populated. Other fields are optional, but it is a
+good idea to also provide:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadType</span></code> (default value assigned to <code class="docutils literal notranslate"><span class="pre">&quot;8bit&quot;</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">voxel_length</span></code> (default value assigned to <code class="docutils literal notranslate"><span class="pre">1.0</span></code>)</p></li>
+</ul>
+<p>The size of the simulation domain will not automatically match with the original size of the input
+image. This is because the simulation domain size is determined from the process grid. In the example
+above, the total size of the simulated domain will be <code class="docutils literal notranslate"><span class="pre">600,</span> <span class="pre">594,</span> <span class="pre">600</span></code>. This means that the code will
+operate on a sub-region of the original image.</p>
+<p>Once the information input database has been populated the domain decomposition procedure can be
+performed internally by LBPM simulators. In some situations it may be useful to run the domain decomposition
+separately, for example to verify that the decomposition is being performed in the expected way. It
+can be performed in advance using the tool <code class="docutils literal notranslate"><span class="pre">lbpm_serial_decomp</span></code>, which is launched as follows:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>mpirun -n 1 lbpm_serial_decomp input.db
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">input.db</span></code> is the input file. Unlike other simulation tools within LBPM, only one MPI process is
+needed to launch domain decomposition. In most situations there is no compelling advantage to performing
+domain decomposition in parallel. Successful application should produce the following output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Input media: mask_water_flooded_water_and_oil.raw
+Relabeling 3 values
+oldvalue=0, newvalue =0
+oldvalue=1, newvalue =2
+oldvalue=2, newvalue =1
+Dimensions of segmented image: 601 x 594 x 1311
+Reading 16-bit input data
+Read segmented data from mask_water_flooded_water_and_oil.raw
+Distributing subdomains across 8 processors
+Process grid: 2 x 2 x 2
+Subdomain size: 300 x 297 x 300
+Size of transition region: 0
+Label=0, Count=188477277
+Label=1, Count=16753091
+Label=2, Count=12929600
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../morph/ylm-inc.html" class="btn btn-neutral float-left" title="Digital drainage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../visualization/visit.html" class="btn btn-neutral float-right" title="Visualizing simulation data with visit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

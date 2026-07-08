@@ -22,4 +22,16 @@ Currently supported lattice Boltzmann models
 
    morph/*
 
+###############################################################################
+LBPM Support Routines
+###############################################################################
+
+Support Routines
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+
+   domain/*
+
    

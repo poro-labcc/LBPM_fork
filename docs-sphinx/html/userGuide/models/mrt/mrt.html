@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Single-Phase Pore-Scale Model &mdash; LBPM 1.0 documentation</title>
+  <title>Single-Phase Pore-Scale Model (lbpm_permeability_simulator) &mdash; LBPM 1.0 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
@@ -20,7 +20,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Color model" href="../color/index.html" />
+    <link rel="next" title="Two-Phase Pore-Scale Simulator (lbpm_color_simulator)" href="../color/index.html" />
     <link rel="prev" title="LBPM model summary" href="../index.html" /> 
 </head>
 
@@ -48,16 +48,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Single-Phase Pore-Scale Model</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#lbm-formulation">LBM Formulation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#run-lbpm-permeability-simulator">Run lbpm_permeability_simulator</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#model-parameters">Model parameters</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#boundary-conditions">Boundary Conditions</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#example-input-file">Example Input File</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#benchmark-cases">Benchmark Cases</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Color model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Greyscale model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
@@ -66,6 +63,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#lbpm-support-routines">LBPM Support Routines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
 </ul>
@@ -92,7 +90,7 @@
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
           <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
-      <li class="breadcrumb-item active">Single-Phase Pore-Scale Model</li>
+      <li class="breadcrumb-item active">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/userGuide/models/mrt/mrt.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -102,15 +100,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="single-phase-pore-scale-model">
-<h1>Single-Phase Pore-Scale Model<a class="headerlink" href="#single-phase-pore-scale-model" title="Link to this heading">¶</a></h1>
+  <section id="single-phase-pore-scale-model-lbpm-permeability-simulator">
+<h1>Single-Phase Pore-Scale Model (lbpm_permeability_simulator)<a class="headerlink" href="#single-phase-pore-scale-model-lbpm-permeability-simulator" title="Link to this heading">¶</a></h1>
 <p>The LBPM single fluid model is implemented by a multi-relaxation time (MRT) collision model in a D3Q19
 lattice representation of lattice Boltzmann equation (LBE) to solve the fluid momentum transport, recovering the Navier-Stokes
 equations. Beside the MRT scheme a set two-relaxation time (TRT) is used to avoid half-way bounce-back slip effects <span id="id1">[<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>. The implemented
 modeling is used to assess the permeability of digital rock images in either the Darcy or non-Darcy flow regimes.</p>
 <section id="lbm-formulation">
 <h2>LBM Formulation<a class="headerlink" href="#lbm-formulation" title="Link to this heading">¶</a></h2>
-<p>The LBE governing momentum transport is defined based on a MRT scheme based on the D3Q19 discrete
+<details>
+<summary><strong>Click here to open: LBM Formulation</strong></summary><p>The LBE governing momentum transport is defined based on a MRT scheme based on the D3Q19 discrete
 velocity set:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-0">
 $$
@@ -183,7 +182,7 @@ times enforces the no-slip velocity condition exactly at a position
 one-half lattice spacing from the solid boundary. Consequently, it
 leads to a viscosity-independent numerical error in the permeability
 estimate <span id="id3">[<a class="reference internal" href="../../../citations/citations.html#id7" title="Dominique d’Humières and Irina Ginzburg. Viscosity independent numerical errors for lattice boltzmann models: from recurrence equations to “magic” collision numbers. Computers &amp; Mathematics with Applications, 58(5):823–840, 2009.">3</a>]</span>.</p>
-</section>
+</details><br></section>
 <section id="run-lbpm-permeability-simulator">
 <h2>Run lbpm_permeability_simulator<a class="headerlink" href="#run-lbpm-permeability-simulator" title="Link to this heading">¶</a></h2>
 <p>A typical command to launch the LBPM single-phase simulator is as follows</p>
@@ -194,9 +193,8 @@ estimate <span id="id3">[<a class="reference internal" href="../../../citations/
 the name of the input database that provides the simulation parameters.
 Note that the specific syntax to launch MPI tasks may vary depending on your system.
 For additional details please refer to your local system documentation.</p>
-</section>
 <section id="model-parameters">
-<h2>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h2>
+<h3>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h3>
 <p>The essential model parameters for the single-phase MRT model are</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> – control the fluid viscosity – <span class="math notranslate nohighlight">\(0.5 &lt; \tau &lt; \infty\)</span></p></li>
@@ -210,7 +208,7 @@ range of <span class="math notranslate nohighlight">\(\tau\)</span> is investiga
 the parameters governing fluid flow through the medium depend on the selected boundary condition, as discussed in the Boundary Conditions section below.</p>
 </section>
 <section id="boundary-conditions">
-<h2>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading">¶</a></h2>
+<h3>Boundary Conditions<a class="headerlink" href="#boundary-conditions" title="Link to this heading">¶</a></h3>
 <p>The following external boundary conditions are supported by <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>
 and can be set by setting the <code class="docutils literal notranslate"><span class="pre">BC</span></code> key values in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section of the
 input file database</p>
@@ -223,27 +221,24 @@ input file database</p>
 side. If the pore-structure for the image is tight, the mismatch between the inlet and
 outlet can artificially reduce the permeability of the sample due to the blockage of
 flow pathways at the boundary. LBPM includes an internal utility that will reduce the impact
-of the boundary mismatch by eroding the solid labels within the inlet and outlet layers
+of the boundary mismatch by eroding the solid labels within the inlet and outlet layers over <span class="math notranslate nohighlight">\(z\)</span>-coordinate
 (<a class="reference external" href="https://doi.org/10.1007/s10596-020-10028-9">https://doi.org/10.1007/s10596-020-10028-9</a>) to create a mixing layer.
 The number mixing layers to use can be set using the key values in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section
 of the input database</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">InletLayers</span>&#160; <span class="pre">=</span> <span class="pre">5</span></code> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> voxels at the inlet</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">OUtletLayers</span>&#160; <span class="pre">=</span> <span class="pre">5</span></code> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> voxels at the outlet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> <span class="math notranslate nohighlight">\((x, y, z)\)</span> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> at the inlet over <span class="math notranslate nohighlight">\(z\)</span>-coordinate</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUtletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> <span class="math notranslate nohighlight">\((x, y, z)\)</span> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> at the outlet over <span class="math notranslate nohighlight">\(z\)</span>-coordinate</p></li>
 </ul>
-<p>For the other boundary conditions a thin reservoir of fluid  (default <code class="docutils literal notranslate"><span class="pre">3</span></code> voxels)
-is established at either side of the domain. The inlet is defined as the boundary face
-where <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">0</span></code> and the outlet is the boundary face where <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">nprocz*nz</span></code>. By default a
-reservoir of fluid A is established at the inlet and a reservoir of fluid B is established at
-the outlet, each with a default thickness of three voxels. To over-ride the default label at
-the inlet or outlet, the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section of the database may specify the following key values</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">InletLayerPhase</span> <span class="pre">=</span> <span class="pre">2</span></code> – establish a reservoir of component B at the inlet</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">OutletLayerPhase</span> <span class="pre">=</span> <span class="pre">1</span></code> – establish a reservoir of component A at the outlet</p></li>
-</ul>
+<p>To illustrate mixing layers scheme imposed by <code class="docutils literal notranslate"><span class="pre">InletLayers</span></code> and <code class="docutils literal notranslate"><span class="pre">OutletLayers</span></code> in fully periodic domains, a tortuous square
+channel geometry is used below. Two scenarios are approached here, in the first case we do not have a
+match of fluid region in the inlet layer (area in the position <span class="math notranslate nohighlight">\(z=0\)</span>) with the outlet layer (area in the position <span class="math notranslate nohighlight">\(z=N_{z}-1\)</span>)
+and in second case we have partial overlap of the fluid region in the inlet and outlet layers. Figure XX</p>
+<p>In a scenario where there is no match between inlet and outlet pores, we recommend apply a mirroring of the image, as illustrate Figure XX.
+This procees duplicate the computational cost, but it ensure the pore conectivity and accuracy for the permeability values.
+Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details of this checkboard function see XX.</p>
 </section>
-<section id="example-input-file">
-<h2>Example Input File<a class="headerlink" href="#example-input-file" title="Link to this heading">¶</a></h2>
+<section id="input-file-example-for-bc-0">
+<h3>Input File Example for <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code><a class="headerlink" href="#input-file-example-for-bc-0" title="Link to this heading">¶</a></h3>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MRT</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
 <span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-5</span>
@@ -261,12 +256,14 @@ the inlet or outlet, the <code class="docutils literal notranslate"><span class=
 <span class="w">   </span><span class="n">ReadValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="c1">// labels within the original image</span>
 <span class="w">   </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">  </span><span class="c1">// associated labels to be used by LBPM</span>
 <span class="w">   </span><span class="n">InletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="c1">// specify 10 layers along the z-inlet</span>
+<span class="w">   </span><span class="n">OutletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="c1">// specify 10 layers along the z-outlet</span>
 <span class="w">   </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                 </span><span class="c1">// boundary condition type (0 for periodic)</span>
 <span class="p">}</span>
 <span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+</section>
 </section>
 <section id="benchmark-cases">
 <h2>Benchmark Cases<a class="headerlink" href="#benchmark-cases" title="Link to this heading">¶</a></h2>
@@ -304,7 +301,7 @@ the inlet or outlet, the <code class="docutils literal notranslate"><span class=
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="LBPM model summary" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../color/index.html" class="btn btn-neutral float-right" title="Color model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../color/index.html" class="btn btn-neutral float-right" title="Two-Phase Pore-Scale Simulator (lbpm_color_simulator)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

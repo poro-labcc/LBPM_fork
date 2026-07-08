@@ -1,5 +1,5 @@
 ###############################################################################
-Color model
+Two-Phase Pore-Scale Simulator (lbpm_color_simulator)
 ###############################################################################
 
 The LBPM color model is implemented by combining a multi-relaxation time D3Q19
@@ -62,9 +62,13 @@ The essential model parameters for the color model are
 - ``rhoB`` -- control the viscosity of fluid B -- :math:`0.05 < \rho_B < 1.0`
 
 ****************************
-Model Formulation
+LBM Formulation
 ****************************
 
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: LBM Formulation</strong></summary>
 
 Two LBEs are constructed to model the mass transport, incorporating the anti-diffusion
 
@@ -73,7 +77,7 @@ Two LBEs are constructed to model the mass transport, incorporating the anti-dif
 
    $$
    A_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) = w_q N_a \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2} 
-       + \beta  \frac{N_b}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big] \;
+       + \beta  \frac{N_b}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big], \;
    $$
 
 .. math::
@@ -82,7 +86,7 @@ Two LBEs are constructed to model the mass transport, incorporating the anti-dif
    $$
    B_q(\boldsymbol{x} + \boldsymbol{\xi}_q \delta t, t+\delta t) = 
        w_q N_b \Big[1 + \frac{\boldsymbol{u} \cdot \boldsymbol{\xi}_q}{c_s^2}
-       - \beta  \frac{N_a}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big]\;, 
+       - \beta  \frac{N_a}{N_a+N_b} \boldsymbol{n} \cdot \boldsymbol{\xi}_q\Big]. \;
    $$
 
 The number density for each fluid is obtained from the sum of the mass transport distributions
@@ -110,13 +114,7 @@ The fluid density and kinematic viscosity are determined based on linear interpo
    :nowrap:
 
    $$
-    \rho_0 = \frac{(1+\phi) \rho_n}{2}+ \frac{(1-\phi) \rho_w}{2} \;,
-   $$
-
-.. math::
-   :nowrap:
-
-   $$
+    \rho_0 = \frac{(1+\phi) \rho_n}{2}+ \frac{(1-\phi) \rho_w}{2} \;, \qquad 
     s_\nu = \frac{(1+\phi)}{2\tau_n} +\frac{(1-\phi)}{2\tau_w} \;,
    $$
 
@@ -134,11 +132,18 @@ These values are then used to model the momentum transport.
 The LBE governing momentum transport is defined based on a MRT relaxation process with additional
 terms to account for the interfacial stresses
 
+.. .. math::
+..    :nowrap:
+
+..    $$
+..       f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
+..    $$
+
 .. math::
    :nowrap:
 
    $$
-      f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
+      f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + \left(1 -  \frac{s_\nu}{2} \right)F_{q}(\boldsymbol{x}_i,t)  \;,
    $$
 
 Where :math:`\boldsymbol{F}` is an external body force and :math:`c_s^2 = 1/3` is the speed of sound for the LB model.
@@ -172,70 +177,34 @@ The non-zero equilibrium moments are defined as
    :nowrap:
 
    $$
-     m_1^{eq} = 19\frac{ j_x^2+j_y^2+j_z^2}{\rho_0} - 11\rho - 19 \alpha |\textbf{C}|, \\
+     m_1^{eq} = 19\frac{ j_x^2+j_y^2+j_z^2}{\rho_0} - 11\rho - 19 \alpha |\textbf{C}|, \; \qquad
+     m_2^{eq} = 3\rho - \frac{11( j_x^2+j_y^2+j_z^2)}{2\rho_0},
    $$
 
 .. math::
    :nowrap:
 
    $$
-     m_2^{eq} = 3\rho - \frac{11( j_x^2+j_y^2+j_z^2)}{2\rho_0}, \\
+     m_4^{eq} = -\frac{2 j_x}{3}, \; \qquad
+     m_6^{eq} = -\frac{2 j_y}{3}, \; \qquad
+     m_8^{eq} = -\frac{2 j_z}{3}, \;
    $$
 
 .. math::
    :nowrap:
 
    $$
-     m_4^{eq} = -\frac{2 j_x}{3}, \\
+     m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho_0}+ \alpha \frac{|\textbf{C}|}{2}(2n_x^2-n_y^2-n_z^2), \; \qquad
+     m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho_0} + \alpha \frac{|\textbf{C}|}{2}(n_y^2-n_z^2), \;
    $$
 
 .. math::
    :nowrap:
 
    $$
-     m_6^{eq} = -\frac{2 j_y}{3}, \\
-   $$
-
-.. math::
-   :nowrap:
-
-   $$
-     m_8^{eq} = -\frac{2 j_z}{3}, \\
-   $$
-
-.. math::
-   :nowrap:
-
-   $$
-     m_9^{eq} = \frac{2j_x^2-j_y^2-j_z^2}{\rho_0}+ \alpha \frac{|\textbf{C}|}{2}(2n_x^2-n_y^2-n_z^2), \\
-   $$
-
-.. math::
-   :nowrap:
-
-   $$
-     m_{11}^{eq} = \frac{j_y^2-j_z^2}{\rho_0} + \alpha \frac{|\textbf{C}|}{2}(n_y^2-n_z^2), \\
-   $$
-
-.. math::
-   :nowrap:
-
-   $$
-     m_{13}^{eq} = \frac{j_x j_y}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_y\;, \\
-   $$
-
-.. math::
-   :nowrap:
-
-   $$
-     m_{14}^{eq} = \frac{j_y j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_y n_z\;, \\
-   $$
-
-.. math::
-   :nowrap:
-
-   $$
-     m_{15}^{eq} = \frac{j_x j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_z\;. 
+     m_{13}^{eq} = \frac{j_x j_y}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_y, \; \qquad 
+     m_{14}^{eq} = \frac{j_y j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_y n_z, \; \qquad 
+      m_{15}^{eq} = \frac{j_x j_z}{\rho_0} + \alpha \frac{|\textbf{C}|}{2} n_x n_z,
    $$
 
 where the color gradient is determined from the phase indicator field
@@ -255,6 +224,14 @@ and the unit normal vector is
    $$
      \boldsymbol{n} = \frac{\textbf{C}}{|\textbf{C}|}\;.
    $$
+
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>
    
 ****************************
 Boundary Conditions

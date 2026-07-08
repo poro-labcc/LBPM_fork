@@ -32,6 +32,7 @@ release = '1.0'
 # ones.
 
 extensions = [
+    # "breathe",
     'sphinx.ext.mathjax',
     'sphinx_rtd_size',
     'sphinxcontrib.bibtex'
@@ -50,8 +51,11 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
-
+exclude_patterns = [
+    "_build",
+    "**.ipynb_checkpoints",
+    "**/.ipynb_checkpoints/*",
+]
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -87,6 +91,9 @@ html_css_files = [
 
 # breathe_projects = {
 # 	"LBPM Doxygen": "/home/mcclurej/local/dev/LBPM/doc/xml/"
+# }
+# breathe_projects = {
+#     "LBPM Doxygen": "/home/ricardolmb/LBPM_fork/doxygen/xml"
 # }
 # breathe_default_project = "LBPM Doxygen"
 # breathe_default_members = ('members', 'undoc-members')

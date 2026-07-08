@@ -1,5 +1,5 @@
 ###############################################################################
-Single-Phase Pore-Scale Model
+Single-Phase Pore-Scale Model (lbpm_permeability_simulator)
 ###############################################################################
 
 The LBPM single fluid model is implemented by a multi-relaxation time (MRT) collision model in a D3Q19
@@ -10,6 +10,11 @@ modeling is used to assess the permeability of digital rock images in either the
 ****************************
 LBM Formulation
 ****************************
+
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: LBM Formulation</strong></summary>
 
 The LBE governing momentum transport is defined based on a MRT scheme based on the D3Q19 discrete
 velocity set:
@@ -129,6 +134,14 @@ one-half lattice spacing from the solid boundary. Consequently, it
 leads to a viscosity-independent numerical error in the permeability
 estimate :cite:p:`d2009viscosity`.
 
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>
+
 ****************************
 Run lbpm_permeability_simulator
 ****************************
@@ -144,9 +157,9 @@ the name of the input database that provides the simulation parameters.
 Note that the specific syntax to launch MPI tasks may vary depending on your system.
 For additional details please refer to your local system documentation.
 
-***************************
+------------------------------
 Model parameters
-***************************
+------------------------------
 
 The essential model parameters for the single-phase MRT model are
 
@@ -165,9 +178,9 @@ Numerical simulations may become unstable for values of :math:`\tau` close to 0.
 range of :math:`\tau` is investigated in the benchmark tests :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc` and XX. Additionally, 
 the parameters governing fluid flow through the medium depend on the selected boundary condition, as discussed in the Boundary Conditions section below.
 
-****************************
+------------------------------
 Boundary Conditions
-****************************
+------------------------------
 
 The following external boundary conditions are supported by ``lbpm_permeability_simulator``
 and can be set by setting the ``BC`` key values in the ``Domain`` section of the
@@ -181,27 +194,36 @@ For ``BC = 0`` any mass that exits on one side of the domain will re-enter at th
 side. If the pore-structure for the image is tight, the mismatch between the inlet and
 outlet can artificially reduce the permeability of the sample due to the blockage of
 flow pathways at the boundary. LBPM includes an internal utility that will reduce the impact
-of the boundary mismatch by eroding the solid labels within the inlet and outlet layers
+of the boundary mismatch by eroding the solid labels within the inlet and outlet layers over :math:`z`-coordinate
 (https://doi.org/10.1007/s10596-020-10028-9) to create a mixing layer.
 The number mixing layers to use can be set using the key values in the ``Domain`` section
 of the input database
 
-- ``InletLayers  = 5`` -- set the number of mixing layers to ``5`` voxels at the inlet
-- ``OUtletLayers  = 5`` -- set the number of mixing layers to ``5`` voxels at the outlet
+- ``InletLayers = 0, 0, 5`` :math:`(x, y, z)` -- set the number of mixing layers to ``5`` at the inlet over :math:`z`-coordinate
+- ``OUtletLayers = 0, 0, 5`` :math:`(x, y, z)` -- set the number of mixing layers to ``5`` at the outlet over :math:`z`-coordinate
 
-For the other boundary conditions a thin reservoir of fluid  (default ``3`` voxels)
-is established at either side of the domain. The inlet is defined as the boundary face
-where ``z = 0`` and the outlet is the boundary face where ``z = nprocz*nz``. By default a
-reservoir of fluid A is established at the inlet and a reservoir of fluid B is established at
-the outlet, each with a default thickness of three voxels. To over-ride the default label at
-the inlet or outlet, the ``Domain`` section of the database may specify the following key values
+To illustrate mixing layers scheme imposed by ``InletLayers`` and ``OutletLayers`` in fully periodic domains, a tortuous square
+channel geometry is used below. Two scenarios are approached here, in the first case we do not have a 
+match of fluid region in the inlet layer (area in the position :math:`z=0`) with the outlet layer (area in the position :math:`z=N_{z}-1`)
+and in second case we have partial overlap of the fluid region in the inlet and outlet layers. Figure XX
 
-- ``InletLayerPhase = 2`` -- establish a reservoir of component B at the inlet
-- ``OutletLayerPhase = 1`` -- establish a reservoir of component A at the outlet
+.. For the other boundary conditions a thin reservoir of fluid  (default ``3`` voxels)
+.. is established at either side of the domain. The inlet is defined as the boundary face
+.. where ``z = 0`` and the outlet is the boundary face where ``z = nprocz*nz``. By default a
+.. reservoir of fluid A is established at the inlet and a reservoir of fluid B is established at
+.. the outlet, each with a default thickness of three voxels. To over-ride the default label at
+.. the inlet or outlet, the ``Domain`` section of the database may specify the following key values
 
-****************************
-Example Input File
-****************************
+.. - ``InletLayerPhase = 2`` -- establish a reservoir of component B at the inlet
+.. - ``OutletLayerPhase = 1`` -- establish a reservoir of component A at the outlet
+
+In a scenario where there is no match between inlet and outlet pores, we recommend apply a mirroring of the image, as illustrate Figure XX. 
+This procees duplicate the computational cost, but it ensure the pore conectivity and accuracy for the permeability values. 
+Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details of this checkboard function see XX. 
+
+------------------------------
+Input File Example for ``BC = 0``
+------------------------------
 
 .. code-block:: c
 
@@ -222,6 +244,7 @@ Example Input File
       ReadValues = 0, 1, 2   // labels within the original image
       WriteValues = 0, 1, 2  // associated labels to be used by LBPM
       InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+      OutletLayers = 0, 0, 10 // specify 10 layers along the z-outlet
       BC = 0                 // boundary condition type (0 for periodic)
    }
    Visualization {
