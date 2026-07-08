@@ -91,4 +91,79 @@ domain decomposition in parallel. Successful application should produce the foll
    Label=1, Count=16753091 
    Label=2, Count=12929600 
 
+****************************
+Features of lbpm_serial_decomp
+****************************
 
+The internal domain decomposition tool provides several other useful features to facilitate digital rock 
+simulations. The first of these features is to offset from the origin so that particular sub-regions of the 
+input image can be extracted for simulation. This is accomplished by providing the optional ``offset`` key 
+within the ``Domain`` section of the input file, e.g.:
+
+.. code-block:: text
+
+   Domain {
+      Filename = "mask_water_flooded_water_and_oil.raw"  
+      ReadType = "16bit"  // data type
+      N = 601, 594, 1311  // size of original image
+      nproc = 1, 1, 1     // process grid
+      n = 300, 300, 300   // sub-domain size
+      voxel_length = 7.0  // voxel length (in microns)
+      ReadValues = 0, 1, 2  // labels within the original image
+      WriteValues = 0, 2, 1 // associated labels to be used by LBPM
+      offset = 100, 100, 0  // offset from the origin for the simulation region
+   }
+
+In this case a single ``300x300x300`` sub-region will be extracted, for which the first voxel is offset from 
+the origin by ``100, 100, 0``. 
+
+A second feature is the ability to create a mixing region at the inlet using a checkerboard pattern. This 
+is useful when running steady-state flow simulations using periodic boundary conditions, especially for low 
+porosity samples. The motivation is that since micro-tomography data is not periodic, the pore-structure 
+will not align along the inlet / outlet when periodic boundary conditions are used. The intended function 
+of the mixing zone is provide fluids with pathways to transition across the non-periodic boundary so that 
+boundary effects do not artificially reduce the permeability of the sample. To specify a mixing zone, the 
+user should specify:
+
+* ``InletLayers`` -- the number of inlet layers along each inlet boundary (in voxels)
+* ``checkerSize`` -- the size of checker to create in the system (in voxels)
+
+An example input database is:
+
+.. code-block:: text
+
+   Domain {
+      Filename = "mask_water_flooded_water_and_oil.raw"  
+      ReadType = "16bit"  // data type
+      N = 601, 594, 1311  // size of original image
+      nproc = 2, 2, 2     // process grid
+      n = 300, 297, 300   // sub-domain size
+      voxel_length = 7.0  // voxel length (in microns)
+      ReadValues = 0, 1, 2   // labels within the original image
+      WriteValues = 0, 2, 1  // associated labels to be used by LBPM
+      InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+      checkerSize = 10       // size of the checker to use
+   }
+
+The output should reflect that the checkerboard mixing region was created at the z-inlet:
+
+.. code-block:: text
+
+   Input media: mask_water_flooded_water_and_oil.raw
+   Relabeling 3 values
+   oldvalue=0, newvalue =0 
+   oldvalue=1, newvalue =2 
+   oldvalue=2, newvalue =1 
+   Dimensions of segmented image: 601 x 594 x 1311 
+   Reading 16-bit input data 
+   Read segmented data from mask_water_flooded_water_and_oil.raw 
+   Checkerboard pattern at z inlet for 10 layers 
+   Distributing subdomains across 8 processors 
+   Process grid: 2 x 2 x 2 
+   Subdomain size: 300 x 297 x 300 
+   Size of transition region: 0 
+   Label=0, Count=187032700 
+   Label=1, Count=16501569 
+   Label=2, Count=14625699 
+
+**Note that python provides relatively straightforward mechanisms to manipulate input data prior to ingestion into LBPM.**
