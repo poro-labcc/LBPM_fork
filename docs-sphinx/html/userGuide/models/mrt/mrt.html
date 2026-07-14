@@ -226,16 +226,71 @@ of the boundary mismatch by eroding the solid labels within the inlet and outlet
 The number mixing layers to use can be set using the key values in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section
 of the input database</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">InletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> <span class="math notranslate nohighlight">\((x, y, z)\)</span> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> at the inlet over <span class="math notranslate nohighlight">\(z\)</span>-coordinate</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">OUtletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> <span class="math notranslate nohighlight">\((x, y, z)\)</span> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">5</span></code> at the outlet over <span class="math notranslate nohighlight">\(z\)</span>-coordinate</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">10</span></code> <span class="math notranslate nohighlight">\((x, y, z)\)</span> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">10</span></code> at the inlet over <span class="math notranslate nohighlight">\(z\)</span>-coordinate</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUtletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">10</span></code> <span class="math notranslate nohighlight">\((x, y, z)\)</span> – set the number of mixing layers to <code class="docutils literal notranslate"><span class="pre">10</span></code> at the outlet over <span class="math notranslate nohighlight">\(z\)</span>-coordinate</p></li>
 </ul>
-<p>To illustrate mixing layers scheme imposed by <code class="docutils literal notranslate"><span class="pre">InletLayers</span></code> and <code class="docutils literal notranslate"><span class="pre">OutletLayers</span></code> in fully periodic domains, a tortuous square
-channel geometry is used below. Two scenarios are approached here, in the first case we do not have a
-match of fluid region in the inlet layer (area in the position <span class="math notranslate nohighlight">\(z=0\)</span>) with the outlet layer (area in the position <span class="math notranslate nohighlight">\(z=N_{z}-1\)</span>)
-and in second case we have partial overlap of the fluid region in the inlet and outlet layers. Figure XX</p>
-<p>In a scenario where there is no match between inlet and outlet pores, we recommend apply a mirroring of the image, as illustrate Figure XX.
-This procees duplicate the computational cost, but it ensure the pore conectivity and accuracy for the permeability values.
-Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details of this checkboard function see XX.</p>
+<p>To illustrate the mixing layers scheme imposed by <code class="docutils literal notranslate"><span class="pre">InletLayers</span></code> and <code class="docutils literal notranslate"><span class="pre">OutletLayers</span></code> in fully periodic domains, a tortuous square-channel geometry
+is used as an example. In this geometry, the pore regions at the inlet and outlet only partially match. Two scenarios are considered in the
+fluid-flow simulation. In the first case, the mixing layers scheme is not applied. As a result, a constricted region is observed at the periodic
+boundaries, where the flow must adapt to the pore mismatch (<a class="reference internal" href="#no-mixing-layers"><span class="std std-numref">Fig. 1</span></a>). In the second case, the mixing layers scheme is applied using <code class="docutils literal notranslate"><span class="pre">InletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">10</span></code>
+and <code class="docutils literal notranslate"><span class="pre">OutletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">10</span></code>. In this case, an increase in the pore area is observed at the inlet and outlet boundaries due to pore matching,
+reducing the restriction imposed on the fluid flow (<a class="reference internal" href="#mixing-layers-10"><span class="std std-numref">Fig. 2</span></a>).</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="no-mixing-layers">
+<a class="reference internal image-reference" href="../../../_images/no-mixing-layers.png"><img alt="../../../_images/no-mixing-layers.png" src="../../../_images/no-mixing-layers.png" style="width: 60%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">mixing layers not applied</span><a class="headerlink" href="#no-mixing-layers" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="mixing-layers-10">
+<a class="reference internal image-reference" href="../../../_images/mixing-layers-10.png"><img alt="../../../_images/mixing-layers-10.png" src="../../../_images/mixing-layers-10.png" style="width: 60%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">mixing layers applied</span><a class="headerlink" href="#mixing-layers-10" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+<p>To observe the application of mixing layers scheme in 3D Digital Rocks and its impact in absolute permeability results
+see XXXXX 3D-DigitalRocks.</p>
+<p>In scenarios where there is no match between inlet and outlet pores (<a class="reference internal" href="#no-match"><span class="std std-numref">Fig. 3</span></a>), the fluid through the domain will not be allowed using <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code>. In this case we
+recommend apply a mirroring of the image, as illustrate <a class="reference internal" href="#simetric-domain"><span class="std std-numref">Fig. 4</span></a>. This procees duplicate the computational cost, but it ensure the pore conectivity and
+accuracy for the permeability values. Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details
+of this checkboard function see <a class="reference internal" href="../domain/domain.html"><span class="doc">Domain Decomposition (lbpm_serial_decomp)</span></a>.</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="no-match">
+<a class="reference internal image-reference" href="../../../_images/no-match.png"><img alt="../../../_images/no-match.png" src="../../../_images/no-match.png" style="width: 50%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 3 </span><span class="caption-text">no match through inlet-outlet pore area</span><a class="headerlink" href="#no-match" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="simetric-domain">
+<a class="reference internal image-reference" href="../../../_images/simetric-domain.png"><img alt="../../../_images/simetric-domain.png" src="../../../_images/simetric-domain.png" style="width: 60%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 4 </span><span class="caption-text">simetric-domain (perfect pore match)</span><a class="headerlink" href="#simetric-domain" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="input-file-example-for-bc-0">
 <h3>Input File Example for <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code><a class="headerlink" href="#input-file-example-for-bc-0" title="Link to this heading">¶</a></h3>
@@ -264,30 +319,86 @@ Is also available as function the introduction of layers based in a checkboard g
 </pre></div>
 </div>
 </section>
+<section id="assessing-steady-state-permeability">
+<h3>Assessing Steady State Permeability<a class="headerlink" href="#assessing-steady-state-permeability" title="Link to this heading">¶</a></h3>
+<p>The previous section of the tutorial covered the approach to measure steady-state permeability. We now consider how to assess
+the simulation has achieved this objective. For example, suppose that we choose <code class="docutils literal notranslate"><span class="pre">tolerance</span> <span class="pre">=</span> <span class="pre">0.01</span></code> – is this sufficient to
+produce a satisfactory measurement? To determine this, we must examine the time history for the simulation and understand how
+the simulation approaches a steady-state.</p>
+<p>LBPM is equipped with fairly sophisticated capabilities for <em>in situ</em> analysis.  This means that as a simulation is performed,
+LBPM continuously analyzes the simulation results to obtain averaged measures that capture how the flow evolves. For
+<code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code> the simulation is analyzed every <code class="docutils literal notranslate"><span class="pre">1000</span></code> timesteps, and the time history for averaged measures is
+logged to the spaced-delimited CSV file <code class="docutils literal notranslate"><span class="pre">Permeability.csv</span></code>. Effectively all spreadsheet and plotting software packages can import
+CSV files so that results can be visualized using any tool that you prefer. In my case, I often prefer to use R. In this tutorial,
+we will use python.</p>
+<p>We can plot how the time history:</p>
+<ol class="arabic simple">
+<li><p>import required modules</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>read the CSV data</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">D</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;Permeability.csv&quot;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>3. Note that the original image includes the entire cylindrical core, meaning the the permeability will be under-estimated since
+the true porosity should only include the region inside the cylinder. Furthermore units reported by LBPM are in square microns.  We
+can convert this to milliDarcy by rescaling:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">CylinderRatio</span><span class="o">=</span><span class="mf">0.7853982</span>
+<span class="n">UnitConversion</span><span class="o">=</span><span class="mi">1013</span>
+<span class="n">K</span><span class="o">=</span><span class="n">D</span><span class="p">[</span><span class="sc">&#39;k&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">UnitConversion</span><span class="o">/</span><span class="n">CylinderRatio</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Then we plot and visualize the data</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span><span class="n">K</span><span class="p">)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;permeability (millidarcy))&#39;</span><span class="p">)</span>
+<span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The resulting plot match what is shown below:</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../../_images/result-perm-ex.png"><img alt="../../../_images/result-perm-ex.png" src="../../../_images/result-perm-ex.png" style="width: 40%;" />
+</a>
+</figure>
+<p>Based on this, we can see that the permeability is still drifting, and has not completely reached steady state.  We might elect to re-run the simulation, specifying a
+larger number of maximum timesteps using <code class="docutils literal notranslate"><span class="pre">timestepMax</span></code> and  lower <code class="docutils literal notranslate"><span class="pre">tolerance</span></code>.</p>
+<p><strong>Note: larger images will require larger numbers of timesteps to reach steady-state</strong></p>
+</section>
 </section>
 <section id="benchmark-cases">
 <h2>Benchmark Cases<a class="headerlink" href="#benchmark-cases" title="Link to this heading">¶</a></h2>
-<table class="docutils align-default" id="id4">
-<caption><span class="caption-text">Benchmarks</span><a class="headerlink" href="#id4" title="Link to this table">¶</a></caption>
+<table class="docutils align-center">
 <colgroup>
 <col style="width: 33.3%" />
 <col style="width: 33.3%" />
 <col style="width: 33.3%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p><a class="reference internal" href="../../../examples/SinglePhasePoreScale/bcc/bcc.html"><span class="doc">Body-Centered Cubic</span></a></p></th>
-<th class="head"><p>3D digital Rocks</p></th>
-<th class="head"><p>Multiscale Micromodels</p></th>
+<tr class="row-odd"><th class="head"><p class="centered">
+<strong><a class="reference internal" href="../../../examples/SinglePhasePoreScale/bcc/bcc.html"><span class="doc">Body-Centered Cubic</span></a></strong></p></th>
+<th class="head"><p class="centered">
+<strong>3D Digital Rocks</strong></p></th>
+<th class="head"><p class="centered">
+<strong>Multiscale Micromodels</strong></p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><a class="reference internal image-reference" href="../../../_images/bcc-bench.png"><img alt="../../../_images/bcc-bench.png" class="align-center" src="../../../_images/bcc-bench.png" style="width: 150px;" />
+<tr class="row-even"><td><a class="reference internal image-reference" href="../../../_images/bcc-bench.png"><img alt="../../../_images/bcc-bench.png" class="align-center" src="../../../_images/bcc-bench.png" style="width: 200px;" />
 </a>
 </td>
-<td><a class="reference internal image-reference" href="../../../_images/bentheimer-3d.png"><img alt="../../../_images/bentheimer-3d.png" class="align-center" src="../../../_images/bentheimer-3d.png" style="width: 150px;" />
+<td><a class="reference internal image-reference" href="../../../_images/bentheimer-3d.png"><img alt="../../../_images/bentheimer-3d.png" class="align-center" src="../../../_images/bentheimer-3d.png" style="width: 200px;" />
 </a>
 </td>
-<td><a class="reference internal image-reference" href="../../../_images/M2-P.png"><img alt="../../../_images/M2-P.png" class="align-center" src="../../../_images/M2-P.png" style="width: 150px;" />
+<td><a class="reference internal image-reference" href="../../../_images/M2-P.png"><img alt="../../../_images/M2-P.png" class="align-center" src="../../../_images/M2-P.png" style="width: 200px;" />
 </a>
 </td>
 </tr>

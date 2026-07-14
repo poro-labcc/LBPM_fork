@@ -40,6 +40,7 @@ extensions = [
 
 math_number_all = True
 math_eqref_format = "Eq. ({number})"
+numfig = True
 
 bibtex_bibfiles = ['references.bib']
 bibtex_encoding = 'utf-8'

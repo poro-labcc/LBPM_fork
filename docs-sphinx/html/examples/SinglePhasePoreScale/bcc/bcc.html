@@ -51,7 +51,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../running.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../../domain/domain.html">Input Domain</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Single-Phase Pore-Scale Model</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Body-Centered Cubic</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Body-Centered Cubic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../morphology/morphOpen.html">Morphological pre-processors</a></li>
@@ -94,71 +97,219 @@
              
   <section id="body-centered-cubic">
 <h1>Body-Centered Cubic<a class="headerlink" href="#body-centered-cubic" title="Link to this heading">¶</a></h1>
-<p>In this analysis, our aim is to observe the dependence between the viscosity, represented
-by the relaxation time of the collision model (<span class="math notranslate nohighlight">\(\tau\)</span>), and the absolute permeability
-(<span class="math notranslate nohighlight">\(k\)</span>). This dependence is well-known in lattice Boltzmann literature and can be addressed
-to mitigate its effects as demonstrated by <span id="id1">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>. It should be noted that this
-relationship is directly influenced by the collision model and the boundary conditions
-employed in the model. The problem of creeping flow over a periodic body-centered cubic
-(BCC) is explored in order to compare the present results with <span id="id2">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>.</p>
-<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-0">
-<span class="eqno">(1)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-0" title="Link to this equation">¶</a></span>\[k^{*}=\displaystyle\frac{1}{6\pi a d^{*}}\]</div>
-<p>where <span class="math notranslate nohighlight">\(a\)</span> is the sphere radius and <span class="math notranslate nohighlight">\(d^{*}\)</span> is dimensionless drag force represented by</p>
-<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-1">
-<span class="eqno">(2)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-1" title="Link to this equation">¶</a></span>\[d^{*}=\displaystyle\frac{6\pi a \rho \nu }{F_{D}}\]</div>
-<p>being <span class="math notranslate nohighlight">\(\rho\)</span> the fluid density, <span class="math notranslate nohighlight">\(\nu\)</span> the kinematic viscosity, <span class="math notranslate nohighlight">\(F_{D}\)</span> the drag force. The
-dimensionless drag force can be also determined by the geometric propertie of solid volume
-fraction <span class="math notranslate nohighlight">\(c\)</span> as a expansion function given by</p>
-<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-2">
-<span class="eqno">(3)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-2" title="Link to this equation">¶</a></span>\[d^{*}=\displaystyle\sum_{n=0}^{30}\alpha_{n}\chi^{n}, \quad\quad
-\chi=\left(\displaystyle\frac{c}{c_{max}}\right)^{1/3}, \quad\quad c=\displaystyle\frac{8\pi a^{3}}{3L^{3}},
-\quad\quad c_{\max}=\displaystyle\frac{\sqrt{3}\pi}{8},\]</div>
-<p>where <span class="math notranslate nohighlight">\(L\)</span> is the length of the cube, <span class="math notranslate nohighlight">\(\chi\)</span> the relation between the solid volume and
-maximum solid volume and <span class="math notranslate nohighlight">\(\alpha_{n}\)</span> the coefficients obtained by <span id="id3">Sangani and Acrivos [<a class="reference internal" href="../../../citations/citations.html#id5" title="Ashok Shantilal Sangani and A Acrivos. Slow flow through a periodic array of spheres. International Journal of Multiphase Flow, 8(4):343–360, 1982.">4</a>]</span>. The
-permeability in the dimensional form corresponds to  <span class="math notranslate nohighlight">\(k=k^{*}(2a)^{2}\)</span>.</p>
-<p>LBPM provides a flexible framework to ingest 3D image data.
-To illustrate the basic capabilities, this tutorial considers a quasi-2D
-flow cell. Source files for the example are included in the LBPM repository
-in the directory <code class="docutils literal notranslate"><span class="pre">examples/DiscPack</span></code>. A simple python code is included
-to set up the flow domain.</p>
-<p>Based on LBPM convention, external boundary conditions are applied in the
-z-direction. This means that the domain should be set up so that the direction
-you want to set boundary conditions is aligned with the z-axis. For the quasi-2D
-example, a depth of <code class="docutils literal notranslate"><span class="pre">3</span></code> voxels is used for the x-direction. <em>Based on LBPM
-internal data structures at least three voxels must be provided in each direction</em>
-The specified domain decomposition must also observe this rule.</p>
-<p>Image data is stored internally within LBPM as signed 8-bit binary data. This means that
-up to 256 labels can be provided in the input image. LBPM convention takes all
-non-positive labels to be immobile (treated as solid). In this example, the solid regions
-are assigned a value of <code class="docutils literal notranslate"><span class="pre">0</span></code>.  It is possible to provide up to <code class="docutils literal notranslate"><span class="pre">128</span></code> different labels
-for the solid. Also, note that python supports only the unsigned 8-bit datatype. For the unsigned data
-type, labels assigned values <code class="docutils literal notranslate"><span class="pre">128,...255</span></code> in python will correspond to labels
-<code class="docutils literal notranslate"><span class="pre">-127,...-1</span></code> when read in as type <code class="docutils literal notranslate"><span class="pre">signed</span> <span class="pre">char</span></code> within LBPM.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-  <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>
-  <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-  <span class="c1"># Set the size of the domain</span>
-  <span class="n">Nx</span><span class="o">=</span><span class="mi">3</span>
-  <span class="n">Ny</span><span class="o">=</span><span class="mi">128</span>
-  <span class="n">Nz</span><span class="o">=</span><span class="mi">128</span>
-  <span class="n">D</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;discs.csv&quot;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-  <span class="n">ID</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">Nx</span><span class="o">*</span><span class="n">Ny</span><span class="o">*</span><span class="n">Nz</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
-  <span class="n">ID</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">Nz</span><span class="p">,</span><span class="n">Ny</span><span class="p">,</span><span class="n">Nx</span><span class="p">)</span>
-  <span class="c1"># Set the solid labels</span>
-  <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">D</span><span class="p">)):</span>
-     <span class="n">cx</span><span class="o">=</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;cx&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="n">dx</span>
-     <span class="n">cy</span><span class="o">=</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;cy&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">/</span><span class="n">dx</span>
-     <span class="n">r</span><span class="o">=</span><span class="n">D</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">/</span><span class="n">dx</span>
-     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nz</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Ny</span><span class="p">):</span>
-           <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">cx</span><span class="o">-</span><span class="n">i</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">cx</span><span class="o">-</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">cy</span><span class="o">-</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">cy</span><span class="o">-</span><span class="n">j</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">r</span><span class="o">*</span><span class="n">r</span> <span class="p">):</span>
-              <span class="n">ID</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-              <span class="n">ID</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-              <span class="n">ID</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="c1"># write input file to disc</span>
-<span class="n">ID</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="s2">&quot;discs_3x128x128.raw&quot;</span><span class="p">)</span>
+<p>This analysis considers a benchmark case commonly used to validate software tools for simulating
+fluid flow through porous media in the Darcy regime, as an analytical solution for the permeability
+of the three-dimensional domain is available. Additionally, this benchmark can be used to assess
+whether the dependence of the absolute permeability (<span class="math notranslate nohighlight">\(k\)</span>) on the fluid viscosity, represented
+by the relaxation time of the collision model (<span class="math notranslate nohighlight">\(\tau\)</span>), is properly mitigated. This dependence
+is well known in the lattice Boltzmann literature, and approaches to reduce its effects have been
+demonstrated by <span id="id1">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>. It should be noted that the relationship between permeability
+and relaxation time is directly influenced by both the collision model and the boundary conditions
+employed in the simulation.</p>
+<p>Therefore, the problem of creeping flow through a periodic body-centered cubic (BCC) array is investigated, and the
+present results are compared with those reported by <span id="id2">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>. The geometry consists of an array of spheres
+with radius <span class="math notranslate nohighlight">\(R = 11~lu\)</span> arranged in a cubic domain with side length <span class="math notranslate nohighlight">\(L = 32~lu\)</span> (where <span class="math notranslate nohighlight">\(lu\)</span> denotes
+lattice units), as illustrated in <a class="reference internal" href="#bcc-bench"><span class="std std-numref">Fig. 12</span></a> and <a class="reference internal" href="#bcc-plane"><span class="std std-numref">Fig. 13</span></a>.</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="bcc-bench">
+<a class="reference internal image-reference" href="../../../_images/bcc-bench.png"><img alt="../../../_images/bcc-bench.png" src="../../../_images/bcc-bench.png" style="width: 50%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 12 </span><span class="caption-text">3D domain of <span class="math notranslate nohighlight">\(32^{3}\)</span> lattices obtained for <span class="math notranslate nohighlight">\(R=11~lu\)</span></span><a class="headerlink" href="#bcc-bench" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="bcc-plane">
+<a class="reference internal image-reference" href="../../../_images/bcc-plane.png"><img alt="../../../_images/bcc-plane.png" src="../../../_images/bcc-plane.png" style="width: 40%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 13 </span><span class="caption-text">2D schematic projection</span><a class="headerlink" href="#bcc-plane" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Generatinf BCC Domain:</strong> The python to generate the 3D domain employd in the present analysis is given in toggle below:</p>
+<details>
+<summary><strong>Click here to open: Domain Code</strong></summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#Numerical Domain Size</span>
+<span class="n">Nx</span><span class="o">=</span><span class="mi">32</span>
+<span class="n">Ny</span><span class="o">=</span><span class="n">Nx</span>
+<span class="n">Nz</span><span class="o">=</span><span class="n">Nx</span>
+
+<span class="n">solid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">Nx</span><span class="p">,</span><span class="n">Ny</span><span class="p">,</span><span class="n">Nz</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span> <span class="c1"># Binary array to allocate the mapp of pore and solid</span>
+<span class="c1"># ------------------------ Setting Body Cubic Centered Geometry --------------------------------</span>
+<span class="n">Rr</span> <span class="o">=</span> <span class="mf">11.0</span><span class="o">*</span><span class="mf">1.0</span> <span class="c1">#Sphere Radio</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nx</span><span class="p">):</span>
+   <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Ny</span><span class="p">):</span>
+      <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Nz</span><span class="p">):</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Ny</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="n">Nz</span><span class="p">))</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">dist</span> <span class="o">&lt;</span> <span class="n">Rr</span><span class="p">)</span> <span class="p">:</span>
+               <span class="n">solid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">solid</span><span class="o">.</span><span class="n">tofile</span><span class="p">(</span><span class="s2">&quot;bcc-</span><span class="si">%d</span><span class="s2">.raw&quot;</span><span class="o">%</span> <span class="p">(</span><span class="n">Ny</span><span class="p">))</span> <span class="c1"># Array save in a file .raw</span>
 </pre></div>
 </div>
+</details><br><p>Following the procedure presented by <span id="id3">Sangani and Acrivos [<a class="reference internal" href="../../../citations/citations.html#id5" title="Ashok Shantilal Sangani and A Acrivos. Slow flow through a periodic array of spheres. International Journal of Multiphase Flow, 8(4):343–360, 1982.">4</a>]</span>, the analytical solution for the absolute permeability (<span class="math notranslate nohighlight">\(k\)</span>) of a BCC array is given by</p>
+<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-0">
+<span class="eqno">(90)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-0" title="Link to this equation">¶</a></span>\[k^{*}=\displaystyle\frac{1}{6\pi a^{*} d^{*}},\]</div>
+<p>where <span class="math notranslate nohighlight">\(k^{*}=k/(2a)^{2}\)</span> is the dimensionless absolute permeability, <span class="math notranslate nohighlight">\(a\)</span> is the sphere radius, <span class="math notranslate nohighlight">\(a^{*}=a/L\)</span> is the normalized sphere radius,
+<span class="math notranslate nohighlight">\(L\)</span> is the cube side length, and <span class="math notranslate nohighlight">\(d^{*}\)</span> is the dimensionless drag force defined as:</p>
+<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-1">
+<span class="eqno">(91)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-1" title="Link to this equation">¶</a></span>\[d^{*}=\displaystyle\frac{6\pi a^{*} \rho \nu }{F_{D}},\]</div>
+<p>being <span class="math notranslate nohighlight">\(\rho\)</span> the fluid density, <span class="math notranslate nohighlight">\(\nu\)</span> the kinematic viscosity, <span class="math notranslate nohighlight">\(F_{D}\)</span> the drag force. The dimensionless drag force used in the present
+analytical solution is obtained by the geometric propertie of solid volume fraction <span class="math notranslate nohighlight">\(c\)</span> as a power-series expansion given by</p>
+<div class="math notranslate nohighlight" id="equation-examples-singlephaseporescale-bcc-bcc-2">
+<span class="eqno">(92)<a class="headerlink" href="#equation-examples-singlephaseporescale-bcc-bcc-2" title="Link to this equation">¶</a></span>\[d^{*}=\displaystyle\sum_{n=0}^{30}\alpha_{n}\chi^{n}, \quad\quad
+\chi=\left(\displaystyle\frac{c}{c_{max}}\right)^{1/3}, \quad\quad c=\displaystyle\frac{8\pi a^{3}}{3L^{3}},
+\quad\quad c_{\max}=\displaystyle\frac{\sqrt{3}\pi}{8},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\chi\)</span> the relation between the solid volume and maximum solid volume, and <span class="math notranslate nohighlight">\(\alpha_{n}\)</span> the coefficients. The toggle below provides a
+Python code to calculate the analytical solution using the power-series expansion up to the 25th order.</p>
+<details>
+<summary><strong>Click here to open: BCC analytical absolute permeability</strong></summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1">#Coefficients up to the order 25</span>
+<span class="n">alpha_s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span><span class="mf">1.575834</span><span class="p">,</span><span class="mf">2.483254</span><span class="p">,</span><span class="mf">3.233022</span><span class="p">,</span><span class="mf">4.022864</span><span class="p">,</span><span class="mf">4.650320</span><span class="p">,</span><span class="mf">5.281412</span><span class="p">,</span>
+                  <span class="mf">5.826374</span><span class="p">,</span><span class="mf">6.258376</span><span class="p">,</span><span class="mf">6.544504</span><span class="p">,</span><span class="mf">6.878396</span><span class="p">,</span><span class="mf">7.190839</span><span class="p">,</span><span class="mf">7.268068</span><span class="p">,</span>
+                  <span class="mf">7.304025</span><span class="p">,</span><span class="mf">7.301217</span><span class="p">,</span><span class="mf">7.2364410</span><span class="p">,</span><span class="mf">7.298014</span><span class="p">,</span><span class="mf">7.369847</span><span class="p">,</span><span class="mf">7.109497</span><span class="p">,</span>
+                  <span class="mf">6.228418</span><span class="p">,</span><span class="mf">5.235796</span><span class="p">,</span><span class="mf">4.476874</span><span class="p">,</span><span class="mf">3.541982</span><span class="p">,</span><span class="mf">2.939353</span><span class="p">,</span><span class="mf">3.935484</span><span class="p">])</span>
+<span class="n">a</span><span class="o">=</span><span class="mf">11.0</span>          <span class="c1"># Sphere Radius</span>
+<span class="n">L</span><span class="o">=</span><span class="mf">32.0</span>          <span class="c1"># Cubic Domain Length</span>
+<span class="n">a_s</span><span class="o">=</span><span class="n">a</span><span class="o">/</span><span class="n">L</span>         <span class="c1"># Dimensionless Ratio</span>
+<span class="n">chi</span><span class="o">=</span><span class="p">(</span> <span class="p">(</span><span class="mf">64.0</span><span class="o">*</span><span class="n">a_s</span><span class="o">**</span><span class="p">(</span><span class="mf">3.</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span><span class="o">*</span><span class="mf">3.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">3.0</span><span class="p">))</span> <span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span> <span class="c1">#Ratio between solid volume and max volume of solid</span>
+<span class="c1">#-------------Dimensionless Drag Force Calculation-----------------------------</span>
+<span class="n">d</span><span class="o">=</span><span class="mf">0.0</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">alpha_s</span><span class="p">)):</span>
+   <span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="o">+</span><span class="n">alpha_s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">chi</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="c1">#-------------------------------------------------------------------------------</span>
+<span class="n">kana</span><span class="o">=</span><span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="n">d</span><span class="o">*</span><span class="mf">6.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">a_s</span><span class="p">)</span> <span class="c1">#Dimensionless Permeability</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;d=&quot;</span><span class="p">,</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;        Dimensionless Drag Force&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;k=&quot;</span><span class="p">,</span><span class="n">kana</span><span class="p">,</span> <span class="s2">&quot;     Dimensionless Permeability&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;chi=&quot;</span><span class="p">,</span><span class="n">chi</span><span class="p">,</span> <span class="s2">&quot;     Ratio between solid volume and max volume of solid&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</details><br><section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading">¶</a></h2>
+<section id="example-for-bc-0">
+<h3>Example for <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code><a class="headerlink" href="#example-for-bc-0" title="Link to this heading">¶</a></h3>
+<p>Fluid-flow simulations through the BCC medium are performed by varying the relaxation time (<code class="docutils literal notranslate"><span class="pre">tau</span></code>) and, consequently, the
+fluid kinematic viscosity (<span class="math notranslate nohighlight">\(\nu\)</span>), in order to analyze the viscosity dependence of the absolute permeability and assess
+the stability range of the simulations. In the present case, fully periodic boundary conditions are applied in all directions,
+and the pressure gradient is imposed through an external body force. The <code class="docutils literal notranslate"><span class="pre">.db</span></code> input file used to simulate the present case
+is presented below. Note that the pressure gradient (<span class="math notranslate nohighlight">\(\Delta p/L\)</span>) is imposed along the <span class="math notranslate nohighlight">\(z\)</span>-direction and kept constant at <span class="math notranslate nohighlight">\(10^{-5}\)</span>
+for all cases considered in the present analysis. If excessively large pressure gradients are imposed, the fluid flow may leave the Darcy regime,
+leading to a deviation from the linear relationship between pressure gradient and flow rate due to the increasing influence of inertial effects.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MRT</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-5</span>
+<span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10000</span>
+<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0001</span>
+<span class="p">}</span>
+<span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;bcc-32.raw&quot;</span>
+<span class="w">   </span><span class="n">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;8bit&quot;</span><span class="w">      </span><span class="c1">// data type</span>
+<span class="w">   </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="w">         </span><span class="c1">// size of original image</span>
+<span class="w">   </span><span class="n">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">        </span><span class="c1">// process grid</span>
+<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="w">         </span><span class="c1">// sub-domain size</span>
+<span class="w">   </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="w">       </span><span class="c1">// offset to read sub-domain</span>
+<span class="w">   </span><span class="n">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.00</span><span class="w">    </span><span class="c1">// voxel length (in microns)</span>
+<span class="w">   </span><span class="n">ReadValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="c1">// labels within the original image</span>
+<span class="w">   </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">  </span><span class="c1">// associated labels to be used by LBPM</span>
+<span class="w">   </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                 </span><span class="c1">// boundary condition type (0 for fully periodic)</span>
+<span class="p">}</span>
+<span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">write_silo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">     </span><span class="c1">// write SILO databases with assigned variables</span>
+<span class="w">   </span><span class="n">save_phase_field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">  </span><span class="c1">// save phase field within SILO database</span>
+<span class="w">   </span><span class="n">save_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">    </span><span class="c1">// save pressure field within SILO database</span>
+<span class="w">   </span><span class="n">save_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">    </span><span class="c1">// save velocity field within SILO database</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The obtained LBPM results are compared with those obtained by <span id="id4">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span> for the MRT and BGK collision models using
+half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the Figure XX. Notice good accuracy as well as constante values
+of the normalized absolute permeability (<span class="math notranslate nohighlight">\(k^{*}_{num}/k^{*}_{ana}\)</span>) as a function of fluid kinematic viscosity (<span class="math notranslate nohighlight">\(\nu\)</span>),
+variating <code class="docutils literal notranslate"><span class="pre">tau</span></code> from 0.6 up to 2. In the Figure XX the . The code and data used to generate plots are shared in toogle bellow.</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="bcc-perm">
+<a class="reference internal image-reference" href="../../../_images/bcc-perm.png"><img alt="../../../_images/bcc-perm.png" src="../../../_images/bcc-perm.png" style="width: 70%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 14 </span><span class="caption-text">Comparison of the <span class="math notranslate nohighlight">\(k^{*}_{num}/k^{*}_{ana}\)</span> as function of <span class="math notranslate nohighlight">\(\nu\)</span>. The superscript <span class="math notranslate nohighlight">\(*\)</span> indicate the results reported by <span id="id5">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span>.</span><a class="headerlink" href="#bcc-perm" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="bcc-range">
+<a class="reference internal image-reference" href="../../../_images/bcc-perm.png"><img alt="../../../_images/bcc-perm.png" src="../../../_images/bcc-perm.png" style="width: 70%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 15 </span><span class="caption-text">mixing layers applied</span><a class="headerlink" href="#bcc-range" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;mathtext.fontset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cm&#39;</span>
+
+<span class="c1">#----------------------------------------------------------</span>
+<span class="n">a</span><span class="o">=</span><span class="mf">11.0</span> <span class="c1"># Sphere Radius</span>
+<span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span><span class="mf">1.5</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.6</span><span class="p">])</span>  <span class="c1"># Relaxation Time Values</span>
+<span class="n">nu</span><span class="o">=</span><span class="p">(</span><span class="n">tau</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">/</span><span class="mf">3.0</span>                   <span class="c1"># Kinematic Viscosity Calculation</span>
+<span class="n">mDa_scal</span><span class="o">=</span><span class="mi">1013</span>                      <span class="c1">#K miliDarcy Scaling Parameter</span>
+<span class="n">knum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4716.5277</span><span class="p">,</span><span class="mf">4716.527601</span><span class="p">,</span><span class="mf">4716.525403</span><span class="p">,</span><span class="mf">4716.509253</span><span class="p">,</span><span class="mf">4715.013061</span><span class="p">])</span> <span class="c1">#Output absolute Permeability from LBPM</span>
+<span class="n">kMRT_Pan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.984</span><span class="p">,</span><span class="mf">0.984</span><span class="p">,</span><span class="mf">0.984</span><span class="p">,</span><span class="mf">0.984</span><span class="p">,</span><span class="mf">0.984</span><span class="p">])</span> <span class="c1">#MRT-HWBB</span>
+<span class="n">kBGK_Pan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.235</span><span class="p">,</span><span class="mf">1.113</span><span class="p">,</span><span class="mf">0.999</span><span class="p">,</span><span class="mf">0.940</span><span class="p">,</span><span class="mf">0.886</span><span class="p">])</span> <span class="c1">#BGK-HWBB</span>
+<span class="c1">#------------------Plots--------------------------------------</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nu</span><span class="p">,(</span><span class="n">knum</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">mDa_scal</span><span class="p">))</span><span class="o">/</span><span class="n">kana</span><span class="p">,</span><span class="s1">&#39;ko:&#39;</span><span class="p">,</span><span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span><span class="n">kMRT_Pan</span><span class="p">,</span><span class="s1">&#39;r:s&#39;</span><span class="p">,</span><span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span><span class="n">kBGK_Pan</span><span class="p">,</span><span class="s1">&#39;b:v&#39;</span><span class="p">,</span><span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span><span class="n">knum</span><span class="o">*</span><span class="mi">0</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;k--&#39;</span><span class="p">,</span><span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">frac{k^{*}_</span><span class="si">{num}</span><span class="s1">}{k^{*}_</span><span class="si">{ana}</span><span class="s1">}$&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span><span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;$</span><span class="se">\\</span><span class="s1">nu$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;LBPM&#39;</span><span class="p">,</span><span class="s1">&#39;MRT-HWBB*&#39;</span><span class="p">,</span><span class="s1">&#39;BGK-HWBB*&#39;</span><span class="p">,</span><span class="s1">&#39;Analytical&#39;</span><span class="p">],</span><span class="n">fontsize</span><span class="o">=</span><span class="mf">11.</span><span class="p">,</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 

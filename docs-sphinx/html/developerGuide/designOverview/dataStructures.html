@@ -133,7 +133,7 @@ specifically.</p>
 <a class="reference internal image-reference" href="../../_images/domain-decomp.png"><img alt="domain decomposition" src="../../_images/domain-decomp.png" style="width: 600px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Domain decomposition used by LBPM to distribute 3D image data across processors.
+<p><span class="caption-number">Fig. 9 </span><span class="caption-text">Domain decomposition used by LBPM to distribute 3D image data across processors.
 Each processor recieves an equal size block of the input image. The Domain class
 organizes MPI communications with adjacent blocks based on the processor layout.</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
 </figcaption>
@@ -171,7 +171,7 @@ The data layout is summarized in the image below.</p>
 <a class="reference internal image-reference" href="../../_images/data-structures-v0.png"><img alt="ScaLBL data structure layout" src="../../_images/data-structures-v0.png" style="width: 600px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Data structure used by ScaLBL to support lattice Boltzmann methods.
+<p><span class="caption-number">Fig. 10 </span><span class="caption-text">Data structure used by ScaLBL to support lattice Boltzmann methods.
 Regions of the input image that are occupied by solid are excluded.
 Interior and exterior lattice sites are stored separately so that
 computations can efficiently overlap with MPI communication.</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
@@ -196,7 +196,7 @@ very efficiently on either GPU or CPU.</p>
 <a class="reference internal image-reference" href="../../_images/AA-stream.png"><img alt="AA streaming pattern" src="../../_images/AA-stream.png" style="width: 600px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Data access pattern for AA streaming algorithm used by LBPM. The location to read
+<p><span class="caption-number">Fig. 11 </span><span class="caption-text">Data access pattern for AA streaming algorithm used by LBPM. The location to read
 and write distributions alternates between even and odd timesteps. A solid bounceback
 rule is built into the data structure.</span><a class="headerlink" href="#id3" title="Link to this image">¶</a></p>
 </figcaption>

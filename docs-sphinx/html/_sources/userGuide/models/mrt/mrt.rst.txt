@@ -199,13 +199,59 @@ of the boundary mismatch by eroding the solid labels within the inlet and outlet
 The number mixing layers to use can be set using the key values in the ``Domain`` section
 of the input database
 
-- ``InletLayers = 0, 0, 5`` :math:`(x, y, z)` -- set the number of mixing layers to ``5`` at the inlet over :math:`z`-coordinate
-- ``OUtletLayers = 0, 0, 5`` :math:`(x, y, z)` -- set the number of mixing layers to ``5`` at the outlet over :math:`z`-coordinate
+- ``InletLayers = 0, 0, 10`` :math:`(x, y, z)` -- set the number of mixing layers to ``10`` at the inlet over :math:`z`-coordinate
+- ``OUtletLayers = 0, 0, 10`` :math:`(x, y, z)` -- set the number of mixing layers to ``10`` at the outlet over :math:`z`-coordinate
 
-To illustrate mixing layers scheme imposed by ``InletLayers`` and ``OutletLayers`` in fully periodic domains, a tortuous square
-channel geometry is used below. Two scenarios are approached here, in the first case we do not have a 
-match of fluid region in the inlet layer (area in the position :math:`z=0`) with the outlet layer (area in the position :math:`z=N_{z}-1`)
-and in second case we have partial overlap of the fluid region in the inlet and outlet layers. Figure XX
+To illustrate the mixing layers scheme imposed by ``InletLayers`` and ``OutletLayers`` in fully periodic domains, a tortuous square-channel geometry
+is used as an example. In this geometry, the pore regions at the inlet and outlet only partially match. Two scenarios are considered in the 
+fluid-flow simulation. In the first case, the mixing layers scheme is not applied. As a result, a constricted region is observed at the periodic 
+boundaries, where the flow must adapt to the pore mismatch (:numref:`no-mixing-layers`). In the second case, the mixing layers scheme is applied using ``InletLayers = 0, 0, 10`` 
+and ``OutletLayers = 0, 0, 10``. In this case, an increase in the pore area is observed at the inlet and outlet boundaries due to pore matching, 
+reducing the restriction imposed on the fluid flow (:numref:`mixing-layers-10`).
+
+.. list-table::
+   :widths: 50 50
+   :align: center
+
+   * - .. figure:: ../../../_static/images/no-mixing-layers.png
+          :width: 60%
+          :align: center
+          :name: no-mixing-layers
+
+          mixing layers not applied
+
+     - .. figure:: ../../../_static/images/mixing-layers-10.png
+          :width: 60%
+          :align: center
+          :name: mixing-layers-10
+
+          mixing layers applied
+
+To observe the application of mixing layers scheme in 3D Digital Rocks and its impact in absolute permeability results 
+see XXXXX 3D-DigitalRocks.
+
+In scenarios where there is no match between inlet and outlet pores (:numref:`no-match`), the fluid through the domain will not be allowed using ``BC = 0``. In this case we 
+recommend apply a mirroring of the image, as illustrate :numref:`simetric-domain`. This procees duplicate the computational cost, but it ensure the pore conectivity and
+accuracy for the permeability values. Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details 
+of this checkboard function see :doc:`../domain/domain`. 
+
+.. list-table::
+   :widths: 50 50
+   :align: center
+
+   * - .. figure:: ../../../_static/images/no-match.png
+          :width: 50%
+          :align: center
+          :name: no-match
+
+          no match through inlet-outlet pore area 
+
+     - .. figure:: ../../../_static/images/simetric-domain.png
+          :width: 60%
+          :align: center
+          :name: simetric-domain
+
+          simetric-domain (perfect pore match)
 
 .. For the other boundary conditions a thin reservoir of fluid  (default ``3`` voxels)
 .. is established at either side of the domain. The inlet is defined as the boundary face
@@ -216,10 +262,6 @@ and in second case we have partial overlap of the fluid region in the inlet and 
 
 .. - ``InletLayerPhase = 2`` -- establish a reservoir of component B at the inlet
 .. - ``OutletLayerPhase = 1`` -- establish a reservoir of component A at the outlet
-
-In a scenario where there is no match between inlet and outlet pores, we recommend apply a mirroring of the image, as illustrate Figure XX. 
-This procees duplicate the computational cost, but it ensure the pore conectivity and accuracy for the permeability values. 
-Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details of this checkboard function see XX. 
 
 ------------------------------
 Input File Example for ``BC = 0``
@@ -250,26 +292,90 @@ Input File Example for ``BC = 0``
    Visualization {
    }
 
+------------------------------
+Assessing Steady State Permeability
+------------------------------ 
+
+The previous section of the tutorial covered the approach to measure steady-state permeability. We now consider how to assess 
+the simulation has achieved this objective. For example, suppose that we choose ``tolerance = 0.01`` -- is this sufficient to 
+produce a satisfactory measurement? To determine this, we must examine the time history for the simulation and understand how 
+the simulation approaches a steady-state. 
+
+LBPM is equipped with fairly sophisticated capabilities for *in situ* analysis.  This means that as a simulation is performed, 
+LBPM continuously analyzes the simulation results to obtain averaged measures that capture how the flow evolves. For 
+``lbpm_permeability_simulator`` the simulation is analyzed every ``1000`` timesteps, and the time history for averaged measures is 
+logged to the spaced-delimited CSV file ``Permeability.csv``. Effectively all spreadsheet and plotting software packages can import 
+CSV files so that results can be visualized using any tool that you prefer. In my case, I often prefer to use R. In this tutorial, 
+we will use python. 
+
+We can plot how the time history:
+
+1. import required modules
+
+.. code-block:: python
+
+   import pandas as pd
+   import numpy as np
+   from matplotlib import pyplot
+
+2. read the CSV data
+
+.. code-block:: python
+   
+   D=pd.read_csv("Permeability.csv",sep=" ")
+
+3. Note that the original image includes the entire cylindrical core, meaning the the permeability will be under-estimated since 
+the true porosity should only include the region inside the cylinder. Furthermore units reported by LBPM are in square microns.  We 
+can convert this to milliDarcy by rescaling:
+
+.. code-block:: c
+
+   CylinderRatio=0.7853982
+   UnitConversion=1013
+   K=D['k']*UnitConversion/CylinderRatio
+
+4. Then we plot and visualize the data
+
+.. code-block:: python
+
+   pyplot.figure()
+   pyplot.plot(D['time'],K)
+   pyplot.xlabel('time')
+   pyplot.ylabel('permeability (millidarcy))')
+   pyplot.show()
+
+The resulting plot match what is shown below:
+
+.. figure:: ../../../_static/images/result-perm-ex.png
+   :width: 40%
+   :align: center
+
+Based on this, we can see that the permeability is still drifting, and has not completely reached steady state.  We might elect to re-run the simulation, specifying a 
+larger number of maximum timesteps using ``timestepMax`` and  lower ``tolerance``.  
+
+**Note: larger images will require larger numbers of timesteps to reach steady-state**
+
 ****************************
 Benchmark Cases
 ****************************
 
-.. list-table:: Benchmarks
+.. list-table::
    :header-rows: 1
-   :widths: 30 30 30
+   :widths: 40 40 40
+   :align: center
 
-   * - :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc`
-     - 3D digital Rocks
-     - Multiscale Micromodels
+   * - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc`
+     - .. centered:: 3D Digital Rocks
+     - .. centered:: Multiscale Micromodels
 
    * - .. image:: ../../../_static/images/bcc-bench.png
-          :width: 150px
+          :width: 200px
           :align: center
 
      - .. image:: ../../../_static/images/bentheimer-3d.png
-          :width: 150px
+          :width: 200px
           :align: center
 
      - .. image:: ../../../_static/images/M2-P.png
-          :width: 150px
+          :width: 200px
           :align: center

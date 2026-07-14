@@ -120,12 +120,12 @@ condition are available
 <p>To match experimental conditions, it is usually important to match the capillary
 number, which is</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-color-protocols-coreflooding-0">
-<span class="eqno">(1)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-0" title="Link to this equation">¶</a></span>\[\mbox{Ca} = \frac{\mu u_z}{\gamma}\]</div>
+<span class="eqno">(13)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-0" title="Link to this equation">¶</a></span>\[\mbox{Ca} = \frac{\mu u_z}{\gamma}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\mu\)</span> is the dynamic viscosity, <span class="math notranslate nohighlight">\(u_z\)</span> is the fluid
 (usually water) velocity and <span class="math notranslate nohighlight">\(\gamma\)</span> is the interfacial tension.
 The volumetric flow rate is related to the fluid velocity based on</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-color-protocols-coreflooding-1">
-<span class="eqno">(2)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-1" title="Link to this equation">¶</a></span>\[Q_z = \epsilon C_{xy} u_z\]</div>
+<span class="eqno">(14)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-1" title="Link to this equation">¶</a></span>\[Q_z = \epsilon C_{xy} u_z\]</div>
 <p>where <span class="math notranslate nohighlight">\(C_{xy}\)</span> is the cross-sectional area and <span class="math notranslate nohighlight">\(\epsilon\)</span>
 is the porosity. Given a particular experimental system
 self-similar conditions can be determined for the lattice Boltzmann
@@ -143,7 +143,7 @@ where the units are relative to the lattice spacing, timestep and mass
 density. Agreemetn between the experimental and simulated values for
 <span class="math notranslate nohighlight">\(\mbox{Ca}\)</span> is ensured by setting the volumetric flux</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-color-protocols-coreflooding-2">
-<span class="eqno">(3)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-2" title="Link to this equation">¶</a></span>\[Q_z = \frac{\epsilon C_{xy} \gamma }{\mu} \mbox{Ca}\]</div>
+<span class="eqno">(15)<a class="headerlink" href="#equation-userguide-models-color-protocols-coreflooding-2" title="Link to this equation">¶</a></span>\[Q_z = \frac{\epsilon C_{xy} \gamma }{\mu} \mbox{Ca}\]</div>
 <p>where the LB units of the volumetric flux will be voxels per timestep.</p>
 <p>In some situations it may also be important to match other non-dimensional numbers,
 such as the viscosity ratio, density ratio, and/or Ohnesorge/Laplace number. This
