@@ -179,7 +179,7 @@ leading to a deviation from the linear relationship between pressure gradient an
       tau = 1.0
       F = 0.0, 0.0, 1.0e-5
       timestepMax = 10000
-      tolerance = 0.0001
+      tolerance = 0.000001
    }
    Domain {
       Filename = "bcc-32.raw"
@@ -201,9 +201,11 @@ leading to a deviation from the linear relationship between pressure gradient an
    }
 
 The obtained LBPM results are compared with those obtained by :cite:t:`pan2006` for the MRT and BGK collision models using 
-half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the Figure XX. Notice good accuracy as well as constante values
+half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the :numref:`bcc-perm`. Notice good accuracy as well as constante values
 of the normalized absolute permeability (:math:`k^{*}_{num}/k^{*}_{ana}`) as a function of fluid kinematic viscosity (:math:`\nu`), 
-variating ``tau`` from 0.6 up to 2. In the Figure XX the . The code and data used to generate plots are shared in toogle bellow. 
+variating ``tau`` from 0.6 up to 2. In :numref:`bcc-range`, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. No 
+numerical instability was observed in the present case as :math:`\nu\rightarrow 0` or :math:`\nu\rightarrow \infty`. However, as 
+the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly.
 
 .. list-table::
    :widths: 50 50
@@ -216,12 +218,18 @@ variating ``tau`` from 0.6 up to 2. In the Figure XX the . The code and data use
 
           Comparison of the :math:`k^{*}_{num}/k^{*}_{ana}` as function of :math:`\nu`. The superscript :math:`*` indicate the results reported by :cite:t:`pan2006`.
 
-     - .. figure:: ../../../_static/images/bcc-perm.png
+     - .. figure:: ../../../_static/images/bcc-stable-range.png
           :width: 70%
           :align: center
           :name: bcc-range
 
-          mixing layers applied
+          Percentage error as a function of viscosity and, consequently, of the relaxation time.
+
+
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: Plot and Data</strong></summary>
 
 .. code-block:: python
 
@@ -247,3 +255,56 @@ variating ``tau`` from 0.6 up to 2. In the Figure XX the . The code and data use
    plt.legend(['LBPM','MRT-HWBB*','BGK-HWBB*','Analytical'],fontsize=11.,bbox_to_anchor=(1.0, 1.02))
    plt.show()
 
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>
+
+
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: Plot and Data</strong></summary>
+
+.. code-block:: python
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   plt.rcParams['mathtext.fontset'] = 'cm'
+
+   tau = np.array([0.51, 0.52, 0.55, 0.7, 1, 2, 5, 10, 20,50, 100, 200, 500, 1000, 2000, 5000,10000, 20000])
+   knum = np.array([4716.512334, 4716.526762, 4716.527702, 4716.527727,4716.527726, 4716.527724, 4716.527720, 4716.527711,
+      4716.527694, 4716.527642, 4716.527560, 4716.527388,4716.526898, 4716.526340, 4716.524416, 4716.518975,4716.512262, 4716.494803])
+
+   #----------------------------------------------------------
+   a=11.0 # Sphere Radius
+   nu=(tau-0.5)/3.0                   # Kinematic Viscosity Calculation
+   mDa_scal=1013                      #K miliDarcy Scaling Parameter
+   kana  = 0.009631551395713422
+   #------------------Plots--------------------------------------
+   fig, ax = plt.subplots(figsize=(8, 5))
+   ax.loglog(nu,(1.0-(knum/(4.0*a**2*mDa_scal))/kana)*100 ,'ko:',fillstyle='none')
+   ax.set_xlabel(r'$\nu$', fontsize=20)
+   ax.set_ylabel(r'$E_k\,[\%]$',fontsize=20,rotation=0,labelpad=25)
+   ax.set_ylim(0.1, 0.2)
+   # Create upper x-axis
+   ax_top = ax.twiny()
+   ax_top.set_xscale('log')
+   ax_top.set_xlim(ax.get_xlim())
+   ax_top.set_xticks(nu)
+   ax_top.set_xticklabels(['0.51', '0.52', '0.55', '0.7', '1', '2', '5','10', '20', '50', '100', '200', '500', '1000', '2000', '5000', '10000','20000'])
+   ax_top.set_xlabel(r'$\tau$', fontsize=20, labelpad=10)
+   ax_top.tick_params(axis='x', labelsize=10, rotation=45)
+   plt.savefig('bcc-stable-range.png',dpi=300,bbox_inches='tight')
+   plt.show()
+
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>

@@ -234,7 +234,7 @@ leading to a deviation from the linear relationship between pressure gradient an
 <span class="w">   </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
 <span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-5</span>
 <span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10000</span>
-<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0001</span>
+<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.000001</span>
 <span class="p">}</span>
 <span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;bcc-32.raw&quot;</span>
@@ -257,9 +257,11 @@ leading to a deviation from the linear relationship between pressure gradient an
 </pre></div>
 </div>
 <p>The obtained LBPM results are compared with those obtained by <span id="id4">Pan <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id2" title="Chongxun Pan, Li-Shi Luo, and Cass T Miller. An evaluation of lattice boltzmann schemes for porous medium flow simulation. Computers &amp; fluids, 35(8-9):898–909, 2006.">1</a>]</span> for the MRT and BGK collision models using
-half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the Figure XX. Notice good accuracy as well as constante values
+half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the <a class="reference internal" href="#bcc-perm"><span class="std std-numref">Fig. 14</span></a>. Notice good accuracy as well as constante values
 of the normalized absolute permeability (<span class="math notranslate nohighlight">\(k^{*}_{num}/k^{*}_{ana}\)</span>) as a function of fluid kinematic viscosity (<span class="math notranslate nohighlight">\(\nu\)</span>),
-variating <code class="docutils literal notranslate"><span class="pre">tau</span></code> from 0.6 up to 2. In the Figure XX the . The code and data used to generate plots are shared in toogle bellow.</p>
+variating <code class="docutils literal notranslate"><span class="pre">tau</span></code> from 0.6 up to 2. In <a class="reference internal" href="#bcc-range"><span class="std std-numref">Fig. 15</span></a>, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. No
+numerical instability was observed in the present case as <span class="math notranslate nohighlight">\(\nu\rightarrow 0\)</span> or <span class="math notranslate nohighlight">\(\nu\rightarrow \infty\)</span>. However, as
+the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly.</p>
 <table class="docutils align-center">
 <colgroup>
 <col style="width: 50.0%" />
@@ -275,17 +277,18 @@ variating <code class="docutils literal notranslate"><span class="pre">tau</span
 </figure>
 </td>
 <td><figure class="align-center" id="bcc-range">
-<a class="reference internal image-reference" href="../../../_images/bcc-perm.png"><img alt="../../../_images/bcc-perm.png" src="../../../_images/bcc-perm.png" style="width: 70%;" />
+<a class="reference internal image-reference" href="../../../_images/bcc-stable-range.png"><img alt="../../../_images/bcc-stable-range.png" src="../../../_images/bcc-stable-range.png" style="width: 70%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 15 </span><span class="caption-text">mixing layers applied</span><a class="headerlink" href="#bcc-range" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 15 </span><span class="caption-text">Percentage error as a function of viscosity and, consequently, of the relaxation time.</span><a class="headerlink" href="#bcc-range" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<details>
+<summary><strong>Click here to open: Plot and Data</strong></summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;mathtext.fontset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cm&#39;</span>
 
@@ -308,7 +311,39 @@ variating <code class="docutils literal notranslate"><span class="pre">tau</span
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-</section>
+</details><br><details>
+<summary><strong>Click here to open: Plot and Data</strong></summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;mathtext.fontset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cm&#39;</span>
+
+<span class="n">tau</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.51</span><span class="p">,</span> <span class="mf">0.52</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">20000</span><span class="p">])</span>
+<span class="n">knum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">4716.512334</span><span class="p">,</span> <span class="mf">4716.526762</span><span class="p">,</span> <span class="mf">4716.527702</span><span class="p">,</span> <span class="mf">4716.527727</span><span class="p">,</span><span class="mf">4716.527726</span><span class="p">,</span> <span class="mf">4716.527724</span><span class="p">,</span> <span class="mf">4716.527720</span><span class="p">,</span> <span class="mf">4716.527711</span><span class="p">,</span>
+   <span class="mf">4716.527694</span><span class="p">,</span> <span class="mf">4716.527642</span><span class="p">,</span> <span class="mf">4716.527560</span><span class="p">,</span> <span class="mf">4716.527388</span><span class="p">,</span><span class="mf">4716.526898</span><span class="p">,</span> <span class="mf">4716.526340</span><span class="p">,</span> <span class="mf">4716.524416</span><span class="p">,</span> <span class="mf">4716.518975</span><span class="p">,</span><span class="mf">4716.512262</span><span class="p">,</span> <span class="mf">4716.494803</span><span class="p">])</span>
+
+<span class="c1">#----------------------------------------------------------</span>
+<span class="n">a</span><span class="o">=</span><span class="mf">11.0</span> <span class="c1"># Sphere Radius</span>
+<span class="n">nu</span><span class="o">=</span><span class="p">(</span><span class="n">tau</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">/</span><span class="mf">3.0</span>                   <span class="c1"># Kinematic Viscosity Calculation</span>
+<span class="n">mDa_scal</span><span class="o">=</span><span class="mi">1013</span>                      <span class="c1">#K miliDarcy Scaling Parameter</span>
+<span class="n">kana</span>  <span class="o">=</span> <span class="mf">0.009631551395713422</span>
+<span class="c1">#------------------Plots--------------------------------------</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">nu</span><span class="p">,(</span><span class="mf">1.0</span><span class="o">-</span><span class="p">(</span><span class="n">knum</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">a</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">mDa_scal</span><span class="p">))</span><span class="o">/</span><span class="n">kana</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span> <span class="p">,</span><span class="s1">&#39;ko:&#39;</span><span class="p">,</span><span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\nu$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$E_k\,[\%]$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">labelpad</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="c1"># Create upper x-axis</span>
+<span class="n">ax_top</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">())</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;0.51&#39;</span><span class="p">,</span> <span class="s1">&#39;0.52&#39;</span><span class="p">,</span> <span class="s1">&#39;0.55&#39;</span><span class="p">,</span> <span class="s1">&#39;0.7&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span><span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="s1">&#39;20&#39;</span><span class="p">,</span> <span class="s1">&#39;50&#39;</span><span class="p">,</span> <span class="s1">&#39;100&#39;</span><span class="p">,</span> <span class="s1">&#39;200&#39;</span><span class="p">,</span> <span class="s1">&#39;500&#39;</span><span class="p">,</span> <span class="s1">&#39;1000&#39;</span><span class="p">,</span> <span class="s1">&#39;2000&#39;</span><span class="p">,</span> <span class="s1">&#39;5000&#39;</span><span class="p">,</span> <span class="s1">&#39;10000&#39;</span><span class="p">,</span><span class="s1">&#39;20000&#39;</span><span class="p">])</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\tau$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;bcc-stable-range.png&#39;</span><span class="p">,</span><span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span><span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</details><br></section>
 </section>
 </section>
 
