@@ -53,6 +53,7 @@ public:
     int CollisionType;
     double tau;
     double tau_eff;
+    double viscosity_ratio;
     double Den; //constant density
     double tolerance;
     double Fx, Fy, Fz, flux;
@@ -60,6 +61,7 @@ public:
     double dp; //solid particle diameter, unit in voxel
     double GreyPorosity;
     bool Forchheimer;
+    double viscosity_ratio;
 
     int Nx, Ny, Nz, N, Np;
     int rank, nprocx, nprocy, nprocz, nprocs;
