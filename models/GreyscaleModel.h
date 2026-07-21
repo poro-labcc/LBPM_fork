@@ -53,6 +53,7 @@ public:
     int CollisionType;
     double tau;
     double tau_eff;
+    double viscosity_ratio;
     double Den; //constant density
     double tolerance;
     double Fx, Fy, Fz, flux;
