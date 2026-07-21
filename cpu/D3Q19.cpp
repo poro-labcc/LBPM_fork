@@ -847,17 +847,18 @@ extern "C" void ScaLBL_D3Q19_AAodd_Pressure_BC_Z(int *d_neighborList, int *list,
     }
 }
 
-extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, double *dist,
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list,int *oplist, double *dist,
                                                   double dp, int count,
                                                   int Np) {
     // distributions
     for (int idx = 0; idx < count; idx++) {
         int n = list[idx];
-        double f5 = dist[6 * Np + n];
-        double f11 = dist[12 * Np + n];
-        double f14 = dist[13 * Np + n];
-        double f15 = dist[16 * Np + n];
-        double f18 = dist[17 * Np + n];
+        int np = oplist[idx];
+        double f5 = dist[6 * Np + np];
+        double f11 = dist[12 * Np + np];
+        double f14 = dist[13 * Np + np];
+        double f15 = dist[16 * Np + np];
+        double f18 = dist[17 * Np + np];
 
         //...................................................
         // Adding gradient pressure
@@ -876,19 +877,20 @@ extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, double *dis
     }
 }
 
-extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, double *dist,
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, int *oplist, double *dist,
                                                   double dp, int count,
                                                   int Np) {
     for (int idx = 0; idx < count; idx++) {
         int n = list[idx];
+        int np = oplist[idx];
         //........................................................................
         // Read distributions
         //........................................................................
-        double f6 = dist[5 * Np + n];
-        double f12 = dist[11 * Np + n];
-        double f13 = dist[14 * Np + n];
-        double f16 = dist[15 * Np + n];
-        double f17 = dist[18 * Np + n];
+        double f6 = dist[5 * Np + np];
+        double f12 = dist[11 * Np + np];
+        double f13 = dist[14 * Np + np];
+        double f16 = dist[15 * Np + np];
+        double f17 = dist[18 * Np + np];
 
         //...................................................
         // Adding gradient pressure
@@ -908,24 +910,24 @@ extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, double *dis
     }
 }
 
-extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *d_neighborList, int *list,
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *d_neighborList, int *list, int *oplist,
                                                  double *dist, double dp,
                                                  int count, int Np) {
     int nr5, nr11, nr14, nr15, nr18;
 
     for (int idx = 0; idx < count; idx++) {
         int n = list[idx];
-
+        int np = oplist[idx];
         // Unknown distributions
-        nr5 = d_neighborList[n + 4 * Np];
+        nr5 = d_neighborList[np + 4 * Np];
         double f5 = dist[nr5];
-        nr11 = d_neighborList[n + 10 * Np];
+        nr11 = d_neighborList[np + 10 * Np];
         double f11 = dist[nr11];
-        nr15 = d_neighborList[n + 14 * Np];
+        nr15 = d_neighborList[np + 14 * Np];
         double f15 = dist[nr15];
-        nr14 = d_neighborList[n + 13 * Np];
+        nr14 = d_neighborList[np + 13 * Np];
         double f14 = dist[nr14];
-        nr18 = d_neighborList[n + 17 * Np];
+        nr18 = d_neighborList[np + 17 * Np];
         double f18 = dist[nr18];
 
         //...................................................
@@ -937,6 +939,12 @@ extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *d_neighborList, in
         double f15p = f15 + 0.02777777777777778 * dp*3.0f;
         double f18p = f18 + 0.02777777777777778 * dp*3.0f;
 
+        nr5 = d_neighborList[n + 4 * Np];
+        nr11 = d_neighborList[n + 10 * Np];
+        nr15 = d_neighborList[n + 14 * Np];
+        nr14 = d_neighborList[n + 13 * Np];
+        nr18 = d_neighborList[n + 17 * Np];
+
         dist[nr5] = f5p;
         dist[nr11] = f11p;
         dist[nr14] = f14p;
@@ -945,24 +953,24 @@ extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *d_neighborList, in
     }
 }
 
-extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *d_neighborList, int *list,
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *d_neighborList, int *list, int *oplist,
                                                  double *dist, double dp,
                                                  int count, int Np) {
     int nr6, nr12, nr13, nr16, nr17;
 
     for (int idx = 0; idx < count; idx++) {
         int n = list[idx];
-
+        int np = oplist[idx];
         // unknown distributions
-        nr6 = d_neighborList[n + 5 * Np];
+        nr6 = d_neighborList[np + 5 * Np];
         double f6 = dist[nr6];
-        nr12 = d_neighborList[n + 11 * Np];
+        nr12 = d_neighborList[np + 11 * Np];
         double f12 = dist[nr12];
-        nr16 = d_neighborList[n + 15 * Np];
+        nr16 = d_neighborList[np + 15 * Np];
         double f16 = dist[nr16];
-        nr17 = d_neighborList[n + 16 * Np];
+        nr17 = d_neighborList[np + 16 * Np];
         double f17 = dist[nr17];
-        nr13 = d_neighborList[n + 12 * Np];
+        nr13 = d_neighborList[np + 12 * Np];
         double f13 = dist[nr13];
 
         //...................................................
@@ -975,6 +983,12 @@ extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *d_neighborList, in
         double f17p = f17 - 0.02777777777777778 * dp*3.0f;
 
         //........Store in "opposite" memory location..........
+        nr6 = d_neighborList[n + 5 * Np];
+        nr12 = d_neighborList[n + 11 * Np];
+        nr16 = d_neighborList[n + 15 * Np];
+        nr17 = d_neighborList[n + 16 * Np];
+        nr13 = d_neighborList[n + 12 * Np];
+
         dist[nr6] = f6p;
         dist[nr12] = f12p;
         dist[nr13] = f13p;

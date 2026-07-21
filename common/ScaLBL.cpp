@@ -3038,10 +3038,10 @@ void ScaLBL_Communicator::D3Q19_PeriodicPressure_BC_z(int *neighborList,
                                                       int time) {
     if (kproc == 0) {
         if (time % 2 == 0) {
-            ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(dvcSendList_z, fq, dp,
+            ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(dvcSendList_z, dvcSendList_Z, fq, dp,
                                               sendCount_z, N);
         } else {
-            ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(neighborList, dvcSendList_z, fq,
+            ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(neighborList, dvcSendList_z, dvcSendList_Z, fq,
                                              dp, sendCount_z, N);
         }
     }
@@ -3052,10 +3052,10 @@ void ScaLBL_Communicator::D3Q19_PeriodicPressure_BC_Z(int *neighborList,
                                                       int time) {
     if (kproc == nprocz - 1) {
         if (time % 2 == 0) {
-            ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(dvcSendList_Z, fq, dp,
+            ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(dvcSendList_Z, dvcSendList_z, fq, dp,
                                               sendCount_Z, N);
         } else {
-            ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(neighborList, dvcSendList_Z, fq,
+            ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(neighborList, dvcSendList_Z, dvcSendList_z, fq,
                                              dp, sendCount_Z, N);
         }
     }

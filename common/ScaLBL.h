@@ -874,19 +874,19 @@ extern "C" void ScaLBL_D3Q19_AAeven_Pressure_BC_Z(int *list, double *dist,
                                                   double dout, int count,
                                                   int Np);
 
-extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *neighborList, int *list,
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_z(int *neighborList, int *list, int *oplist,
                                                  double *dist, double dp,
                                                  int count, int Np);
 
-extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *neighborList, int *list,
+extern "C" void ScaLBL_D3Q19_AAodd_PeriodicPressure_BC_Z(int *neighborList, int *list, int *oplist,
                                                  double *dist, double dp,
                                                  int count, int Np);
 
-extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, double *dist,
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_z(int *list, int *oplist, double *dist,
                                                   double dp, int count,
                                                   int Np);
 
-extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, double *dist,
+extern "C" void ScaLBL_D3Q19_AAeven_PeriodicPressure_BC_Z(int *list, int *oplist, double *dist,
                                                   double dp, int count,
                                                   int Np);
 
