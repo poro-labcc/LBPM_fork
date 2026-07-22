@@ -10,3 +10,5 @@ Single-phase benchmark cases.
 
    bcc/*
 
+   3D-DigitalRocks/*
+

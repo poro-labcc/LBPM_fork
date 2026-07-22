@@ -205,7 +205,10 @@ half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustra
 of the normalized absolute permeability (:math:`k^{*}_{num}/k^{*}_{ana}`) as a function of fluid kinematic viscosity (:math:`\nu`), 
 variating ``tau`` from 0.6 up to 2. In :numref:`bcc-range`, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. No 
 numerical instability was observed in the present case as :math:`\nu\rightarrow 0` or :math:`\nu\rightarrow \infty`. However, as 
-the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly.
+the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly. Additionally, 
+the percentage error (:math:`E_k[\%]=|1-k^{*}_{num}/k^{*}_{ana}|\times 100`) remains nearly constant at approximately :math:`0.12~\%`. This result 
+indicates that the computed permeability is essentially independent of the fluid viscosity over the investigated range. The code and data used to 
+generate the plots are provided in the toggle sections below.
 
 .. list-table::
    :widths: 50 50

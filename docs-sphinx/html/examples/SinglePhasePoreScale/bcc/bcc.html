@@ -20,7 +20,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Morphological pre-processors" href="../../morphology/morphOpen.html" />
+    <link rel="next" title="3D Digital Rocks" href="../3D-DigitalRocks/3D-DigitalRocks-Cases.html" />
     <link rel="prev" title="Single-Phase Pore-Scale Model" href="../index.html" /> 
 </head>
 
@@ -55,6 +55,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#results">Results</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../3D-DigitalRocks/3D-DigitalRocks-Cases.html">3D Digital Rocks</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../morphology/morphOpen.html">Morphological pre-processors</a></li>
@@ -261,7 +262,10 @@ half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustra
 of the normalized absolute permeability (<span class="math notranslate nohighlight">\(k^{*}_{num}/k^{*}_{ana}\)</span>) as a function of fluid kinematic viscosity (<span class="math notranslate nohighlight">\(\nu\)</span>),
 variating <code class="docutils literal notranslate"><span class="pre">tau</span></code> from 0.6 up to 2. In <a class="reference internal" href="#bcc-range"><span class="std std-numref">Fig. 15</span></a>, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. No
 numerical instability was observed in the present case as <span class="math notranslate nohighlight">\(\nu\rightarrow 0\)</span> or <span class="math notranslate nohighlight">\(\nu\rightarrow \infty\)</span>. However, as
-the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly.</p>
+the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly. Additionally,
+the percentage error (<span class="math notranslate nohighlight">\(E_k[\%]=|1-k^{*}_{num}/k^{*}_{ana}|\times 100\)</span>) remains nearly constant at approximately <span class="math notranslate nohighlight">\(0.12~\%\)</span>. This result
+indicates that the computed permeability is essentially independent of the fluid viscosity over the investigated range. The code and data used to
+generate the plots are provided in the toggle sections below.</p>
 <table class="docutils align-center">
 <colgroup>
 <col style="width: 50.0%" />
@@ -352,7 +356,7 @@ the viscosity approaches these extreme values, the number of iterations required
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../index.html" class="btn btn-neutral float-left" title="Single-Phase Pore-Scale Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../morphology/morphOpen.html" class="btn btn-neutral float-right" title="Morphological pre-processors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../3D-DigitalRocks/3D-DigitalRocks-Cases.html" class="btn btn-neutral float-right" title="3D Digital Rocks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
