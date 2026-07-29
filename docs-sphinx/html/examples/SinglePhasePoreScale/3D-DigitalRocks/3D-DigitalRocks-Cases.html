@@ -9,6 +9,7 @@
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sidebar.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,6 +17,8 @@
         <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
         <script src="../../../_static/doctools.js?v=9bcbadda"></script>
         <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="../../../_static/css/sidebar.js?v=29393464"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -97,94 +100,388 @@
              
   <section id="d-digital-rocks">
 <h1>3D Digital Rocks<a class="headerlink" href="#d-digital-rocks" title="Link to this heading">¶</a></h1>
-<p>The use of x-ray microtomography imaging in generating digital rocks has significantly advanced the characterization of
-porous properties. For instance, the 3D images obtained offer valuable insights into the complex pore network, grain
-arrangement, fluid flow properties through numerical simulations, and the overall rock morphology.</p>
-<p>In this section, we simulate the 3D images of Berea sandstone, sandpack LV60A and Bentheimer to validate the lbpm_permeability_simulator
-routine for determining absolute permeability in 3D digital rocks. The results obtained are then compared with those reported by
-{cite:t}`michels2021` and {cite:t}`mcclure2021lbpm`. Figure ref{3DR-PoreStruc} illustrates the pore structure of these 3D digital
-rocks. The raw images of the digital rocks used in this section are available at the following source:</p>
+<p>The use of X-ray microtomography to generate digital rock images has significantly advanced the characterization of
+porous materials. Three-dimensional images provide valuable insights into complex pore networks, grain arrangements,
+and fluid-flow behavior, which can be investigated through numerical simulations.</p>
+<p>In this benchmark, three-dimensional digital rock images available in the literature are used with the
+<code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code> to estimate absolute permeability. <a class="reference internal" href="#d-berea"><span class="std std-numref">Figs. 16</span></a> - <a class="reference internal" href="#d-bentheimer"><span class="std std-numref">18</span></a> illustrates the pore
+structures of some digital rocks considered in this section. The datasets are available from the following sources:</p>
 <ul class="simple">
-<li><p>{numref}`BE-LV-BE-2` (a)  Berea sandstone (<a class="reference external" href="https://figshare.com/articles/dataset/Berea_Sandstone/1153794/2">https://figshare.com/articles/dataset/Berea_Sandstone/1153794/2</a>);</p></li>
-<li><p>{numref}`BE-LV-BE-2` (b)  Sandpack LV60A (<a class="reference external" href="https://figshare.com/articles/dataset/LV60A_sandpack/1153795/2">https://figshare.com/articles/dataset/LV60A_sandpack/1153795/2</a>);</p></li>
-<li><p>{numref}`BE-LV-BE-2` (c)  Bentheimer (<a class="reference external" href="https://www.digitalrocksportal.org/projects/218">https://www.digitalrocksportal.org/projects/218</a>).</p></li>
+<li><p><strong>Berea sandstone</strong> (a): <a class="reference external" href="https://figshare.com/articles/dataset/Berea_Sandstone/1153794/2">https://figshare.com/articles/dataset/Berea_Sandstone/1153794/2</a></p></li>
+<li><p><strong>LV60A sandpack</strong> (b): <a class="reference external" href="https://figshare.com/articles/dataset/LV60A_sandpack/1153795/2">https://figshare.com/articles/dataset/LV60A_sandpack/1153795/2</a></p></li>
+<li><p><strong>Bentheimer sandstone</strong> (c): <a class="reference external" href="https://www.digitalrocksportal.org/projects/218">https://www.digitalrocksportal.org/projects/218</a></p></li>
 </ul>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>{figure} BE-LV-BE-2.png
-—
-scale: 90%
-align: center
-name: BE-LV-BE-2
-—
-Digital Rocks: a)  Berea sandstone, b)  Sandpack LV60A and c) Bentheimer.</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="d-berea">
+<a class="reference internal image-reference" href="../../../_images/3d-berea.png"><img alt="../../../_images/3d-berea.png" src="../../../_images/3d-berea.png" style="width: 60%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 16 - </span><span class="caption-text">Berea sandstone (a) <span id="id1">[<a class="reference internal" href="../../../citations/citations.html#id10" title="Imperial College Consortium on Pore-scale Imaging and Modelling. Berea Sandstone. 10 2014. URL: https://figshare.com/articles/dataset/Berea_Sandstone/1153794, doi:10.6084/m9.figshare.1153794.v2.">5</a>]</span>.</span><a class="headerlink" href="#d-berea" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="d-lv60a">
+<a class="reference internal image-reference" href="../../../_images/3d-lv60a.png"><img alt="../../../_images/3d-lv60a.png" src="../../../_images/3d-lv60a.png" style="width: 60%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 17 - </span><span class="caption-text">LV60A sandpack (b) <span id="id2">[<a class="reference internal" href="../../../citations/citations.html#id9" title="Imperial College Consortium on Pore-scale Imaging and Modelling. LV60A sandpack. 10 2014. URL: https://figshare.com/articles/dataset/LV60A_sandpack/1153795, doi:10.6084/m9.figshare.1153795.v2.">6</a>]</span>.</span><a class="headerlink" href="#d-lv60a" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="d-bentheimer">
+<a class="reference internal image-reference" href="../../../_images/3d-bentheimer.png"><img alt="../../../_images/3d-bentheimer.png" src="../../../_images/3d-bentheimer.png" style="width: 65%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 18 - </span><span class="caption-text">Bentheimer sandstone (c) <span id="id3">[<a class="reference internal" href="../../../citations/citations.html#id8" title="L. Dalton. Bentheimer and nugget residual saturation micro-computed tomography data. June 2019. URL: https://www.doi.org/10.17612/P73H4B, doi:10.17612/P73H4B.">7</a>]</span>.</span><a class="headerlink" href="#d-bentheimer" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="#d-parameters-samples"><span class="std std-numref">Tab. 1</span></a> summarizes the parameters of the digital porous media analyzed, including
+the image sizes, the resolution of the 3D images (voxel size), as well as the corresponding porosity values.</p>
+<table class="docutils align-center" id="d-parameters-samples">
+<caption><span class="caption-number">Table 1 - </span><span class="caption-text">Properties of the 3D digital-rock samples.</span><a class="headerlink" href="#d-parameters-samples" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 35.0%" />
+<col style="width: 25.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Rock type</strong></p></th>
+<th class="head"><p><strong>Size</strong> (<span class="math notranslate nohighlight">\(N_x \times N_y \times N_z\)</span>)</p></th>
+<th class="head"><p><strong>Resolution</strong> (<span class="math notranslate nohighlight">\(\mu\text{m}\)</span>)</p></th>
+<th class="head"><p><strong>Porosity</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Berea (a)</p></td>
+<td><p><span class="math notranslate nohighlight">\(400 \times 400 \times 400\)</span></p></td>
+<td><p>5.345</p></td>
+<td><p>0.198</p></td>
+</tr>
+<tr class="row-odd"><td><p>LV60A (b)</p></td>
+<td><p><span class="math notranslate nohighlight">\(450 \times 450 \times 450\)</span></p></td>
+<td><p>10.002</p></td>
+<td><p>36.8</p></td>
+</tr>
+<tr class="row-even"><td><p>Bentheimer (c)</p></td>
+<td><p><span class="math notranslate nohighlight">\(900 \times 900 \times 1600\)</span></p></td>
+<td><p>1.66</p></td>
+<td><p>23.55</p></td>
+</tr>
+</tbody>
+</table>
 <section id="absolute-permeability-numerical-setup">
 <h2>Absolute Permeability - Numerical Setup<a class="headerlink" href="#absolute-permeability-numerical-setup" title="Link to this heading">¶</a></h2>
-<p>{numref}`3DPPM` provides a summary of the parameters for the digital porous media that were employed in the simulations. This table includes detailed information such as the physical and image sizes, the resolution of the 3D images (voxel size) and the porosity. The LBPM setup follows the same structure demonstrated in the Code below. However, it has been adapted to the dimensions of each raw data file.</p>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a>{table} - Digital porous media parameters. The superscript $*$ and $star$ indicate the results reported by Michels et al. (2021) and McClure et al. (2021),  respectively.
-:name: 3DPPM
-:align: center
-| Parameter <a href="#id18"><span class="problematic" id="id19">|Berea Sandstone | LV60A Sandpack | Bentheimer |
-|:-:|</span></a>:-:<a href="#id20"><span class="problematic" id="id21">|:-:|</span></a>:-:|
-| Physical size $(mu m)$ <a href="#id9"><span class="problematic" id="id10">|</span></a>$1603.5$ | $3000.6$ | $494^{2}times 2656$ |
-| Image size (pixels) | $300^{3}$ | $300^{3}$  | $900^{2}times 1600$ |
-| Voxel size $(mu m)$ <a href="#id11"><span class="problematic" id="id12">|</span></a>$5.345$ | $10.002$ | $1.66$ |
-| Porosity $(%)$ | $19.8$ | $36.8$  | $23.55$  |
-| Absolute Permeability (Darcy) | $1.55$  | $36.58$ | $2.92$  |</p>
-<p>The LBPM setup code, using as example the Berea sandstone, is given by</p>
-<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a>c
-MRT {</p>
-<blockquote>
-<div><p>tau = 1.0
-F = 0.0, 0.0, 1.0e-6
-timestepMax = 60000
-tolerance = 0.001</p>
-</div></blockquote>
-<p>}
-Domain {</p>
-<blockquote>
-<div><p>Filename = “Berea.raw”
-ReadType = “8bit”      // data type
-N = 400, 400, 400     // size of original image
-nproc = 2, 2, 2        // process grid
-n = 200, 200, 200      // sub-domain size
-offset = 0, 0, 0 // offset to read sub-domain
-voxel_length = 5.345    // voxel length (in microns)
-ReadValues = 0, 1, 2   // labels within the original image
-WriteValues = 1, 0, 2  // associated labels to be used by LBPM
-InletLayers = 0, 0, 5 // specify 10 layers along the z-inlet
-OutletLayers = 0, 0, 5 // specify 10 layers along the z-inlet
-BC = 0                 // boundary condition type (0 for periodic)</p>
-</div></blockquote>
-<p>}
-Visualization {</p>
-<blockquote>
-<div><p>write_silo = true     // write SILO databases with assigned variables
-save_8bit_raw = true  // write labeled 8-bit binary files with phase assignments
-save_phase_field = true  // save phase field within SILO database
-save_pressure = true    // save pressure field within SILO database
-save_velocity = true    // save velocity field within SILO database</p>
-</div></blockquote>
-<section id="id17">
-<h3>}<a class="headerlink" href="#id17" title="Link to this heading">¶</a></h3>
-<p>In all cases, the domain set of “ InletLayers = 0, 0, 5” and “OutletLayers = 0, 0, 5” are used to conect inlet and outlet fo the periodic domain.</p>
+<p>The digital rocks considered in the present analysis are simulated using both the symmetry and mixing-layer schemes to compare
+their effects on the results. As discussed in section <a class="reference internal" href="../../../userGuide/models/mrt/mrt.html"><span class="doc">Boundary Conditions</span></a>, symmetric images
+provide more accurate results in periodic domains (<code class="docutils literal notranslate"><span class="pre">BC=0</span></code>) than those obtained using the mixing-layer scheme. Therefore, the
+present analysis aims to assess the influence of the mixing-layer scheme on the computed absolute permeability.</p>
+<p>The LBPM setup for the <code class="docutils literal notranslate"><span class="pre">.db</span></code> file follows the structure demonstrated in the toogles below, the first one for mixing layers scheme and
+the second one for the symmetric image. The symmetric porous domain needs be created outside of LBPM framework (mirrored in z-axis) and
+inputed as <code class="docutils literal notranslate"><span class="pre">.raw</span></code> file in a format of <code class="docutils literal notranslate"><span class="pre">uint8</span></code> or <code class="docutils literal notranslate"><span class="pre">int8</span></code> or <code class="docutils literal notranslate"><span class="pre">uint16</span></code> or <code class="docutils literal notranslate"><span class="pre">int16</span></code>.</p>
+<details>
+<summary><strong>Click here to open: .db example with mixing layers scheme</strong></summary><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MRT</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-6</span>
+<span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60000</span>
+<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span>
+<span class="p">}</span>
+<span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Berea.raw&quot;</span>
+<span class="w">   </span><span class="n">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;8bit&quot;</span><span class="w">      </span><span class="c1">// data type</span>
+<span class="w">   </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="w">     </span><span class="c1">// size of original image</span>
+<span class="w">   </span><span class="n">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">        </span><span class="c1">// process grid</span>
+<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="w">      </span><span class="c1">// sub-domain size</span>
+<span class="w">   </span><span class="n">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.345</span><span class="w">    </span><span class="c1">// voxel length (in microns)</span>
+<span class="w">   </span><span class="n">ReadValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="c1">// labels within the original image</span>
+<span class="w">   </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">  </span><span class="c1">// associated labels to be used by LBPM</span>
+<span class="w">   </span><span class="n">InletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="c1">// specify 10 layers along the z-inlet</span>
+<span class="w">   </span><span class="n">OutletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="c1">// specify 10 layers along the z-inlet</span>
+<span class="w">   </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                 </span><span class="c1">// boundary condition type (0 for periodic)</span>
+<span class="p">}</span>
+<span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">write_silo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">     </span><span class="c1">// write SILO databases with assigned variables</span>
+<span class="w">   </span><span class="n">save_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">    </span><span class="c1">// save pressure field within SILO database</span>
+<span class="w">   </span><span class="n">save_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">    </span><span class="c1">// save velocity field within SILO database</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</details><br><p>To illustrate the aplication of  mixing layers in 3D Digitla Rokcs,  <a class="reference internal" href="#berea-mix"><span class="std std-numref">Figures 19</span></a> -
+<a class="reference internal" href="#bentheimer-mix"><span class="std std-numref">21</span></a>  show the scheme where the superposition
+of the fluid nodes present in the original inlet and outlet planes are applied. Specifically, if a position <span class="math notranslate nohighlight">\((y, z)\)</span>
+corresponds to a fluid node at either the inlet or the outlet, the same position in the added layers
+is defined as a fluid node. Conversely, if the position <span class="math notranslate nohighlight">\((y, z)\)</span> corresponds to a solid node in both the inlet
+and the outlet planes, it is assigned as a solid node in the added layers. The resulting mixed layers are
+illustrated in the <a class="reference internal" href="#berea-mix-res"><span class="std std-numref">Figures 22</span></a> -
+<a class="reference internal" href="#bentheimer-mix-res"><span class="std std-numref">24</span></a>. This procedure allows the inlet and outlet to be
+connected without the need to reflect the domain sample.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../../_images/label-color.png"><img alt="../../../_images/label-color.png" src="../../../_images/label-color.png" style="width: 84%;" />
+</a>
+</figure>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="berea-mix">
+<a class="reference internal image-reference" href="../../../_images/berea-mix.png"><img alt="../../../_images/berea-mix.png" src="../../../_images/berea-mix.png" style="width: 65%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 19 - </span><span class="caption-text">Berea mixing layers.</span><a class="headerlink" href="#berea-mix" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="lv60a-mix">
+<a class="reference internal image-reference" href="../../../_images/lv60a-mix.png"><img alt="../../../_images/lv60a-mix.png" src="../../../_images/lv60a-mix.png" style="width: 65%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 20 - </span><span class="caption-text">LV60A mixing layers.</span><a class="headerlink" href="#lv60a-mix" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="bentheimer-mix">
+<a class="reference internal image-reference" href="../../../_images/bentheimer-mix.png"><img alt="../../../_images/bentheimer-mix.png" src="../../../_images/bentheimer-mix.png" style="width: 65%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 21 - </span><span class="caption-text">Bentheimer mixing layers.</span><a class="headerlink" href="#bentheimer-mix" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../../_images/label-color-2.png"><img alt="../../../_images/label-color-2.png" src="../../../_images/label-color-2.png" style="width: 40%;" />
+</a>
+</figure>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="berea-mix-res">
+<a class="reference internal image-reference" href="../../../_images/berea-mix-res.png"><img alt="../../../_images/berea-mix-res.png" src="../../../_images/berea-mix-res.png" style="width: 65%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 22 - </span><span class="caption-text">Berea mixed-layer.</span><a class="headerlink" href="#berea-mix-res" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="lv60a-mix-res">
+<a class="reference internal image-reference" href="../../../_images/lv60a-mix-res.png"><img alt="../../../_images/lv60a-mix-res.png" src="../../../_images/lv60a-mix-res.png" style="width: 65%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 23 - </span><span class="caption-text">LV60A mixed-layer.</span><a class="headerlink" href="#lv60a-mix-res" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="bentheimer-mix-res">
+<a class="reference internal image-reference" href="../../../_images/bentheimer-mix-res.png"><img alt="../../../_images/bentheimer-mix-res.png" src="../../../_images/bentheimer-mix-res.png" style="width: 65%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 24 - </span><span class="caption-text">Bentheimer mixed-layer.</span><a class="headerlink" href="#bentheimer-mix-res" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="#berea-symmetry"><span class="std std-numref">Figure 26</span></a> illustrates the symmetry applied along the <span class="math notranslate nohighlight">\(z\)</span>-axis, in comparison
+with the original image shown in <a class="reference internal" href="#d-berea-2"><span class="std std-numref">Figure 25</span></a>. As indicated in the toggle below, the image size in the input <code class="docutils literal notranslate"><span class="pre">.db</span></code> file
+is doubled, which consequently doubles the computational cost.</p>
+<details>
+<summary><strong>Click here to open: .db example for symmetric image scheme</strong></summary><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MRT</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-6</span>
+<span class="w">   </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60000</span>
+<span class="w">   </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span>
+<span class="p">}</span>
+<span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Berea.raw&quot;</span>
+<span class="w">   </span><span class="n">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;8bit&quot;</span><span class="w">      </span><span class="c1">// data type</span>
+<span class="w">   </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span><span class="w"> </span><span class="mi">400</span><span class="w">     </span><span class="c1">// size of original image</span>
+<span class="w">   </span><span class="n">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">        </span><span class="c1">// process grid</span>
+<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="w">      </span><span class="c1">// sub-domain size</span>
+<span class="w">   </span><span class="n">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.345</span><span class="w">    </span><span class="c1">// voxel length (in microns)</span>
+<span class="w">   </span><span class="n">ReadValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">   </span><span class="c1">// labels within the original image</span>
+<span class="w">   </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w">  </span><span class="c1">// associated labels to be used by LBPM</span>
+<span class="w">   </span><span class="n">InletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="c1">// specify 10 layers along the z-inlet</span>
+<span class="w">   </span><span class="n">OutletLayers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="c1">// specify 10 layers along the z-inlet</span>
+<span class="w">   </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                 </span><span class="c1">// boundary condition type (0 for periodic)</span>
+<span class="p">}</span>
+<span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">write_silo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">     </span><span class="c1">// write SILO databases with assigned variables</span>
+<span class="w">   </span><span class="n">save_pressure</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">    </span><span class="c1">// save pressure field within SILO database</span>
+<span class="w">   </span><span class="n">save_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w">    </span><span class="c1">// save velocity field within SILO database</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</details><br><table class="docutils align-center">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="d-berea-2">
+<a class="reference internal image-reference" href="../../../_images/3d-berea.png"><img alt="../../../_images/3d-berea.png" src="../../../_images/3d-berea.png" style="width: 45%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 25 - </span><span class="caption-text">Berea sandstone.</span><a class="headerlink" href="#d-berea-2" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="berea-symmetry">
+<a class="reference internal image-reference" href="../../../_images/berea-symmetry.png"><img alt="../../../_images/berea-symmetry.png" src="../../../_images/berea-symmetry.png" style="width: 60%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 26 - </span><span class="caption-text">Berea sandstone symmetric in z-axis.</span><a class="headerlink" href="#berea-symmetry" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
 <section id="results-for-bc-0">
-<h4>Results for <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code><a class="headerlink" href="#results-for-bc-0" title="Link to this heading">¶</a></h4>
-<p>The results derived from this approach are detailed in {numref}`3DR-R` and {numref}`3DPPM`. {numref}`3DR-R` visually illustrates the streamlines
-observed in each case study, effectively demonstrating the fluid flow through connected pores in z-axis. {numref}`3DPPM` provides a comparative
-analysis of the permeability values obtained from our LBPM setup against the numerical results previously published by {cite:t}`michels2021`
-and {cite:t}`mcclure2021lbpm`.</p>
-<p><code class="docutils literal notranslate"><span class="pre">`{figure}</span> <span class="pre">3DR-R.png</span>
-<span class="pre">---</span>
-<span class="pre">scale:</span> <span class="pre">80%</span>
-<span class="pre">align:</span> <span class="pre">center</span>
-<span class="pre">name:</span> <span class="pre">3DR-R</span>
-<span class="pre">---</span>
-<span class="pre">Stream</span> <span class="pre">lines:</span> <span class="pre">a)</span>&#160; <span class="pre">Berea</span> <span class="pre">sandstone,</span> <span class="pre">b)</span>&#160; <span class="pre">Sandpack</span> <span class="pre">LV60A</span> <span class="pre">and</span> <span class="pre">c)</span> <span class="pre">Bentheimer.</span>
-<span class="pre">`</span></code></p>
-<p>The permeability values obtained numerically for Berea sandstone and sandpack LV60A align closely with the reported
-by {cite:t}`michels2021`. Conversely, for Bentheimer sandstone, the permeability value obtained LBPM was significantly
-higher than the value reported by {cite:t}`mcclure2021lbpm`.</p>
-</section>
-</section>
+<h3>Results for <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code><a class="headerlink" href="#results-for-bc-0" title="Link to this heading">¶</a></h3>
+<p>Table XX presents the results obtained for the samples listed in Table YY. The average percentage deviation between the symmetry
+and mixing-layer schemes is approximately ZZ%, indicating good agreement between the two approaches. Additionally, isotropy
+analyses were performed for samples XX, YY, and ZZ, the corresponding mean values and standard deviations are reported based on
+values absolute permeability observed for each direction.</p>
+<table id="abs-perm-results"
+       class="docutils align-center"
+       style="border-collapse: collapse; width: 60%;">
+
+  <caption>
+    Absolute-permeability results obtained using the symmetric and mixing-layer schemes.
+  </caption>
+
+  <thead>
+    <tr>
+      <th rowspan="2"
+          style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: left; vertical-align: middle;">
+        Rock type
+      </th>
+
+      <th colspan="3"
+          style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        \(K_{zz}\,[\mathrm{Da}]\)
+      </th>
+
+      <th colspan="3"
+          style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        \(K_{yy}\,[\mathrm{Da}]\)
+      </th>
+
+      <th colspan="3"
+          style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        \(K_{xx}\,[\mathrm{Da}]\)
+      </th>
+    </tr>
+
+    <tr>
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        Symmetric
+      </th>
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        Mixing layer
+      </th>
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        \(\Delta_{\%}\)
+      </th>
+
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        Symmetric
+      </th>
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        Mixing layer
+      </th>
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        \(\Delta_{\%}\)
+      </th>
+
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        Symmetric
+      </th>
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        Mixing layer
+      </th>
+      <th style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
+        \(\Delta_{\%}\)
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: left;">
+        Berea (a)
+      </td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+    </tr>
+
+    <tr style="background-color: #f3f4f4;">
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: left;">
+        LV60A (b)
+      </td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+    </tr>
+
+    <tr>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: left;">
+        Bentheimer (c)
+      </td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+      <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+    </tr>
+  </tbody>
+</table></section>
 </section>
 </section>
 

@@ -1,6 +1,6 @@
-*****************
+************************
 Body-Centered Cubic
-*****************
+************************
 
 This analysis considers a benchmark case commonly used to validate software tools for simulating 
 fluid flow through porous media in the Darcy regime, as an analytical solution for the permeability 
@@ -15,7 +15,7 @@ employed in the simulation.
 Therefore, the problem of creeping flow through a periodic body-centered cubic (BCC) array is investigated, and the
 present results are compared with those reported by :cite:t:`pan2006`. The geometry consists of an array of spheres 
 with radius :math:`R = 11~lu` arranged in a cubic domain with side length :math:`L = 32~lu` (where :math:`lu` denotes 
-lattice units), as illustrated in :numref:`bcc-bench` and :numref:`bcc-plane`.
+lattice units), as illustrated in :numref:`Fig. %s <bcc-bench>` and :numref:`Fig. %s <bcc-plane>`.
 
 .. list-table::
    :widths: 50 50
@@ -160,9 +160,9 @@ Python code to calculate the analytical solution using the power-series expansio
 Results
 ------------------------------
 
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 Example for ``BC = 0``
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fluid-flow simulations through the BCC medium are performed by varying the relaxation time (``tau``) and, consequently, the 
 fluid kinematic viscosity (:math:`\nu`), in order to analyze the viscosity dependence of the absolute permeability and assess 
@@ -201,9 +201,9 @@ leading to a deviation from the linear relationship between pressure gradient an
    }
 
 The obtained LBPM results are compared with those obtained by :cite:t:`pan2006` for the MRT and BGK collision models using 
-half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the :numref:`bcc-perm`. Notice good accuracy as well as constante values
+half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the :numref:`Fig. %s <bcc-perm>`. Notice good accuracy as well as constante values
 of the normalized absolute permeability (:math:`k^{*}_{num}/k^{*}_{ana}`) as a function of fluid kinematic viscosity (:math:`\nu`), 
-variating ``tau`` from 0.6 up to 2. In :numref:`bcc-range`, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. No 
+variating ``tau`` from 0.6 up to 2. In :numref:`Fig. %s <bcc-range>`, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. No 
 numerical instability was observed in the present case as :math:`\nu\rightarrow 0` or :math:`\nu\rightarrow \infty`. However, as 
 the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly. Additionally, 
 the percentage error (:math:`E_k[\%]=|1-k^{*}_{num}/k^{*}_{ana}|\times 100`) remains nearly constant at approximately :math:`0.12~\%`. This result 

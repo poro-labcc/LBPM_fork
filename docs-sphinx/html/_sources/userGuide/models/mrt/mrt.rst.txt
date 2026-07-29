@@ -25,6 +25,7 @@ velocity set:
    $$
       f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta t,t + \delta t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} \lambda_{k} (m_k^{eq}-m_k) + w_q \boldsymbol{\xi}_q \cdot \frac{\boldsymbol{F}}{c_s^2} \;,
    $$
+
 where :math:`\boldsymbol{F}` is an external body force, :math:`c_s^2 = 1/3` is the speed of sound and :math:`\boldsymbol{\xi}_q` are the unit lattice vectors for the Lattice discretization:
 
 .. math::
@@ -142,9 +143,9 @@ estimate :cite:p:`d2009viscosity`.
 
    <br>
 
-****************************
+************************************
 Run lbpm_permeability_simulator
-****************************
+************************************
 
 A typical command to launch the LBPM single-phase simulator is as follows
 
@@ -175,7 +176,7 @@ The kinematic viscosity in LBM scale is given by
    $$
 
 Numerical simulations may become unstable for values of :math:`\tau` close to 0.5, corresponding to vanishing viscosity. The stability 
-range of :math:`\tau` is investigated in the benchmark tests :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc` and XX. Additionally, 
+range of :math:`\tau` is investigated in the benchmark tests :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc` and :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`. Additionally, 
 the parameters governing fluid flow through the medium depend on the selected boundary condition, as discussed in the Boundary Conditions section below.
 
 ------------------------------
@@ -205,9 +206,9 @@ of the input database
 To illustrate the mixing layers scheme imposed by ``InletLayers`` and ``OutletLayers`` in fully periodic domains, a tortuous square-channel geometry
 is used as an example. In this geometry, the pore regions at the inlet and outlet only partially match. Two scenarios are considered in the 
 fluid-flow simulation. In the first case, the mixing layers scheme is not applied. As a result, a constricted region is observed at the periodic 
-boundaries, where the flow must adapt to the pore mismatch (:numref:`no-mixing-layers`). In the second case, the mixing layers scheme is applied using ``InletLayers = 0, 0, 10`` 
+boundaries, where the flow must adapt to the pore mismatch (:numref:`Fig. %s <no-mixing-layers>`). In the second case, the mixing layers scheme is applied using ``InletLayers = 0, 0, 10`` 
 and ``OutletLayers = 0, 0, 10``. In this case, an increase in the pore area is observed at the inlet and outlet boundaries due to pore matching, 
-reducing the restriction imposed on the fluid flow (:numref:`mixing-layers-10`).
+reducing the restriction imposed on the fluid flow (:numref:`Fig. %s <mixing-layers-10>`).
 
 .. list-table::
    :widths: 50 50
@@ -230,8 +231,8 @@ reducing the restriction imposed on the fluid flow (:numref:`mixing-layers-10`).
 To observe the application of mixing layers scheme in 3D Digital Rocks and its impact in absolute permeability results 
 see XXXXX 3D-DigitalRocks.
 
-In scenarios where there is no match between inlet and outlet pores (:numref:`no-match`), the fluid through the domain will not be allowed using ``BC = 0``. In this case we 
-recommend apply a mirroring of the image, as illustrate :numref:`simetric-domain`. This procees duplicate the computational cost, but it ensure the pore conectivity and
+In scenarios where there is no match between inlet and outlet pores (:numref:`Fig. %s <no-match>`), the fluid through the domain will not be allowed using ``BC = 0``. In this case we 
+recommend apply a mirroring of the image, as illustrate :numref:`Fig. %s <simetric-domain>`. This procees duplicate the computational cost, but it ensure the pore conectivity and
 accuracy for the permeability values. Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details 
 of this checkboard function see :doc:`../domain/domain`. 
 
@@ -263,9 +264,9 @@ of this checkboard function see :doc:`../domain/domain`.
 .. - ``InletLayerPhase = 2`` -- establish a reservoir of component B at the inlet
 .. - ``OutletLayerPhase = 1`` -- establish a reservoir of component A at the outlet
 
-------------------------------
+------------------------------------
 Input File Example for ``BC = 0``
-------------------------------
+------------------------------------
 
 .. code-block:: c
 
@@ -292,9 +293,9 @@ Input File Example for ``BC = 0``
    Visualization {
    }
 
-------------------------------
+--------------------------------------
 Assessing Steady State Permeability
------------------------------- 
+--------------------------------------
 
 The previous section of the tutorial covered the approach to measure steady-state permeability. We now consider how to assess 
 the simulation has achieved this objective. For example, suppose that we choose ``tolerance = 0.01`` -- is this sufficient to 
@@ -365,7 +366,7 @@ Benchmark Cases
    :align: center
 
    * - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc`
-     - .. centered:: 3D Digital Rocks
+     - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`
      - .. centered:: Multiscale Micromodels
 
    * - .. image:: ../../../_static/images/bcc-bench.png

@@ -91,9 +91,9 @@ domain decomposition in parallel. Successful application should produce the foll
    Label=1, Count=16753091 
    Label=2, Count=12929600 
 
-****************************
+***********************************
 Features of lbpm_serial_decomp
-****************************
+***********************************
 
 The internal domain decomposition tool provides several other useful features to facilitate digital rock 
 simulations. The first of these features is to offset from the origin so that particular sub-regions of the 

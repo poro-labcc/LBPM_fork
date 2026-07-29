@@ -41,6 +41,10 @@ extensions = [
 math_number_all = True
 math_eqref_format = "Eq. ({number})"
 numfig = True
+numfig_format = {
+    'figure': 'Fig. %s -',
+    'table': 'Table %s -',
+}
 
 bibtex_bibfiles = ['references.bib']
 bibtex_encoding = 'utf-8'
@@ -87,7 +91,11 @@ sphinx_rtd_size_width = "100%"
 
 html_css_files = [
     'css/eqno.css',
-]
+    'css/sidebar.css',
+    ]
+
+html_js_files = ["css/sidebar.js"]
+
 # -- Breathe configuration -------------------------------------------------
 
 # breathe_projects = {
