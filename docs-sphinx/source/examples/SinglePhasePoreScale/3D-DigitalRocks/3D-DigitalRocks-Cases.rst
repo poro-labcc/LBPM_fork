@@ -42,7 +42,7 @@ structures of some digital rocks considered in this section. The datasets are av
 
           Bentheimer sandstone (c) :cite:p:`dalton2019bentheimer`.
 
-:numref:`Tab. %s <3d-parameters-samples>` summarizes the parameters of the digital porous media analyzed, including 
+:numref:`Table %s <3d-parameters-samples>` summarizes the parameters of the digital porous media analyzed, including 
 the image sizes, the resolution of the 3D images (voxel size), as well as the corresponding porosity values.
 
 

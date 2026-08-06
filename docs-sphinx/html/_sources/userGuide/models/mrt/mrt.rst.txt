@@ -367,7 +367,7 @@ Benchmark Cases
 
    * - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc`
      - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`
-     - .. centered:: Multiscale Micromodels
+     - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/Multiscale-Micromodel/Multiscale-Micromodel`
 
    * - .. image:: ../../../_static/images/bcc-bench.png
           :width: 200px

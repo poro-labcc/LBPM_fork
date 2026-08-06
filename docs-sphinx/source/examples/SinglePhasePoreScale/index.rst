@@ -2,13 +2,13 @@
 Single-Phase Pore-Scale Model
 ###############################################################################
 
-Single-phase benchmark cases.
-
 .. toctree::
    :glob:
-   :maxdepth: 2
+   :maxdepth: 1
 
    bcc/*
 
    3D-DigitalRocks/*
+
+   Multiscale-Micromodel/*
 
