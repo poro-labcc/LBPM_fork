@@ -43,11 +43,14 @@ public:
     void ReadInput();
     void Create();
     void Initialize();
+    void Initialize_fEqNeq();
+    void Initialize_fEq();
+    void Initialize_Dist();
     void Run();
     void VelocityField();
     void SaveFields();
 
-    bool Restart, pBC,  save_pressure, save_velocity;
+    bool Restart, Start, pBC,  save_pressure, save_velocity;
     int timestep, timestepMax;
     int ANALYSIS_INTERVAL,  VISUAL_INTERVAL;
     int BoundaryCondition;

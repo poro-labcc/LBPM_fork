@@ -259,13 +259,469 @@ void ScaLBL_MRTModel::Create() {
     printf("  MLPUS=%f from rank %i\n", MLUPS, rank);
 }
 
+
 void ScaLBL_MRTModel::Initialize() {
     /*
-	 * This function initializes model
+	 * This function initializes model with equilibium distribution
+     * for a null velocity field
 	 */
     if (rank == 0)
         printf("Initializing distributions \n");
     ScaLBL_D3Q19_Init(fq, Np);
+}
+
+void ScaLBL_MRTModel::Initialize_Dist() {
+    /*
+	 * This function initializes model with custom distributions
+	 */
+    
+     // Initialize distributions as no velocity Equilibrium
+    ScaLBL_D3Q19_Init(fq, Np);
+
+
+    // If there is a .raw file
+    char raw_filename[256];
+    sprintf(raw_filename, "StartF.%05d.raw", rank);
+    std::ifstream binaryFile(raw_filename, std::ios::binary);
+
+    if (binaryFile.good() && Start) {
+        // Remove halo extra voxels (added in Domain class)
+        unsigned int nx = Nx - 2;
+        unsigned int ny = Ny - 2;
+        unsigned int nz = Nz - 2;
+        unsigned int n_items = 19;
+
+        // Announces the start of the process
+        if (rank == 0) printf("Reading DENSE start file (19 items float64): %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+
+        // Allocate buffer for the domain
+        // n_items doubles per voxel (Ux, Uy, Uz, Pr)
+        size_t total_voxels = (size_t)nx * ny * nz;
+        std::vector<double> file_data(total_voxels * n_items);
+        binaryFile.read(reinterpret_cast<char*>(file_data.data()), file_data.size() * sizeof(double));
+        binaryFile.close();
+
+        // Allocate auxiliary distributions
+        double* temp_fq = new double[19 * Np];
+        memset(temp_fq, 0, 19 * Np * sizeof(double)); // Initialize it with zeros
+
+
+        for (unsigned int k = 1; k < nz+1; k++) {
+            for (unsigned int j = 1; j < ny+1; j++) {
+                for (unsigned int i = 1; i < nx+1; i++) {
+
+
+                    // Get index in flatten array (solid + fluid + extra cells)
+                    int cell_offset = Map(i, j, k);
+
+                    // If is a fluid cell
+                    if (cell_offset >= 0) {
+                        // Calculate flatten index for file_data (discounting offset of 1)
+                        size_t flat_idx = ((size_t)(k - 1) * nx * ny + (size_t)(j - 1) * nx + (i - 1)) * n_items;
+                        // SET EQUILIBRIUM
+                        for (int q = 0; q < 19; q++) {
+                            double fq_data = file_data[flat_idx + q];
+                            // Save in flatten array
+                            temp_fq[q*Np + cell_offset] = fq_data;
+                        }
+                    }
+                }
+            }
+        }
+
+        ScaLBL_CopyToDevice(fq, temp_fq, 19 * Np * sizeof(double));
+        delete[] temp_fq;
+    }
+    else {
+        if (rank == 0) printf("No start file. Initializing Rest.\n");
+    }
+
+    // Update Velocity state from fq
+    ScaLBL_D3Q19_Momentum(fq,Velocity,Np);
+    ScaLBL_DeviceBarrier();
+    comm.barrier();
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[0   ], Velocity_x);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[Np  ], Velocity_y);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[2*Np], Velocity_z);
+
+    // Update Pressure State from fq
+    ScaLBL_D3Q19_Pressure(fq, Pressure, Np);    // Calculate Pressure Field
+    ScaLBL_DeviceBarrier();                     // Sync
+    comm.barrier();                             // Sync
+    ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
+
+    // Save vis folder
+    VelocityField();
+}
+
+void ScaLBL_MRTModel::Initialize_fEq() {
+    /*
+	 * This function initializes model with equilibrium distributions 
+     * given by custom velocity and pressure fields
+	 */
+    // Initialize distributions as no velocity Equilibrium
+    ScaLBL_D3Q19_Init(fq, Np);
+
+
+    // If there is a .raw file
+    char raw_filename[256];
+    sprintf(raw_filename, "Start.%05d.raw", rank);
+    std::ifstream binaryFile(raw_filename, std::ios::binary);
+
+    if (binaryFile.good() && Start) {
+        // Remove halo extra voxels (added in Domain class)
+        unsigned int nx = Nx - 2;
+        unsigned int ny = Ny - 2;
+        unsigned int nz = Nz - 2;
+        unsigned int n_items = 4;
+
+        // Announces the start of the process
+        if (rank == 0) printf("Reading DENSE start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+
+        // --- D3Q19 CONSTANTS ---
+        const double w[19] = {
+            1.0/3.0,
+            1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0,
+            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0,
+            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0
+
+        };
+        //                  0  1  2   3   4  5   6  7   8   9  10 11  12  13  14 15  16  17  18
+        const int cx[19] = {0, 1, -1, 0,  0, 0,  0, 1, -1,  1, -1, 1, -1,  1, -1, 0,  0,  0,  0};
+        const int cy[19] = {0, 0,  0, 1, -1, 0,  0, 1, -1, -1,  1, 0,  0,  0,  0, 1, -1,  1, -1};
+        const int cz[19] = {0, 0,  0, 0,  0, 1, -1, 0,  0,  0,  0, 1, -1, -1,  1, 1, -1, -1,  1};
+
+
+
+        // Allocate buffer for the domain
+        // n_items doubles per voxel (Ux, Uy, Uz, Pr)
+        size_t total_voxels = (size_t)nx * ny * nz;
+        std::vector<double> file_data(total_voxels * n_items);
+        binaryFile.read(reinterpret_cast<char*>(file_data.data()), file_data.size() * sizeof(double));
+        binaryFile.close();
+
+        // Allocate auxiliary distributions
+        double* temp_fq = new double[19 * Np];
+        memset(temp_fq, 0, 19 * Np * sizeof(double)); // Initialize it with zeros
+
+
+        for (unsigned int k = 1; k < nz+1; k++) {
+            for (unsigned int j = 1; j < ny+1; j++) {
+                for (unsigned int i = 1; i < nx+1; i++) {
+
+
+                    // Get index in flatten array (solid + fluid + extra cells)
+                    int cell_offset = Map(i, j, k);
+
+
+                    // If is a fluid cell
+                    if (cell_offset >= 0) {
+                        // Calculate flatten index for file_data (discounting offset of 1)
+                        size_t flat_idx = ((size_t)(k - 1) * nx * ny + (size_t)(j - 1) * nx + (i - 1)) * n_items;
+                        // Get velocity data from flatten
+                        double ux   = file_data[flat_idx + 0];
+                        double uy   = file_data[flat_idx + 1];
+                        double uz   = file_data[flat_idx + 2];
+                        double rho  = file_data[flat_idx + 3]*3.0;
+
+                        // SET EQUILIBRIUM
+                        double u_sq  = ux*ux + uy*uy + uz*uz;
+                        for (int q = 0; q < 19; q++) {
+                            double cu           = cx[q]*ux + cy[q]*uy + cz[q]*uz;
+                            double feq          = w[q] * rho * (1.0 + 3.0*cu + 4.5*(cu*cu) - 1.5*u_sq);
+                            // Save in flatten array
+                            temp_fq[q*Np + cell_offset] = feq;
+                        }
+                    }
+                }
+            }
+        }
+
+        ScaLBL_CopyToDevice(fq, temp_fq, 19 * Np * sizeof(double));
+        delete[] temp_fq;
+    }
+    else {
+        if (rank == 0) printf("No start file. Initializing Rest.\n");
+    }
+
+    // Update Velocity state from fq
+    ScaLBL_D3Q19_Momentum(fq,Velocity,Np);
+    ScaLBL_DeviceBarrier();
+    comm.barrier();
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[0   ], Velocity_x);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[Np  ], Velocity_y);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[2*Np], Velocity_z);
+
+    // Update Pressure State from fq
+    ScaLBL_D3Q19_Pressure(fq, Pressure, Np);    // Calculate Pressure Field
+    ScaLBL_DeviceBarrier();                     // Sync
+    comm.barrier();                             // Sync
+    ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
+
+    // Save vis folder
+    VelocityField();
+}
+
+void ScaLBL_MRTModel::Initialize_fEqNeq() {
+    /*
+	 * This function initializes model with equilibrium and non-equilibrium distributions 
+     * given by custom velocity and pressure fields
+	 */
+        // Initialize distributions as no velocity Equilibrium
+    ScaLBL_D3Q19_Init(fq, Np);
+
+
+    // If there is a .raw file
+    char raw_filename[256];
+    sprintf(raw_filename, "Start.%05d.raw", rank);
+    std::ifstream binaryFile(raw_filename, std::ios::binary);
+
+    if (binaryFile.good() && Start) {
+        // Remove halo extra voxels (added in Domain class)
+        unsigned int nx = Nx - 2;
+        unsigned int ny = Ny - 2;
+        unsigned int nz = Nz - 2;
+        unsigned int n_items = 4; // Start.raw must contain (Ux, Uy, Uz, Pr)
+
+        // Announces the start of the process
+        if (rank == 0) printf("Reading DENSE start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+
+
+        
+
+        // --- D3Q19 CONSTANTS ---
+        const double w[19] = {
+            1.0/3.0,
+            1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0,
+            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0,
+            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0
+
+        };
+        //                     0  1   2  3   4  5   6  7   8   9  10 11  12  13  14 15  16  17  18
+        const double cx[19] = {0, 1, -1, 0,  0, 0,  0, 1, -1,  1, -1, 1, -1,  1, -1, 0,  0,  0,  0};
+        const double cy[19] = {0, 0,  0, 1, -1, 0,  0, 1, -1, -1,  1, 0,  0,  0,  0, 1, -1,  1, -1};
+        const double cz[19] = {0, 0,  0, 0,  0, 1, -1, 0,  0,  0,  0, 1, -1, -1,  1, 1, -1, -1,  1};
+
+
+
+        // Allocate buffer for the domain
+        // n_items doubles per voxel (Ux, Uy, Uz, Pr)
+        size_t total_voxels = (size_t)nx * ny * nz;
+        std::vector<double> file_data(total_voxels * n_items);
+        binaryFile.read(reinterpret_cast<char*>(file_data.data()), file_data.size() * sizeof(double));
+        binaryFile.close();
+
+        // Allocate auxiliary distributions
+        double* temp_fq = new double[19 * Np];
+        memset(temp_fq, 0, 19 * Np * sizeof(double)); // Initialize it with zeros
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+        // DEBUG FILE
+        FILE* debug_fneq[19] = {nullptr}; 
+        for (int q = 0; q < 19; q++){
+            char filename[256];
+            snprintf(filename, sizeof(filename), "debug_fneq%04d_k%02d.raw", rank, q);
+            debug_fneq[q] = fopen(filename, "wb"); 
+        }
+        ////////////////////////////////////////////////////////////////////////////////////
+
+        for (unsigned int k = 1; k < nz+1; k++) {
+            for (unsigned int j = 1; j < ny+1; j++) {
+                for (unsigned int i = 1; i < nx+1; i++) {
+
+
+                    // Get index in flatten array (solid + fluid + extra cells)
+                    int cell_offset = Map(i, j, k);
+
+
+                    // If is a fluid cell
+                    if (cell_offset >= 0) {
+                        // Calculate flatten index for file_data (discounting offset of 1)
+                        size_t flat_idx = ((size_t)(k - 1) * nx * ny + (size_t)(j - 1) * nx + (i - 1)) * n_items;
+                        // Get velocity data from flatten
+                        double ux   = file_data[flat_idx + 0];
+                        double uy   = file_data[flat_idx + 1];
+                        double uz   = file_data[flat_idx + 2];
+                        double rho  = file_data[flat_idx + 3]*3.0;
+
+                        // SET EQUILIBRIUM
+                        double u_sq  = ux*ux + uy*uy + uz*uz;
+                        for (int q = 0; q < 19; q++) {
+                            double cu           = cx[q]*ux + cy[q]*uy + cz[q]*uz;
+                            double feq          = w[q] * rho * (1.0 + 3.0*cu + 4.5*(cu*cu) - 1.5*u_sq);
+                            // Save in flatten array
+                            temp_fq[q*Np + cell_offset] = feq;
+                        }
+
+                        // ADD NON-EQUILIBRIUM
+                        // Gradients (default values)
+                        double dux_x    = 0.0;
+                        double duy_x    = 0.0;
+                        double duz_x    = 0.0;
+                        double dux_y    = 0.0;
+                        double duy_y    = 0.0;
+                        double duz_y    = 0.0;
+                        double dux_z    = 0.0;
+                        double duy_z    = 0.0;
+                        double duz_z    = 0.0;
+                        // If x direction is free to flow
+                        if (Map(i+1, j, k) >= 0 && Map(i-1, j, k) >= 0){
+                            size_t id_pox   = ((size_t)(k - 1 +0) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 1)) * n_items; // Index in Start.Raw
+                            size_t id_prx   = ((size_t)(k - 1 -0) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 1)) * n_items; // Index in Start.Raws
+                            double ux_pox   = file_data[id_pox + 0]; // Indexes of velocities from next cell
+                            double uy_pox   = file_data[id_pox + 1];
+                            double uz_pox   = file_data[id_pox + 2];
+                            double ux_prx   = file_data[id_prx + 0]; // Indexes of velocities from previous cell
+                            double uy_prx   = file_data[id_prx + 1];
+                            double uz_prx   = file_data[id_prx + 2];
+                            dux_x           = (ux_pox - ux_prx)/(2.0);   // Ux derivate along x
+                            duy_x           = (uy_pox - uy_prx)/(2.0);   // Uy derivate along x
+                            duz_x           = (uz_pox - uz_prx)/(2.0);   // Uz derivate along x
+                        }
+                        // If only next x cell is free to flow
+                        else if(Map(i+1, j, k) >= 0){
+                            size_t id_pox   = ((size_t)(k - 1 +0) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 1)) * n_items; // Index in Start.Raw
+                            double ux_pox   = file_data[id_pox + 0]; // Indexes of velocities from next cell
+                            double uy_pox   = file_data[id_pox + 1];
+                            double uz_pox   = file_data[id_pox + 2];
+                            dux_x           = (ux_pox - ux);   // Ux derivate along x
+                            duy_x           = (uy_pox - uy);   // Uy derivate along x
+                            duz_x           = (uz_pox - uz);   // Uz derivate along x
+                        }
+                        // If only prev. x cell is free to flow
+                        else if(Map(i-1, j, k) >= 0){
+                            size_t id_prx   = ((size_t)(k - 1 -0) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 1)) * n_items; // Index in Start.Raw
+                            double ux_prx   = file_data[id_prx + 0]; // Indexes of velocities from previous cell
+                            double uy_prx   = file_data[id_prx + 1];
+                            double uz_prx   = file_data[id_prx + 2];
+                            dux_x           = (ux - ux_prx);   // Ux derivate along x
+                            duy_x           = (uy - uy_prx);   // Uy derivate along x
+                            duz_x           = (uz - uz_prx);   // Uz derivate along x
+
+                        }
+
+                        // If y direction is free to flow
+                        if (Map(i, j+1, k) >= 0 && Map(i, j-1, k) >= 0){
+                            size_t id_poy   = ((size_t)(k - 1 + 0) * nx * ny + (size_t)(j - 1 + 1) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
+                            size_t id_pry   = ((size_t)(k - 1 - 0) * nx * ny + (size_t)(j - 1 - 1) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
+                            double ux_poy   = file_data[id_poy + 0]; // Indexes of velocities from next cell
+                            double uy_poy   = file_data[id_poy + 1];
+                            double uz_poy   = file_data[id_poy + 2];
+                            double ux_pry   = file_data[id_pry + 0]; // Indexes of velocities from previous cell
+                            double uy_pry   = file_data[id_pry + 1];
+                            double uz_pry   = file_data[id_pry + 2];
+                            dux_y           = (ux_poy - ux_pry)/2.0;   // Ux derivate along y
+                            duy_y           = (uy_poy - uy_pry)/2.0;   // Uy derivate along y
+                            duz_y           = (uz_poy - uz_pry)/2.0;   // Uz derivate along y
+                        }else if(Map(i, j+1, k) >= 0){
+                            size_t id_poy   = ((size_t)(k - 1 + 0) * nx * ny + (size_t)(j - 1 + 1) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
+                            double ux_poy   = file_data[id_poy + 0]; // Indexes of velocities from next cell
+                            double uy_poy   = file_data[id_poy + 1];
+                            double uz_poy   = file_data[id_poy + 2];
+                            dux_y           = (ux_poy - ux);   // Ux derivate along y
+                            duy_y           = (uy_poy - uy);   // Uy derivate along y
+                            duz_y           = (uz_poy - uz);   // Uz derivate along y
+                        }else if(Map(i, j-1, k) >= 0){
+                            size_t id_pry   = ((size_t)(k - 1 - 0) * nx * ny + (size_t)(j - 1 - 1) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
+                            double ux_pry   = file_data[id_pry + 0]; // Indexes of velocities from previous cell
+                            double uy_pry   = file_data[id_pry + 1];
+                            double uz_pry   = file_data[id_pry + 2];
+                            dux_y           = (ux - ux_pry);   // Ux derivate along y
+                            duy_y           = (uy - uy_pry);   // Uy derivate along y
+                            duz_y           = (uz - uz_pry);   // Uz derivate along y
+                        }
+
+
+
+                        // If z direction is free to flow
+                        if (Map(i, j, k+1) >= 0 && Map(i, j, k-1) >= 0){
+                            size_t id_poz   = ((size_t)(k - 1 + 1) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
+                            size_t id_prz   = ((size_t)(k - 1 - 1) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
+                            double ux_poz   = file_data[id_poz + 0]; // Indexes of velocities from next cell
+                            double uy_poz   = file_data[id_poz + 1];
+                            double uz_poz   = file_data[id_poz + 2];
+                            double ux_prz   = file_data[id_prz + 0]; // Indexes of velocities from previous cell
+                            double uy_prz   = file_data[id_prz + 1];
+                            double uz_prz   = file_data[id_prz + 2];
+                            dux_z           = (ux_poz - ux_prz)/(2.0);   // Ux derivate along z
+                            duy_z           = (uy_poz - uy_prz)/(2.0);   // Uy derivate along z
+                            duz_z           = (uz_poz - uz_prz)/(2.0);   // Uz derivate along z
+                        } else if(Map(i, j, k+1) >= 0){
+                            size_t id_poz   = ((size_t)(k - 1 + 1) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
+                            double ux_poz   = file_data[id_poz + 0]; // Indexes of velocities from next cell
+                            double uy_poz   = file_data[id_poz + 1];
+                            double uz_poz   = file_data[id_poz + 2];
+                            dux_z           = (ux_poz - ux);   // Ux derivate along z
+                            duy_z           = (uy_poz - uy);   // Uy derivate along z
+                            duz_z           = (uz_poz - uz);   // Uz derivate along z
+
+                        } else if(Map(i, j, k-1) >= 0){
+                            size_t id_prz   = ((size_t)(k - 1 - 1) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
+                            double ux_prz   = file_data[id_prz + 0]; // Indexes of velocities from previous cell
+                            double uy_prz   = file_data[id_prz + 1];
+                            double uz_prz   = file_data[id_prz + 2];
+                            dux_z           = (ux - ux_prz);   // Ux derivate along z
+                            duy_z           = (uy - uy_prz);   // Uy derivate along z
+                            duz_z           = (uz - uz_prz);   // Uz derivate along z
+                        }
+                        
+                        // Calculate Non-Equilibrium term for each lattice direction 
+                        for (int q = 0; q < 19; q++) {
+                                  //Qq =  (ca[q] * cb[q] - Kron_D / 3.0  )*dub_a;
+                            double  Qq =  (cx[q] * cx[q] - 1.0/3.0       )*dux_x; // a = x, b = x
+                                    Qq += (cx[q] * cy[q]                 )*duy_x; // a = x, b = y
+                                    Qq += (cx[q] * cz[q]                 )*duz_x; // a = x, b = z
+                                    Qq += (cy[q] * cx[q]                 )*dux_y; // a = y, b = x
+                                    Qq += (cy[q] * cy[q] - 1.0/3.0       )*duy_y; // a = y, b = y
+                                    Qq += (cy[q] * cz[q]                 )*duz_y; // a = y, b = z
+                                    Qq += (cz[q] * cx[q]                 )*dux_z; // a = z, b = x
+                                    Qq += (cz[q] * cy[q]                 )*duy_z; // a = z, b = y
+                                    Qq += (cz[q] * cz[q] - 1.0/3.0       )*duz_z; // a = z, b = z
+                        
+                            double fneq = - 3.0 * w[q] * tau * rho * Qq;
+                            temp_fq[q*Np + cell_offset] += fneq;
+                        }
+                    }
+                    else
+                    {   
+                        double zero_val = 0.0;
+                        for (int q = 0; q < 19; q++){
+                            fwrite(&zero_val, sizeof(double), 1, debug_fneq[q]); 
+                        } 
+                    }
+                }
+            }
+        }
+
+        ScaLBL_CopyToDevice(fq, temp_fq, 19 * Np * sizeof(double));
+        delete[] temp_fq;
+
+    }
+    else {
+        if (rank == 0) printf("No Start.raw file found. Initializing default distributions. \n");
+    }
+
+
+
+    
+    // Update Velocity state from fq
+    ScaLBL_D3Q19_Momentum(fq,Velocity,Np);
+    ScaLBL_DeviceBarrier();
+    comm.barrier();
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[0   ], Velocity_x);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[Np  ], Velocity_y);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[2*Np], Velocity_z);
+
+    // Update Pressure State from fq
+    ScaLBL_D3Q19_Pressure(fq, Pressure, Np);    // Calculate Pressure Field
+    ScaLBL_DeviceBarrier();                     // Sync
+    comm.barrier();                             // Sync
+    ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
+
+    // Save vis folder
+    VelocityField();
+
 }
 
 void ScaLBL_MRTModel::Run() {
