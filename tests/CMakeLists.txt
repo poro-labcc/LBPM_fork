@@ -3,6 +3,7 @@
 #ADD_LBPM_EXECUTABLE( lbpm_nondarcy_simulator )
 ADD_LBPM_EXECUTABLE( lbpm_color_simulator )
 ADD_LBPM_EXECUTABLE( lbpm_permeability_simulator )
+ADD_LBPM_EXECUTABLE( lbpm_single_phase )
 #ADD_LBPM_EXECUTABLE( lbpm_greyscale_simulator )
 #ADD_LBPM_EXECUTABLE( lbpm_greyscaleColor_simulator )
 #ADD_LBPM_EXECUTABLE( lbpm_electrokinetic_SingleFluid_simulator )

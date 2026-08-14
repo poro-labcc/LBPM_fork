@@ -47,6 +47,9 @@ public:
     void Initialize_fEq();
     void Initialize_Dist();
     void Run();
+
+    void Run_Timesteps(const std::vector<int>& coords);
+
     void VelocityField();
     void SaveFields();
 

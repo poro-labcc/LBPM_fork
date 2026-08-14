@@ -352,7 +352,6 @@ void ScaLBL_MRTModel::Initialize_Dist() {
 
 }
 
-// MRT equilibrium version
 void ScaLBL_MRTModel::Initialize_fEq() {
     //
 	// This function initializes model with equilibrium distributions
@@ -1006,6 +1005,215 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
     ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
 
 }
+
+
+
+//This script was made for validation only, and inteded to be removed afterwards
+void ScaLBL_MRTModel::Run_Timesteps(const std::vector<int>& coords) {
+
+    // Warn about viability of positions
+    for (size_t n = 0; n < coords.size(); n += 3){
+        int i = coords[n]+1;
+        int j = coords[n+1]+1;
+        int k = coords[n+2]+1;
+        if (Distance(i, j, k) <= 0){
+            printf("Position (x=%d,y=%d,z=%d) is not valid fluid. It will not be considered.\n", coords[n], coords[n+1], coords[n+2]);
+        }
+    }
+
+    double rlx_setA = 1.0 / tau;
+    double rlx_setB = 8.f * (2.f - rlx_setA) / (8.f - rlx_setA);
+
+    Minkowski Morphology(Mask);
+
+    if (rank == 0) {
+        bool WriteHeader = false;
+        FILE *log_file = fopen("Permeability.csv", "r");
+        if (log_file != NULL)
+            fclose(log_file);
+        else
+            WriteHeader = true;
+
+        if (WriteHeader) {
+            log_file = fopen("Permeability.csv", "a+");
+            fprintf(log_file, "time Fx Fy Fz mu Vs As Js Xs vx vy vz absperm\n");
+            fclose(log_file);
+        }
+    }
+
+    //.......create and start timer............
+    ScaLBL_DeviceBarrier();
+    comm.barrier();
+    if (rank == 0)
+        printf("Beginning AA timesteps, timestepMax = %i \n", timestepMax);
+    if (rank == 0)
+        printf("********************************************************\n");
+    timestep = 0;
+    auto t1 = std::chrono::system_clock::now();
+
+
+    double count_loc = 0;
+    double kin_energy_init = 0;
+    for (int k = 1; k < Nz - 1; k++) {
+        for (int j = 1; j < Ny - 1; j++) {
+            for (int i = 1; i < Nx - 1; i++) {
+                if (Distance(i, j, k) > 0) {
+                    kin_energy_init += 2*std::pow(Velocity_x(i, j, k),2) + std::pow(Velocity_y(i, j, k),2) + std::pow(Velocity_z(i, j, k),2);
+                    count_loc  += 1.0;
+                }
+            }
+        }
+    }
+    kin_energy_init /= count_loc;
+
+
+    // --- 1. DYNAMIC HEADER GENERATION ---
+    if (rank == 0) {
+        // 10 (Time) + 20 (Global) = 30 spaces padding
+        printf("\n%-10s %-20s", "", "");
+        for (size_t n = 0; n < coords.size(); n += 3) {
+            int i = coords[n]+1, j = coords[n+1]+1, k = coords[n+2]+1;
+            if (Distance(i, j, k) > 0) {
+                char label[32];
+                sprintf(label, "Point (%d,%d,%d)", i, j, k);
+                // MATH: '| ' (2) + label + remaining spaces to hit 33
+                // The %-31s ensures the point block is exactly 33 chars wide (including the |)
+                printf("| %-31s", label);
+            }
+        }
+
+        // --- LEVEL 2: VARIABLE LABELS ---
+        printf("\n%-10s %-20s", "Timestep", "Global Kin. Energy");
+        for (size_t n = 0; n < coords.size(); n += 3) {
+            if (Distance(coords[n]+1, coords[n+1]+1, coords[n+2]+1) > 0) {
+                // MATH: '| ' (2) + 14 (Kin) + ' | ' (3) + 14 (Press) = 33 characters
+                printf("| %-14s | %-14s", "Kin. Energy", "Pressure");
+            }
+        }
+        printf("\n----------------------------------------------------------------------------------------------------------\n");
+    }
+
+    while (timestep < timestepMax) {
+        //************************************************************************/
+        timestep++;
+        ScaLBL_Comm->SendD3Q19AA(fq); //READ FROM NORMAL
+        ScaLBL_D3Q19_AAodd_MRT(NeighborList, fq, ScaLBL_Comm->FirstInterior(),
+                               ScaLBL_Comm->LastInterior(), Np, rlx_setA,
+                               rlx_setB, Fx, Fy, Fz);
+        ScaLBL_Comm->RecvD3Q19AA(fq); //WRITE INTO OPPOSITE
+        // Set boundary conditions
+        if (BoundaryCondition == 3) {
+            ScaLBL_Comm->D3Q19_Pressure_BC_z(NeighborList, fq, din, timestep);
+            ScaLBL_Comm->D3Q19_Pressure_BC_Z(NeighborList, fq, dout, timestep);
+        } else if (BoundaryCondition == 4) {
+            din =
+                ScaLBL_Comm->D3Q19_Flux_BC_z(NeighborList, fq, flux, timestep);
+            ScaLBL_Comm->D3Q19_Pressure_BC_Z(NeighborList, fq, dout, timestep);
+        } else if (BoundaryCondition == 5) {
+            ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
+            ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        }
+
+        ScaLBL_D3Q19_AAodd_MRT(NeighborList, fq, 0, ScaLBL_Comm->LastExterior(),
+                               Np, rlx_setA, rlx_setB, Fx, Fy, Fz);
+        ScaLBL_DeviceBarrier();
+        comm.barrier();
+        //************************************************************************/
+        timestep++;
+        ScaLBL_Comm->SendD3Q19AA(fq); //READ FORM NORMAL
+        ScaLBL_D3Q19_AAeven_MRT(fq, ScaLBL_Comm->FirstInterior(),
+                                ScaLBL_Comm->LastInterior(), Np, rlx_setA,
+                                rlx_setB, Fx, Fy, Fz);
+        ScaLBL_Comm->RecvD3Q19AA(fq); //WRITE INTO OPPOSITE
+        // Set boundary conditions
+        if (BoundaryCondition == 3) {
+            ScaLBL_Comm->D3Q19_Pressure_BC_z(NeighborList, fq, din, timestep);
+            ScaLBL_Comm->D3Q19_Pressure_BC_Z(NeighborList, fq, dout, timestep);
+        } else if (BoundaryCondition == 4) {
+            din =
+                ScaLBL_Comm->D3Q19_Flux_BC_z(NeighborList, fq, flux, timestep);
+            ScaLBL_Comm->D3Q19_Pressure_BC_Z(NeighborList, fq, dout, timestep);
+        } else if (BoundaryCondition == 5) {
+            ScaLBL_Comm->D3Q19_Reflection_BC_z(fq);
+            ScaLBL_Comm->D3Q19_Reflection_BC_Z(fq);
+        }
+        ScaLBL_D3Q19_AAeven_MRT(fq, 0, ScaLBL_Comm->LastExterior(), Np,
+                                rlx_setA, rlx_setB, Fx, Fy, Fz);
+        ScaLBL_DeviceBarrier();
+        comm.barrier();
+        //************************************************************************/
+
+        if (timestep % ANALYSIS_INTERVAL == 0) {
+            ScaLBL_D3Q19_Momentum(fq, Velocity, Np);
+            ScaLBL_DeviceBarrier();
+            comm.barrier();
+            ScaLBL_Comm->RegularLayout(Map, &Velocity[0   ], Velocity_x);
+            ScaLBL_Comm->RegularLayout(Map, &Velocity[Np  ], Velocity_y);
+            ScaLBL_Comm->RegularLayout(Map, &Velocity[2*Np], Velocity_z);
+
+            ScaLBL_D3Q19_Pressure(fq, Pressure, Np);
+            ScaLBL_DeviceBarrier();                     // Sync
+            comm.barrier();                             // Sync
+            ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
+
+            // Calculate global kinectic energy
+            double kin_energy   = 0;
+            for (int k = 1; k < Nz - 1; k++) {
+                for (int j = 1; j < Ny - 1; j++) {
+                    for (int i = 1; i < Nx - 1; i++) {
+                        if (Distance(i, j, k) > 0) {
+                            kin_energy    += std::pow(Velocity_x(i, j, k),2) + std::pow(Velocity_y(i, j, k),2) + std::pow(Velocity_z(i, j, k),2);
+                        }
+                    }
+                }
+            }
+            kin_energy /= count_loc;
+
+            // Checking analyzed points
+            if (rank == 0) {
+                printf("%-10d %-20.6e", timestep, kin_energy);
+                for (size_t n = 0; n < coords.size(); n += 3) {
+                    int i = coords[n]+1, j = coords[n+1]+1, k = coords[n+2]+1;
+                    if (Distance(i, j, k) > 0) {
+                        double u_loc = std::pow(Velocity_x(i, j, k), 2) + std::pow(Velocity_y(i, j, k), 2) + std::pow(Velocity_z(i, j, k), 2);
+                        double p_loc = Pressure_f(i, j, k);
+                        // Matches the 33-char header block exactly
+                        printf("| %-14.6e | %-14.6e", u_loc, p_loc);
+                    }
+                }
+                printf("\n");
+            }
+
+            if (timestep % VISUAL_INTERVAL == 0) SaveFields();
+
+        }
+    }
+        
+    printf("------------------------------------------------------------\n");
+    //************************************************************************/
+    if (rank == 0)
+        printf("--------------------------------------------------------\n");
+    // Compute the walltime per timestep
+    auto t2 = std::chrono::system_clock::now();
+    double cputime = std::chrono::duration<double>(t2 - t1).count() / timestep;
+    // Performance obtained from each node
+    double MLUPS = double(Np) / cputime / 1000000;
+
+    if (rank == 0)
+        printf("********************************************************\n");
+    if (rank == 0)
+        printf("CPU time = %f \n", cputime);
+    if (rank == 0)
+        printf("Lattice update rate (per core)= %f MLUPS \n", MLUPS);
+    MLUPS *= nprocs;
+    if (rank == 0)
+        printf("Lattice update rate (total)= %f MLUPS \n", MLUPS);
+    if (rank == 0)
+        printf("********************************************************\n");
+}
+//Stop removing here
+
+
 
 void ScaLBL_MRTModel::Run() {
     double rlx_setA = 1.0 / tau;
