@@ -350,15 +350,14 @@ void ScaLBL_MRTModel::Initialize_Dist() {
     comm.barrier();                             // Sync
     ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
 
-    // Save vis folder
-    VelocityField();
 }
 
+// MRT equilibrium version
 void ScaLBL_MRTModel::Initialize_fEq() {
-    /*
-	 * This function initializes model with equilibrium distributions 
-     * given by custom velocity and pressure fields
-	 */
+    //
+	// This function initializes model with equilibrium distributions
+    // given by custom velocity and pressure fields
+	//
     // Initialize distributions as no velocity Equilibrium
     ScaLBL_D3Q19_Init(fq, Np);
 
@@ -379,19 +378,6 @@ void ScaLBL_MRTModel::Initialize_fEq() {
         if (rank == 0) printf("Reading DENSE start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
 
         // --- D3Q19 CONSTANTS ---
-        const double w[19] = {
-            1.0/3.0,
-            1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0,
-            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0,
-            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0
-
-        };
-        //                  0  1  2   3   4  5   6  7   8   9  10 11  12  13  14 15  16  17  18
-        const int cx[19] = {0, 1, -1, 0,  0, 0,  0, 1, -1,  1, -1, 1, -1,  1, -1, 0,  0,  0,  0};
-        const int cy[19] = {0, 0,  0, 1, -1, 0,  0, 1, -1, -1,  1, 0,  0,  0,  0, 1, -1,  1, -1};
-        const int cz[19] = {0, 0,  0, 0,  0, 1, -1, 0,  0,  0,  0, 1, -1, -1,  1, 1, -1, -1,  1};
-
-
 
         // Allocate buffer for the domain
         // n_items doubles per voxel (Ux, Uy, Uz, Pr)
@@ -404,7 +390,21 @@ void ScaLBL_MRTModel::Initialize_fEq() {
         double* temp_fq = new double[19 * Np];
         memset(temp_fq, 0, 19 * Np * sizeof(double)); // Initialize it with zeros
 
+        // MRT constants
+        constexpr double mrt_V1 = 0.05263157894736842;
+        constexpr double mrt_V2 = 0.012531328320802;
+        constexpr double mrt_V3 = 0.04761904761904762;
+        constexpr double mrt_V4 = 0.004594820384294068;
+        constexpr double mrt_V5 = 0.01587301587301587;
+        constexpr double mrt_V6 = 0.0555555555555555555555555;
+        constexpr double mrt_V7 = 0.02777777777777778;
+        constexpr double mrt_V8 = 0.08333333333333333;
+        constexpr double mrt_V9 = 0.003341687552213868;
+        constexpr double mrt_V10 = 0.003968253968253968;
+        constexpr double mrt_V11 = 0.01388888888888889;
+        constexpr double mrt_V12 = 0.04166666666666666;
 
+        // For each cell
         for (unsigned int k = 1; k < nz+1; k++) {
             for (unsigned int j = 1; j < ny+1; j++) {
                 for (unsigned int i = 1; i < nx+1; i++) {
@@ -424,14 +424,151 @@ void ScaLBL_MRTModel::Initialize_fEq() {
                         double uz   = file_data[flat_idx + 2];
                         double rho  = file_data[flat_idx + 3]*3.0;
 
-                        // SET EQUILIBRIUM
-                        double u_sq  = ux*ux + uy*uy + uz*uz;
-                        for (int q = 0; q < 19; q++) {
-                            double cu           = cx[q]*ux + cy[q]*uy + cz[q]*uz;
-                            double feq          = w[q] * rho * (1.0 + 3.0*cu + 4.5*(cu*cu) - 1.5*u_sq);
-                            // Save in flatten array
-                            temp_fq[q*Np + cell_offset] = feq;
-                        }
+                        
+                        // Macroscopic momentums from read file
+                        double jx   = rho*ux;
+                        double jy   = rho*uy;
+                        double jz   = rho*uz;
+
+                        // MRT Equilibrium momentums
+                        double m1 = (19 * (jx * jx + jy * jy + jz * jz) / rho - 11 * rho);
+                        double m2 = (3 * rho - 5.5 * (jx * jx + jy * jy + jz * jz) / rho);
+                        //double m_eq3 = //?
+                        double m4 = (-0.6666666666666666 * jx);
+                        //double m_eq5 = //?
+                        double m6 = (-0.6666666666666666 * jy);
+                        //double m_eq7 = //?
+                        double m8 = (-0.6666666666666666 * jz);
+                        double m9 = ((2 * jx * jx - jy * jy - jz * jz) / rho);
+                        double m10 = -0.5 * ((2 * jx * jx - jy * jy - jz * jz) / rho);
+                        double m11 = ((jy * jy - jz * jz) / rho);
+                        double m12 = -0.5 * ((jy * jy - jz * jz) / rho);
+                        double m13 = (jx * jy / rho);
+                        double m14 = (jy * jz / rho);
+                        double m15 = (jx * jz / rho);
+                        double m16 = 0.0;
+                        double m17 = 0.0;
+                        double m18 = 0.0;
+
+                        // MRT Inverse: converting initialized momemtum as distributions
+                        // q=0
+                        double f_value = 0.0;
+                        f_value = mrt_V1 * rho - mrt_V2 * m1 + mrt_V3 * m2;
+                        temp_fq[cell_offset] = f_value;
+
+                        // q = 1
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (jx - m4) +
+                            mrt_V6 * (m9 - m10) + 0.16666666 * Fx;
+                        temp_fq[1 * Np + cell_offset] = f_value;
+
+                        // q=2
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (m4 - jx) +
+                            mrt_V6 * (m9 - m10) - 0.16666666 * Fx;
+                        temp_fq[2 * Np + cell_offset] = f_value;
+
+                        // q = 3
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (jy - m6) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m11 - m12) + 0.16666666 * Fy;
+                        temp_fq[3 * Np + cell_offset] = f_value;
+
+                        // q = 4
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (m6 - jy) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m11 - m12) - 0.16666666 * Fy;
+                        temp_fq[4 * Np + cell_offset] = f_value;
+
+                        // q = 5
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (jz - m8) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m12 - m11) + 0.16666666 * Fz;
+                        temp_fq[5 * Np + cell_offset] = f_value;
+
+                        // q = 6
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (m8 - jz) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m12 - m11) - 0.16666666 * Fz;
+                        temp_fq[6 * Np + cell_offset] = f_value;
+
+                        // q = 7
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx + jy) +
+                            0.025 * (m4 + m6) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 + 0.25 * m13 + 0.125 * (m16 - m17) +
+                            0.08333333333 * (Fx + Fy);
+                        temp_fq[7 * Np + cell_offset] = f_value;
+
+                        // q = 8
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 - 0.1 * (jx + jy) -
+                            0.025 * (m4 + m6) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 + 0.25 * m13 + 0.125 * (m17 - m16) -
+                            0.08333333333 * (Fx + Fy);
+                        temp_fq[8 * Np + cell_offset] = f_value;
+
+                        // q = 9
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx - jy) +
+                            0.025 * (m4 - m6) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 - 0.25 * m13 + 0.125 * (m16 + m17) +
+                            0.08333333333 * (Fx - Fy);
+                        temp_fq[9 * Np + cell_offset] = f_value;
+
+                        // q = 10
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jy - jx) +
+                            0.025 * (m6 - m4) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 - 0.25 * m13 - 0.125 * (m16 + m17) -
+                            0.08333333333 * (Fx - Fy);
+                        temp_fq[10 * Np + cell_offset] = f_value;
+
+                        // q = 11
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx + jz) +
+                            0.025 * (m4 + m8) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 + 0.25 * m15 + 0.125 * (m18 - m16) +
+                            0.08333333333 * (Fx + Fz);
+                        temp_fq[11 * Np + cell_offset] = f_value;
+
+                        // q = 12
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 - 0.1 * (jx + jz) -
+                            0.025 * (m4 + m8) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 + 0.25 * m15 + 0.125 * (m16 - m18) -
+                            0.08333333333 * (Fx + Fz);
+                        temp_fq[12 * Np + cell_offset] = f_value;
+
+                        // q = 13
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx - jz) +
+                            0.025 * (m4 - m8) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 - 0.25 * m15 - 0.125 * (m16 + m18) +
+                            0.08333333333 * (Fx - Fz);
+                        temp_fq[13 * Np + cell_offset] = f_value;
+
+                        // q= 14
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jz - jx) +
+                            0.025 * (m8 - m4) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 - 0.25 * m15 + 0.125 * (m16 + m18) -
+                            0.08333333333 * (Fx - Fz);
+
+                        temp_fq[14 * Np + cell_offset] = f_value;
+
+                        // q = 15
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jy + jz) +
+                            0.025 * (m6 + m8) - mrt_V6 * m9 - mrt_V7 * m10 + 0.25 * m14 +
+                            0.125 * (m17 - m18) + 0.08333333333 * (Fy + Fz);
+                        temp_fq[15 * Np + cell_offset] = f_value;
+
+                        // q = 16
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 - 0.1 * (jy + jz) -
+                            0.025 * (m6 + m8) - mrt_V6 * m9 - mrt_V7 * m10 + 0.25 * m14 +
+                            0.125 * (m18 - m17) - 0.08333333333 * (Fy + Fz);
+                        temp_fq[16 * Np + cell_offset] = f_value;
+
+                        // q = 17
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jy - jz) +
+                            0.025 * (m6 - m8) - mrt_V6 * m9 - mrt_V7 * m10 - 0.25 * m14 +
+                            0.125 * (m17 + m18) + 0.08333333333 * (Fy - Fz);
+                        temp_fq[17 * Np + cell_offset] = f_value;
+
+                        // q = 18
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jz - jy) +
+                            0.025 * (m8 - m6) - mrt_V6 * m9 - mrt_V7 * m10 - 0.25 * m14 -
+                            0.125 * (m17 + m18) - 0.08333333333 * (Fy - Fz);
+                        temp_fq[18 * Np + cell_offset] = f_value;
+
+
+
                     }
                 }
             }
@@ -458,16 +595,15 @@ void ScaLBL_MRTModel::Initialize_fEq() {
     comm.barrier();                             // Sync
     ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
 
-    // Save vis folder
-    VelocityField();
 }
 
 void ScaLBL_MRTModel::Initialize_fEqNeq() {
-    /*
-	 * This function initializes model with equilibrium and non-equilibrium distributions 
-     * given by custom velocity and pressure fields
-	 */
-        // Initialize distributions as no velocity Equilibrium
+    //
+	// This function initializes model with equilibrium distributions
+    // given by custom velocity and pressure fields.
+    // The non-equilibrium moments of: 'e', 'pxx', 'pww', 'pxy', 'pxz' and 'pyz' are initialized
+	//
+    // Initialize distributions as no velocity Equilibrium
     ScaLBL_D3Q19_Init(fq, Np);
 
 
@@ -481,27 +617,10 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
         unsigned int nx = Nx - 2;
         unsigned int ny = Ny - 2;
         unsigned int nz = Nz - 2;
-        unsigned int n_items = 4; // Start.raw must contain (Ux, Uy, Uz, Pr)
+        unsigned int n_items = 4;
 
         // Announces the start of the process
         if (rank == 0) printf("Reading DENSE start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
-
-
-        
-
-        // --- D3Q19 CONSTANTS ---
-        const double w[19] = {
-            1.0/3.0,
-            1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0, 1.0/18.0,
-            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0,
-            1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0
-
-        };
-        //                     0  1   2  3   4  5   6  7   8   9  10 11  12  13  14 15  16  17  18
-        const double cx[19] = {0, 1, -1, 0,  0, 0,  0, 1, -1,  1, -1, 1, -1,  1, -1, 0,  0,  0,  0};
-        const double cy[19] = {0, 0,  0, 1, -1, 0,  0, 1, -1, -1,  1, 0,  0,  0,  0, 1, -1,  1, -1};
-        const double cz[19] = {0, 0,  0, 0,  0, 1, -1, 0,  0,  0,  0, 1, -1, -1,  1, 1, -1, -1,  1};
-
 
 
         // Allocate buffer for the domain
@@ -515,17 +634,21 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
         double* temp_fq = new double[19 * Np];
         memset(temp_fq, 0, 19 * Np * sizeof(double)); // Initialize it with zeros
 
+        // MRT constants
+        constexpr double mrt_V1 = 0.05263157894736842;
+        constexpr double mrt_V2 = 0.012531328320802;
+        constexpr double mrt_V3 = 0.04761904761904762;
+        constexpr double mrt_V4 = 0.004594820384294068;
+        constexpr double mrt_V5 = 0.01587301587301587;
+        constexpr double mrt_V6 = 0.0555555555555555555555555;
+        constexpr double mrt_V7 = 0.02777777777777778;
+        constexpr double mrt_V8 = 0.08333333333333333;
+        constexpr double mrt_V9 = 0.003341687552213868;
+        constexpr double mrt_V10 = 0.003968253968253968;
+        constexpr double mrt_V11 = 0.01388888888888889;
+        constexpr double mrt_V12 = 0.04166666666666666;
 
-        ////////////////////////////////////////////////////////////////////////////////////
-        // DEBUG FILE
-        FILE* debug_fneq[19] = {nullptr}; 
-        for (int q = 0; q < 19; q++){
-            char filename[256];
-            snprintf(filename, sizeof(filename), "debug_fneq%04d_k%02d.raw", rank, q);
-            debug_fneq[q] = fopen(filename, "wb"); 
-        }
-        ////////////////////////////////////////////////////////////////////////////////////
-
+        // For each cell
         for (unsigned int k = 1; k < nz+1; k++) {
             for (unsigned int j = 1; j < ny+1; j++) {
                 for (unsigned int i = 1; i < nx+1; i++) {
@@ -545,15 +668,7 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                         double uz   = file_data[flat_idx + 2];
                         double rho  = file_data[flat_idx + 3]*3.0;
 
-                        // SET EQUILIBRIUM
-                        double u_sq  = ux*ux + uy*uy + uz*uz;
-                        for (int q = 0; q < 19; q++) {
-                            double cu           = cx[q]*ux + cy[q]*uy + cz[q]*uz;
-                            double feq          = w[q] * rho * (1.0 + 3.0*cu + 4.5*(cu*cu) - 1.5*u_sq);
-                            // Save in flatten array
-                            temp_fq[q*Np + cell_offset] = feq;
-                        }
-
+                        // Get derivatives
                         // ADD NON-EQUILIBRIUM
                         // Gradients (default values)
                         double dux_x    = 0.0;
@@ -632,8 +747,6 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                             duz_y           = (uz - uz_pry);   // Uz derivate along y
                         }
 
-
-
                         // If z direction is free to flow
                         if (Map(i, j, k+1) >= 0 && Map(i, j, k-1) >= 0){
                             size_t id_poz   = ((size_t)(k - 1 + 1) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
@@ -665,30 +778,207 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                             duy_z           = (uy - uy_prz);   // Uy derivate along z
                             duz_z           = (uz - uz_prz);   // Uz derivate along z
                         }
-                        
-                        // Calculate Non-Equilibrium term for each lattice direction 
-                        for (int q = 0; q < 19; q++) {
-                                  //Qq =  (ca[q] * cb[q] - Kron_D / 3.0  )*dub_a;
-                            double  Qq =  (cx[q] * cx[q] - 1.0/3.0       )*dux_x; // a = x, b = x
-                                    Qq += (cx[q] * cy[q]                 )*duy_x; // a = x, b = y
-                                    Qq += (cx[q] * cz[q]                 )*duz_x; // a = x, b = z
-                                    Qq += (cy[q] * cx[q]                 )*dux_y; // a = y, b = x
-                                    Qq += (cy[q] * cy[q] - 1.0/3.0       )*duy_y; // a = y, b = y
-                                    Qq += (cy[q] * cz[q]                 )*duz_y; // a = y, b = z
-                                    Qq += (cz[q] * cx[q]                 )*dux_z; // a = z, b = x
-                                    Qq += (cz[q] * cy[q]                 )*duy_z; // a = z, b = y
-                                    Qq += (cz[q] * cz[q] - 1.0/3.0       )*duz_z; // a = z, b = z
-                        
-                            double fneq = - 3.0 * w[q] * tau * rho * Qq;
-                            temp_fq[q*Np + cell_offset] += fneq;
-                        }
-                    }
-                    else
-                    {   
-                        double zero_val = 0.0;
-                        for (int q = 0; q < 19; q++){
-                            fwrite(&zero_val, sizeof(double), 1, debug_fneq[q]); 
-                        } 
+                        // Macroscopic momentums from read file
+                        double jx   = rho*ux;
+                        double jy   = rho*uy;
+                        double jz   = rho*uz;
+                        double divergent = (dux_x+duy_y+duz_z);
+
+                        // MRT Equilibrium momentums
+                        double m_eq1 = (19 * (jx * jx + jy * jy + jz * jz) / rho - 11 * rho);
+                        double m_eq2 = (3 * rho - 5.5 * (jx * jx + jy * jy + jz * jz) / rho);
+                        //double m_eq3 = //?
+                        double m_eq4 = (-0.6666666666666666 * jx);
+                        //double m_eq5 = //?
+                        double m_eq6 = (-0.6666666666666666 * jy);
+                        //double m_eq7 = //?
+                        double m_eq8 = (-0.6666666666666666 * jz);
+                        double m_eq9 = ((2 * jx * jx - jy * jy - jz * jz) / rho);
+                        double m_eq10 = -0.5 * ((2 * jx * jx - jy * jy - jz * jz) / rho);
+                        double m_eq11 = ((jy * jy - jz * jz) / rho);
+                        double m_eq12 = -0.5 * ((jy * jy - jz * jz) / rho);
+                        double m_eq13 = (jx * jy / rho);
+                        double m_eq14 = (jy * jz / rho);
+                        double m_eq15 = (jx * jz / rho);
+                        double m_eq16 = 0.0;
+                        double m_eq17 = 0.0;
+                        double m_eq18 = 0.0;
+
+                        // MRT Non-equilibrium momentums
+                        double relax_e = 1.0; // Following the article
+                        double relax_v = 1.0/tau; // Following the article
+                        double rho_0 = 1.0;
+                        double post_col_factor = (1.0 - relax_v);
+
+                        double m_neq1 = - 19* divergent /  relax_e; // e
+                        double m_neq2 = 0.0;   // Epsilon
+                        double m_neq4 = 0.0;   // q_x
+                        double m_neq6 = 0.0;   // q_y
+                        double m_neq8 = 0.0;   // q_z
+                        // 3p_xx
+                        double m_neq9 = - 2.0 * rho_0 * (2*dux_x-duy_y-duz_z) / (3.0*relax_v) ;
+                        m_neq9 *= post_col_factor; // Convert to post-collision
+                        double m_neq10 =  - 0.5 * m_neq9;  // pi_xx
+
+                        // p_ww
+                        double m_neq11 = - 2.0 * rho_0 * (duy_y - duz_z)/ (3.0*relax_v);
+                        m_neq11 *= post_col_factor;
+                        double m_neq12 = -0.5 * m_neq11;  // pi_ww
+
+                        // p_xy
+                        double m_neq13 = - rho_0 *(dux_y+duy_x)/ (3.0*relax_v);
+                        m_neq13 *= post_col_factor;
+
+                        // p_yz
+                        double m_neq14 = - rho_0 *(duy_z+duz_y)/ (3.0*relax_v);
+                        m_neq14 *= post_col_factor;
+
+                        // p_xz
+                        double m_neq15 = - rho_0 *(dux_z+duz_x)/ (3.0*relax_v);
+                        m_neq15 *= post_col_factor;
+
+                        double m_neq16 = 0.0;  // m_x
+                        double m_neq17 = 0.0;  // m_y
+                        double m_neq18 = 0.0;  // m_z
+
+                        double m1 = m_eq1 + m_neq1;
+                        double m2 = m_eq2 + m_neq2;
+                        double m4 = m_eq4 + m_neq4;
+                        double m6 = m_eq6 + m_neq6;
+                        double m8 = m_eq8 + m_neq8;
+                        double m9 = m_eq9 + m_neq9;
+                        double m10 = m_eq10 + m_neq10;
+                        double m11 = m_eq11 + m_neq11;
+                        double m12 = m_eq12 + m_neq12;
+                        double m13 = m_eq13 + m_neq13;
+                        double m14 = m_eq14 + m_neq14;
+                        double m15 = m_eq15 + m_neq15;
+                        double m16 = m_eq16 + m_neq16;
+                        double m17 = m_eq17 + m_neq17;
+                        double m18 = m_eq18 + m_neq18;
+
+
+
+
+                        // MRT Inverse: converting initialized momemtum as distributions
+                        // q=0
+                        double f_value = 0.0;
+                        f_value = mrt_V1 * rho - mrt_V2 * m1 + mrt_V3 * m2;
+                        temp_fq[cell_offset] = f_value;
+
+                        // q = 1
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (jx - m4) +
+                            mrt_V6 * (m9 - m10) + 0.16666666 * Fx;
+                        temp_fq[1 * Np + cell_offset] = f_value;
+
+                        // q=2
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (m4 - jx) +
+                            mrt_V6 * (m9 - m10) - 0.16666666 * Fx;
+                        temp_fq[2 * Np + cell_offset] = f_value;
+
+                        // q = 3
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (jy - m6) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m11 - m12) + 0.16666666 * Fy;
+                        temp_fq[3 * Np + cell_offset] = f_value;
+
+                        // q = 4
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (m6 - jy) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m11 - m12) - 0.16666666 * Fy;
+                        temp_fq[4 * Np + cell_offset] = f_value;
+
+                        // q = 5
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (jz - m8) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m12 - m11) + 0.16666666 * Fz;
+                        temp_fq[5 * Np + cell_offset] = f_value;
+
+                        // q = 6
+                        f_value = mrt_V1 * rho - mrt_V4 * m1 - mrt_V5 * m2 + 0.1 * (m8 - jz) +
+                            mrt_V7 * (m10 - m9) + mrt_V8 * (m12 - m11) - 0.16666666 * Fz;
+                        temp_fq[6 * Np + cell_offset] = f_value;
+
+                        // q = 7
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx + jy) +
+                            0.025 * (m4 + m6) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 + 0.25 * m13 + 0.125 * (m16 - m17) +
+                            0.08333333333 * (Fx + Fy);
+                        temp_fq[7 * Np + cell_offset] = f_value;
+
+                        // q = 8
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 - 0.1 * (jx + jy) -
+                            0.025 * (m4 + m6) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 + 0.25 * m13 + 0.125 * (m17 - m16) -
+                            0.08333333333 * (Fx + Fy);
+                        temp_fq[8 * Np + cell_offset] = f_value;
+
+                        // q = 9
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx - jy) +
+                            0.025 * (m4 - m6) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 - 0.25 * m13 + 0.125 * (m16 + m17) +
+                            0.08333333333 * (Fx - Fy);
+                        temp_fq[9 * Np + cell_offset] = f_value;
+
+                        // q = 10
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jy - jx) +
+                            0.025 * (m6 - m4) + mrt_V7 * m9 + mrt_V11 * m10 + mrt_V8 * m11 +
+                            mrt_V12 * m12 - 0.25 * m13 - 0.125 * (m16 + m17) -
+                            0.08333333333 * (Fx - Fy);
+                        temp_fq[10 * Np + cell_offset] = f_value;
+
+                        // q = 11
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx + jz) +
+                            0.025 * (m4 + m8) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 + 0.25 * m15 + 0.125 * (m18 - m16) +
+                            0.08333333333 * (Fx + Fz);
+                        temp_fq[11 * Np + cell_offset] = f_value;
+
+                        // q = 12
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 - 0.1 * (jx + jz) -
+                            0.025 * (m4 + m8) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 + 0.25 * m15 + 0.125 * (m16 - m18) -
+                            0.08333333333 * (Fx + Fz);
+                        temp_fq[12 * Np + cell_offset] = f_value;
+
+                        // q = 13
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jx - jz) +
+                            0.025 * (m4 - m8) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 - 0.25 * m15 - 0.125 * (m16 + m18) +
+                            0.08333333333 * (Fx - Fz);
+                        temp_fq[13 * Np + cell_offset] = f_value;
+
+                        // q= 14
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jz - jx) +
+                            0.025 * (m8 - m4) + mrt_V7 * m9 + mrt_V11 * m10 - mrt_V8 * m11 -
+                            mrt_V12 * m12 - 0.25 * m15 + 0.125 * (m16 + m18) -
+                            0.08333333333 * (Fx - Fz);
+
+                        temp_fq[14 * Np + cell_offset] = f_value;
+
+                        // q = 15
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jy + jz) +
+                            0.025 * (m6 + m8) - mrt_V6 * m9 - mrt_V7 * m10 + 0.25 * m14 +
+                            0.125 * (m17 - m18) + 0.08333333333 * (Fy + Fz);
+                        temp_fq[15 * Np + cell_offset] = f_value;
+
+                        // q = 16
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 - 0.1 * (jy + jz) -
+                            0.025 * (m6 + m8) - mrt_V6 * m9 - mrt_V7 * m10 + 0.25 * m14 +
+                            0.125 * (m18 - m17) - 0.08333333333 * (Fy + Fz);
+                        temp_fq[16 * Np + cell_offset] = f_value;
+
+                        // q = 17
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jy - jz) +
+                            0.025 * (m6 - m8) - mrt_V6 * m9 - mrt_V7 * m10 - 0.25 * m14 +
+                            0.125 * (m17 + m18) + 0.08333333333 * (Fy - Fz);
+                        temp_fq[17 * Np + cell_offset] = f_value;
+
+                        // q = 18
+                        f_value = mrt_V1 * rho + mrt_V9 * m1 + mrt_V10 * m2 + 0.1 * (jz - jy) +
+                            0.025 * (m8 - m6) - mrt_V6 * m9 - mrt_V7 * m10 - 0.25 * m14 -
+                            0.125 * (m17 + m18) - 0.08333333333 * (Fy - Fz);
+                        temp_fq[18 * Np + cell_offset] = f_value;
+
+
+
                     }
                 }
             }
@@ -696,15 +986,11 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
 
         ScaLBL_CopyToDevice(fq, temp_fq, 19 * Np * sizeof(double));
         delete[] temp_fq;
-
     }
     else {
-        if (rank == 0) printf("No Start.raw file found. Initializing default distributions. \n");
+        if (rank == 0) printf("No start file. Initializing Rest.\n");
     }
 
-
-
-    
     // Update Velocity state from fq
     ScaLBL_D3Q19_Momentum(fq,Velocity,Np);
     ScaLBL_DeviceBarrier();
@@ -718,9 +1004,6 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
     ScaLBL_DeviceBarrier();                     // Sync
     comm.barrier();                             // Sync
     ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
-
-    // Save vis folder
-    VelocityField();
 
 }
 

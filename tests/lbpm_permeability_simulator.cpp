@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 		MRT.SetDomain();    // this reads in the domain 
 		MRT.ReadInput();
 		MRT.Create();       // creating the model will create data structure to match the pore structure and allocate variables
-		MRT.Initialize();   // initializing the model will set initial conditions for variables
+		MRT.Initialize_fEqNeq();   // initializing the model will set initial conditions for variables
 		MRT.Run();	 
 		MRT.SaveFields();
 		cout << flush;
