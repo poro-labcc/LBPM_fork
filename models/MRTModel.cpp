@@ -292,7 +292,7 @@ void ScaLBL_MRTModel::Initialize_Dist() {
         unsigned int n_items = 19;
 
         // Announces the start of the process
-        if (rank == 0) printf("Reading DENSE start file (19 items float64): %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+        if (rank == 0) printf("Reading start file (19 items float64): %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
 
         // Allocate buffer for the domain
         // n_items doubles per voxel (Ux, Uy, Uz, Pr)
@@ -333,7 +333,7 @@ void ScaLBL_MRTModel::Initialize_Dist() {
         delete[] temp_fq;
     }
     else {
-        if (rank == 0) printf("No start file. Initializing Rest.\n");
+        if (rank == 0) printf("No start file. Initializing with null velocity case.\n");
     }
 
     // Update Velocity state from fq
@@ -375,7 +375,7 @@ void ScaLBL_MRTModel::Initialize_fEq() {
         unsigned int n_items = 4;
 
         // Announces the start of the process
-        if (rank == 0) printf("Reading DENSE start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+        if (rank == 0) printf("Reading start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
 
         // --- D3Q19 CONSTANTS ---
 
@@ -578,7 +578,7 @@ void ScaLBL_MRTModel::Initialize_fEq() {
         delete[] temp_fq;
     }
     else {
-        if (rank == 0) printf("No start file. Initializing Rest.\n");
+        if (rank == 0) printf("No start file. Initializing with null velocity case.\n");
     }
 
     // Update Velocity state from fq
@@ -620,7 +620,7 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
         unsigned int n_items = 4;
 
         // Announces the start of the process
-        if (rank == 0) printf("Reading DENSE start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+        if (rank == 0) printf("Reading start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
 
 
         // Allocate buffer for the domain
@@ -988,7 +988,7 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
         delete[] temp_fq;
     }
     else {
-        if (rank == 0) printf("No start file. Initializing Rest.\n");
+        if (rank == 0) printf("No start file. Initializing with null velocity case.\n");
     }
 
     // Update Velocity state from fq
