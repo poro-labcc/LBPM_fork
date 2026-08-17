@@ -106,7 +106,9 @@ void ScaLBL_MRTModel::ReadParams(string filename) {
         BoundaryCondition = domain_db->getScalar<int>("BC");
     }
 
-    mu = (tau - 0.5) / 3.0;
+    mu       = (tau - 0.5) / 3.0;
+    rlx_setA = 1.0 / tau;
+    rlx_setB = 8.f * (2.f - rlx_setA) / (8.f - rlx_setA);
 }
 void ScaLBL_MRTModel::SetDomain() {
     Dm = std::shared_ptr<Domain>(
@@ -1216,8 +1218,7 @@ void ScaLBL_MRTModel::Run_Timesteps(const std::vector<int>& coords) {
 
 
 void ScaLBL_MRTModel::Run() {
-    double rlx_setA = 1.0 / tau;
-    double rlx_setB = 8.f * (2.f - rlx_setA) / (8.f - rlx_setA);
+    
 
     Minkowski Morphology(Mask);
 

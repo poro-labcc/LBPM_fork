@@ -57,7 +57,8 @@ public:
     int timestep, timestepMax;
     int ANALYSIS_INTERVAL,  VISUAL_INTERVAL;
     int BoundaryCondition;
-    double tau, mu;
+    double tau, mu, rlx_setA, rlx_setB;
+
     double Fx, Fy, Fz, flux;
     double din, dout, dp;
     double tolerance;
