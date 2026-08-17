@@ -788,11 +788,8 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                         // MRT Equilibrium momentums
                         double m_eq1 = (19 * (jx * jx + jy * jy + jz * jz) / rho - 11 * rho);
                         double m_eq2 = (3 * rho - 5.5 * (jx * jx + jy * jy + jz * jz) / rho);
-                        //double m_eq3 = //?
                         double m_eq4 = (-0.6666666666666666 * jx);
-                        //double m_eq5 = //?
                         double m_eq6 = (-0.6666666666666666 * jy);
-                        //double m_eq7 = //?
                         double m_eq8 = (-0.6666666666666666 * jz);
                         double m_eq9 = ((2 * jx * jx - jy * jy - jz * jz) / rho);
                         double m_eq10 = -0.5 * ((2 * jx * jx - jy * jy - jz * jz) / rho);
@@ -806,42 +803,52 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                         double m_eq18 = 0.0;
 
                         // MRT Non-equilibrium momentums
-                        double relax_e = 1.0; // Following the article
-                        double relax_v = 1.0/tau; // Following the article
-                        double rho_0 = 1.0;
-                        double post_col_factor = (1.0 - relax_v);
+                        double relax_e = rlx_setA; //m1
+                        double relax_p = rlx_setA; //m9, m10, m13, m14, m15 
+                        double relax_q = rlx_setB; // m16, m17, m18
+                        //double rho_0 = 1.0;
+                        double post_col_factor = (1.0 - relax_p);
 
                         double m_neq1 = - 19* divergent /  relax_e; // e
+                        m_neq1 *= (1-relax_e); // Convert to post-collision
+
                         double m_neq2 = 0.0;   // Epsilon
                         double m_neq4 = 0.0;   // q_x
                         double m_neq6 = 0.0;   // q_y
                         double m_neq8 = 0.0;   // q_z
                         // 3p_xx
-                        double m_neq9 = - 2.0 * rho_0 * (2*dux_x-duy_y-duz_z) / (3.0*relax_v) ;
-                        m_neq9 *= post_col_factor; // Convert to post-collision
+                        double m_neq9 = - 2.0 * rho * (2*dux_x-duy_y-duz_z) / (3.0*relax_p);
+                        m_neq9 *= (1-relax_p); // Convert to post-collision
                         double m_neq10 =  - 0.5 * m_neq9;  // pi_xx
 
                         // p_ww
-                        double m_neq11 = - 2.0 * rho_0 * (duy_y - duz_z)/ (3.0*relax_v);
-                        m_neq11 *= post_col_factor;
+                        double m_neq11 = - 2.0 * rho * (duy_y - duz_z)/ (3.0*relax_p);
+                        m_neq11 *= (1-relax_p); // Convert to post-collision
                         double m_neq12 = -0.5 * m_neq11;  // pi_ww
 
                         // p_xy
-                        double m_neq13 = - rho_0 *(dux_y+duy_x)/ (3.0*relax_v);
-                        m_neq13 *= post_col_factor;
+                        double m_neq13 = - rho *(dux_y+duy_x)/ (3.0*relax_p);
+                        m_neq13 *= (1-relax_p); // Convert to post-collision
 
                         // p_yz
-                        double m_neq14 = - rho_0 *(duy_z+duz_y)/ (3.0*relax_v);
-                        m_neq14 *= post_col_factor;
+                        double m_neq14 = - rho *(duy_z+duz_y)/ (3.0*relax_p);
+                        m_neq14 *= (1-relax_p); // Convert to post-collision
 
                         // p_xz
-                        double m_neq15 = - rho_0 *(dux_z+duz_x)/ (3.0*relax_v);
-                        m_neq15 *= post_col_factor;
+                        double m_neq15 = - rho *(dux_z+duz_x)/ (3.0*relax_p);
+                        m_neq15 *= (1-relax_p); // Convert to post-collision
 
-                        double m_neq16 = 0.0;  // m_x
-                        double m_neq17 = 0.0;  // m_y
-                        double m_neq18 = 0.0;  // m_z
+                        double m_neq16 = 0.0*relax_q;  // m_x
+                        m_neq16 *= (1-relax_q);
+                        
+                        double m_neq17 = 0.0*relax_q;  // m_y
+                        m_neq17 *= (1-relax_q);
 
+                        double m_neq18 = 0.0*relax_q;  // m_z
+                        m_neq18 *= (1-relax_q);
+
+
+                        // Define total of initialized moments 
                         double m1 = m_eq1 + m_neq1;
                         double m2 = m_eq2 + m_neq2;
                         double m4 = m_eq4 + m_neq4;
@@ -857,8 +864,6 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                         double m16 = m_eq16 + m_neq16;
                         double m17 = m_eq17 + m_neq17;
                         double m18 = m_eq18 + m_neq18;
-
-
 
 
                         // MRT Inverse: converting initialized momemtum as distributions
