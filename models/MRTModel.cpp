@@ -803,19 +803,19 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                         double m_eq18 = 0.0;
 
                         // MRT Non-equilibrium momentums
+                        // Relaxations according to collisor
                         double relax_e = rlx_setA; //m1
                         double relax_p = rlx_setA; //m9, m10, m13, m14, m15 
                         double relax_q = rlx_setB; // m16, m17, m18
-                        //double rho_0 = 1.0;
-                        double post_col_factor = (1.0 - relax_p);
-
-                        double m_neq1 = - 19* divergent /  relax_e; // e
+                        // e
+                        double m_neq1 = - 19* divergent /  relax_e; 
                         m_neq1 *= (1-relax_e); // Convert to post-collision
 
                         double m_neq2 = 0.0;   // Epsilon
                         double m_neq4 = 0.0;   // q_x
                         double m_neq6 = 0.0;   // q_y
                         double m_neq8 = 0.0;   // q_z
+                        
                         // 3p_xx
                         double m_neq9 = - 2.0 * rho * (2*dux_x-duy_y-duz_z) / (3.0*relax_p);
                         m_neq9 *= (1-relax_p); // Convert to post-collision

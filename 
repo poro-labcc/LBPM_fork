@@ -1,0 +1,28 @@
+[1mdiff --git a/models/MRTModel.cpp b/models/MRTModel.cpp[m
+[1mindex 7f9527d7..c97af63b 100644[m
+[1m--- a/models/MRTModel.cpp[m
+[1m+++ b/models/MRTModel.cpp[m
+[36m@@ -803,19 +803,19 @@[m [mvoid ScaLBL_MRTModel::Initialize_fEqNeq() {[m
+                         double m_eq18 = 0.0;[m
+ [m
+                         // MRT Non-equilibrium momentums[m
+[32m+[m[32m                        // Relaxations according to collisor[m
+                         double relax_e = rlx_setA; //m1[m
+                         double relax_p = rlx_setA; //m9, m10, m13, m14, m15 [m
+                         double relax_q = rlx_setB; // m16, m17, m18[m
+[31m-                        //double rho_0 = 1.0;[m
+[31m-                        double post_col_factor = (1.0 - relax_p);[m
+[31m-[m
+[31m-                        double m_neq1 = - 19* divergent /  relax_e; // e[m
+[32m+[m[32m                        // e[m
+[32m+[m[32m                        double m_neq1 = - 19* divergent /  relax_e;[m[41m [m
+                         m_neq1 *= (1-relax_e); // Convert to post-collision[m
+ [m
+                         double m_neq2 = 0.0;   // Epsilon[m
+                         double m_neq4 = 0.0;   // q_x[m
+                         double m_neq6 = 0.0;   // q_y[m
+                         double m_neq8 = 0.0;   // q_z[m
+[32m+[m[41m                        [m
+                         // 3p_xx[m
+                         double m_neq9 = - 2.0 * rho * (2*dux_x-duy_y-duz_z) / (3.0*relax_p);[m
+                         m_neq9 *= (1-relax_p); // Convert to post-collision[m
