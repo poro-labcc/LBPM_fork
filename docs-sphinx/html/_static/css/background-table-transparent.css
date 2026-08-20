@@ -1,0 +1,24 @@
+.transparent-wrapper {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+.transparent-wrapper caption {
+    width: 100% !important;
+}
+
+.transparent-wrapper td {
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+table.transparent-wrapper,
+table.transparent-wrapper tbody,
+table.transparent-wrapper tr,
+table.transparent-wrapper td {
+    background: white !important;
+    background-color: white !important;
+    border: none !important;
+}

@@ -203,12 +203,10 @@ leading to a deviation from the linear relationship between pressure gradient an
 The obtained LBPM results are compared with those obtained by :cite:t:`pan2006` for the MRT and BGK collision models using 
 half-way bounce-back (HWBB) boundary condition for non-slip surfaces as illustrated in the :numref:`Fig. %s <bcc-perm>`. Notice good accuracy as well as constante values
 of the normalized absolute permeability (:math:`k^{*}_{num}/k^{*}_{ana}`) as a function of fluid kinematic viscosity (:math:`\nu`), 
-variating ``tau`` from 0.6 up to 2. In :numref:`Fig. %s <bcc-range>`, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. No 
-numerical instability was observed in the present case as :math:`\nu\rightarrow 0` or :math:`\nu\rightarrow \infty`. However, as 
-the viscosity approaches these extreme values, the number of iterations required to reach convergence increases approximately linearly. Additionally, 
-the percentage error (:math:`E_k[\%]=|1-k^{*}_{num}/k^{*}_{ana}|\times 100`) remains nearly constant at approximately :math:`0.12~\%`. This result 
-indicates that the computed permeability is essentially independent of the fluid viscosity over the investigated range. The code and data used to 
-generate the plots are provided in the toggle sections below.
+variating ``tau`` from 0.6 up to 2. In :numref:`Fig. %s <bcc-range>`, the kinematic viscosity is varied over a wider range to assess the numerical stability of the method. 
+Additionally, the percentage error (:math:`E_k[\%]=|1-k^{*}_{num}/k^{*}_{ana}|\times 100`) remains nearly constant at approximately :math:`0.12~\%`. This result 
+indicates that the computed permeability is essentially independent of the fluid viscosity over the investigated range. The code and data used to generate the plots 
+are provided in the toggle sections below.
 
 .. list-table::
    :widths: 50 50
@@ -302,6 +300,67 @@ generate the plots are provided in the toggle sections below.
    ax_top.set_xlabel(r'$\tau$', fontsize=20, labelpad=10)
    ax_top.tick_params(axis='x', labelsize=10, rotation=45)
    plt.savefig('bcc-stable-range.png',dpi=300,bbox_inches='tight')
+   plt.show()
+
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>
+
+However, extending the analysis presented in :numref:`Fig. %s <bcc-range>` to a more extreme range of viscosity values, :numref:`Fig. %s <bcc-range-2>` shows a deviation 
+from the approximately constant permeability error observed over the intermediate range. At these limiting viscosity values, the finite precision of floating-point 
+arithmetic becomes increasingly relevant, introducing round-off errors that may affect the numerical accuracy of the computed quantities and, consequently, 
+the convergence behavior of the numerical method. For each viscosity value, the imposed pressure difference must be adjusted to ensure that the fluid flow remains 
+within the Darcy regime. The code and data used to generate the plots are provided in the toggle sections below.
+
+.. figure:: ../../../_static/images/bcc-stable-range-2.png
+   :width: 35%
+   :align: center
+   :name: bcc-range-2
+
+   Wide range analysis of percentage error as a function of viscosity.
+
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: Plot and Data</strong></summary>
+
+.. code-block:: python
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   plt.rcParams['mathtext.fontset'] = 'cm'
+
+   tau = np.array([0.50001,0.50002,0.50005,0.5001,0.5002,0.5004,0.501,0.502,0.505,0.51,0.52,0.55,0.7,1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,])
+
+   knum = np.array([4713.470653,4713.497491,4713.464046,4713.475326,4713.502245,4713.498671,4716.488713,4716.496416,4716.496424,
+                  4716.512334,4716.526762,4716.527702,4716.527727,4716.527726,4716.527724,4716.52772,4716.527711,4716.527694,4716.527642,4716.52756,4716.527388,
+                  4716.526898,4716.52634,4716.524416,4716.518975,4716.512262,4716.494803,4716.442745,4716.387791,])
+
+   #----------------------------------------------------------
+   a=11.0 # Sphere Radius
+   nu=(tau-0.5)/3.0                   # Kinematic Viscosity Calculation
+   mDa_scal=1013                      #K miliDarcy Scaling Parameter
+   kana  = 0.009631551395713422
+   #------------------Plots--------------------------------------
+   fig, ax = plt.subplots(figsize=(8, 5))
+   ax.loglog(nu,(1.0-(knum/(4.0*a**2*mDa_scal))/kana)*100 ,'ko:',fillstyle='none')
+   ax.set_xlabel(r'$\nu$', fontsize=20)
+   ax.set_ylabel(r'$E_k\,[\%]$',fontsize=20,rotation=0,labelpad=25)
+   ax.set_ylim(0.1, 0.2)
+   # Create upper x-axis
+   ax_top = ax.twiny()
+   ax_top.set_xscale('log')
+   ax_top.set_xlim(ax.get_xlim())
+   ax_top.set_xticks(nu)
+
+   ax_top.set_xticklabels([f"{T:g}" for T in tau])
+   ax_top.set_xlabel(r'$\tau$', fontsize=20, labelpad=10)
+   ax_top.tick_params(axis='x', labelsize=10, rotation=70)
+   plt.savefig('bcc-stable-range-2.png',dpi=300,bbox_inches='tight')
    plt.show()
 
 .. raw:: html

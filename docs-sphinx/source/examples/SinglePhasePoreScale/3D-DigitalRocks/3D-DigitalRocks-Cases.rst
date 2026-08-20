@@ -6,7 +6,7 @@ The use of X-ray microtomography to generate digital rock images has significant
 porous materials. Three-dimensional images provide valuable insights into complex pore networks, grain arrangements, 
 and fluid-flow behavior, which can be investigated through numerical simulations.
 
-In this benchmark, three-dimensional digital rock images available in the literature are used with the 
+In this benchmark section, three-dimensional digital rock images available in the literature are used with the 
 ``lbpm_permeability_simulator`` to estimate absolute permeability. :numref:`Figs. %s <3d-berea>` - :numref:`%s <3d-bentheimer>` illustrates the pore 
 structures of some digital rocks considered in this section. The datasets are available from the following sources:
 
@@ -14,8 +14,9 @@ structures of some digital rocks considered in this section. The datasets are av
 
 - **LV60A sandpack** (b): https://figshare.com/articles/dataset/LV60A_sandpack/1153795/2
 
-- **Bentheimer sandstone** (c): https://www.digitalrocksportal.org/projects/218
+- **Bentheimer sandstone** (c): https://digitalporousmedia.org/published-datasets/drp.project.published.DRP-218
 
+- **C2 carbonate** (d): https://figshare.com/articles/dataset/C2_carbonate/1189258?file=3229766
 
 .. list-table::
    :widths: 50 50 50
@@ -59,7 +60,7 @@ the image sizes, the resolution of the 3D images (voxel size), as well as the co
    * - Berea (a)
      - :math:`400 \times 400 \times 400`
      - 5.345
-     - 0.198
+     - 19.8
    * - LV60A (b)
      - :math:`450 \times 450 \times 450`
      - 10.002
@@ -68,6 +69,10 @@ the image sizes, the resolution of the 3D images (voxel size), as well as the co
      - :math:`900 \times 900 \times 1600`
      - 1.66
      - 23.55
+   * - C2 (d)
+     - :math:`400 \times 400 \times 400`
+     - 5.345
+     - 16.8
 
 -------------------------------------------
 Absolute Permeability - Numerical Setup
@@ -81,7 +86,7 @@ present analysis aims to assess the influence of the mixing-layer scheme on the 
 
 The LBPM setup for the ``.db`` file follows the structure demonstrated in the toogles below, the first one for mixing layers scheme and
 the second one for the symmetric image. The symmetric porous domain needs be created outside of LBPM framework (mirrored in z-axis) and 
-inputed as ``.raw`` file in a format of ``uint8`` or ``int8`` or ``uint16`` or ``int16``.
+inputed as ``.raw`` file in a format of ``uint8`` or ``int8``.
 
 .. raw:: html
 
@@ -249,7 +254,7 @@ is doubled, which consequently doubles the computational cost.
 
           Berea sandstone.
 
-     - .. figure:: ../../../_static/images/berea-symmetry.png
+     - .. figure:: ../../../_static/images/berea-symmetry.svg
           :width: 60%
           :align: center
           :name: berea-symmetry
@@ -260,21 +265,26 @@ is doubled, which consequently doubles the computational cost.
 Results for ``BC = 0``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Table XX presents the results obtained for the samples listed in Table YY. The average percentage deviation between the symmetry 
-and mixing-layer schemes is approximately ZZ%, indicating good agreement between the two approaches. Additionally, isotropy 
-analyses were performed for samples XX, YY, and ZZ, the corresponding mean values and standard deviations are reported based on
-values absolute permeability observed for each direction.
+:numref:`Table %s <abs-perm-results>` presents the results obtained for the samples listed in :numref:`Table %s <3d-parameters-samples>`.
+The percentage deviation (:math:`\Delta_{\%}`) between the symmetry and mixing-layer schemes is calculated using the permeability obtained 
+with the symmetric scheme as the reference. The results indicate that the influence of the mixing-layer scheme can vary significantly depending 
+on the degree of matching between the inlet and outlet planes and on the pore geometry of the sample. Additionally, isotropy analyses 
+were performed by evaluating the absolute permeability along the :math:`x`, :math:`y`, and :math:`z` directions.
 
+
+.. list-table:: Absolute-permeability results obtained using the symmetric and mixing-layer schemes.
+   :name: abs-perm-results
+   :widths: 100
+   :align: center
+   :class: transparent-wrapper
+
+   * -                                 
 
 .. raw:: html
 
    <table id="abs-perm-results"
           class="docutils align-center"
           style="border-collapse: collapse; width: 60%;">
-
-     <caption>
-       Absolute-permeability results obtained using the symmetric and mixing-layer schemes.
-     </caption>
 
      <thead>
        <tr>
@@ -285,7 +295,7 @@ values absolute permeability observed for each direction.
 
          <th colspan="3"
              style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
-           \(K_{zz}\,[\mathrm{Da}]\)
+           \(K_{xx}\,[\mathrm{Da}]\)
          </th>
 
          <th colspan="3"
@@ -295,7 +305,7 @@ values absolute permeability observed for each direction.
 
          <th colspan="3"
              style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">
-           \(K_{xx}\,[\mathrm{Da}]\)
+           \(K_{zz}\,[\mathrm{Da}]\)
          </th>
        </tr>
 
@@ -338,17 +348,17 @@ values absolute permeability observed for each direction.
            Berea (a)
          </td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">1.972</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">1.565</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">21</td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">1.881</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">1.516</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">19</td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">1.803</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">1.615</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">10</td>
        </tr>
 
        <tr style="background-color: #f3f4f4;">
@@ -356,17 +366,17 @@ values absolute permeability observed for each direction.
            LV60A (b)
          </td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">39.21</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">36.63</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">7</td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">35.67</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">33.17</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">7</td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">35.89</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">34.47</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">4</td>
        </tr>
 
        <tr>
@@ -374,17 +384,35 @@ values absolute permeability observed for each direction.
            Bentheimer (c)
          </td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">-</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">2.538</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">-</td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">-</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">2.405</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">-</td>
 
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
-         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;"></td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">-</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">2.787</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">-</td>
+       </tr>
+
+       <tr style="background-color: #f3f4f4;">
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: left;">
+           C2 (d)
+         </td>
+
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">0.199</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">0.184</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">7</td>
+
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">0.522</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">0.218</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">58</td>
+
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">0.182</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">0.142</td>
+         <td style="border: 1px solid #d8d8d8; padding: 8px 12px; text-align: center;">22</td>
        </tr>
      </tbody>
    </table>

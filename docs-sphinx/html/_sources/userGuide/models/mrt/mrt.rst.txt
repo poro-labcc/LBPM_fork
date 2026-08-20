@@ -176,7 +176,7 @@ The kinematic viscosity in LBM scale is given by
    $$
 
 Numerical simulations may become unstable for values of :math:`\tau` close to 0.5, corresponding to vanishing viscosity. The stability 
-range of :math:`\tau` is investigated in the benchmark tests :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc` and :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`. Additionally, 
+range of :math:`\tau` is investigated in the benchmark tests :doc:`../../../examples/SinglePhasePoreScale/bcc/bcc`. Additionally, 
 the parameters governing fluid flow through the medium depend on the selected boundary condition, as discussed in the Boundary Conditions section below.
 
 ------------------------------

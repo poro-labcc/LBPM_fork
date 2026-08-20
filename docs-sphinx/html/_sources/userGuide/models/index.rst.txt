@@ -9,12 +9,12 @@ Currently supported lattice Boltzmann models
    :maxdepth: 2
 
    mrt/*
+
+   greyscale/*
    
    color/*
 
    cell/*
-   
-   greyscale/*
 
    greyscaleColor/*
 

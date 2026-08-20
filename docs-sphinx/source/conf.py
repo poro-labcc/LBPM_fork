@@ -92,6 +92,7 @@ sphinx_rtd_size_width = "100%"
 html_css_files = [
     'css/eqno.css',
     'css/sidebar.css',
+    'css/background-table-transparent.css',
     ]
 
 html_js_files = ["css/sidebar.js"]

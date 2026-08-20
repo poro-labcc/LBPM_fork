@@ -10,6 +10,7 @@
       <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/sidebar.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/background-table-transparent.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -110,7 +111,7 @@ within the rock structure.</p>
 <p>The micromodels M1, M2, M3 and M4 are simulated and compared with the experimental results of <span id="id1">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>
 (<a class="reference external" href="https://doi.org/10.1039/D2LC00445C">https://doi.org/10.1039/D2LC00445C</a>). Each of these micromodels has a square dimensions of <span class="math notranslate nohighlight">\(25 \times 25~mm\)</span> and approximate
 depths of <span class="math notranslate nohighlight">\(31(0.5)~\mu m\)</span>, <span class="math notranslate nohighlight">\(34.8(0.9)~\mu m\)</span>, <span class="math notranslate nohighlight">\(33.6(0.5)~\mu m\)</span>, and <span class="math notranslate nohighlight">\(32.0(2.9)~\mu m\)</span> for models M1, M2, M3, and M4,
-respectively. <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figures 27</span></a> illustrate the micromodels structure. Additionally, the M0 micromodel is used
+respectively. <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figures 28</span></a> illustrate the micromodels structure. Additionally, the M0 micromodel is used
 to represent microporosity in the M2, M3, and M4 micromodels by overlapping the M1 and M0 micromodels in the specific
 micro-pore regions. {numref}`MX-P-Micro` illustrates the micro-porosity present in the micromodels M0, M2, and M3, using
 a zoomed-in images. Consequently, each micromodel is uniquely characterized by its pore structure described by:</p>
@@ -125,7 +126,7 @@ a zoomed-in images. Consequently, each micromodel is uniquely characterized by i
 <a class="reference internal image-reference" href="../../../_images/MX-Pore-Struc.png"><img alt="../../../_images/MX-Pore-Struc.png" src="../../../_images/MX-Pore-Struc.png" style="width: 80%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 27 - </span><span class="caption-text">Micromodels based on the Voronoi tessellation: M0 - micro pore scale; M1 - macro pore scale; M2 - dual pore scale version of M1 with porous grains;
+<p><span class="caption-number">Fig. 28 - </span><span class="caption-text">Micromodels based on the Voronoi tessellation: M0 - micro pore scale; M1 - macro pore scale; M2 - dual pore scale version of M1 with porous grains;
 M3 - dual pore scale version of M1 with porous grains and porous throats; M4 - dual pore scale version of M1 with voids and porous throats.</span><a class="headerlink" href="#mx-pore-struc" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -133,18 +134,18 @@ M3 - dual pore scale version of M1 with porous grains and porous throats; M4 - d
 <a class="reference internal image-reference" href="../../../_images/MX-P-Micro.png"><img alt="../../../_images/MX-P-Micro.png" src="../../../_images/MX-P-Micro.png" style="width: 80%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 28 - </span><span class="caption-text">Micro-porosity based on the Voronoi tessellation: a) M0 micromodel; b) zoomed-in image showing the micro-porosity of the M0 structure;
+<p><span class="caption-number">Fig. 29 - </span><span class="caption-text">Micro-porosity based on the Voronoi tessellation: a) M0 micromodel; b) zoomed-in image showing the micro-porosity of the M0 structure;
 c) zoomed-in image of the micro-porosity in the experimental micromodel M2; d) zoomed-in image of the micro-porosity in the experimental
 micromodel M3. The experimental micromodel images c) and d) are saturated with two fluids.</span><a class="headerlink" href="#mx-p-micro" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <section id="absolute-permeability-numerical-setup">
 <h2>Absolute Permeability - Numerical Setup<a class="headerlink" href="#absolute-permeability-numerical-setup" title="Link to this heading">¶</a></h2>
-<p>To simulate the micromodels depicted in <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figures 27</span></a>, the geometries are discretized into two grids as described in
-<a class="reference internal" href="#grid-micromodels"><span class="std std-numref">Tab. 2</span></a>. The first and last mesh points along the <span class="math notranslate nohighlight">\(y\)</span> and <span class="math notranslate nohighlight">\(z\)</span> axes are designated as solid, representing the walls
+<p>To simulate the micromodels depicted in <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figures 28</span></a>, the geometries are discretized into two grids as described in
+<a class="reference internal" href="#grid-micromodels"><span class="std std-numref">Tab. 3</span></a>. The first and last mesh points along the <span class="math notranslate nohighlight">\(y\)</span> and <span class="math notranslate nohighlight">\(z\)</span> axes are designated as solid, representing the walls
 of the micromodel. The fluid flows through the <span class="math notranslate nohighlight">\(z\)</span>-axis promoted by an external force.</p>
 <table class="docutils align-center" id="grid-micromodels">
-<caption><span class="caption-number">Table 2 - </span><span class="caption-text">Mesh specifications for the micromodels. The voxel size, grid dimensions, and digital porosity (<span class="math notranslate nohighlight">\(\phi_{\mathrm{dig}}\)</span>)
+<caption><span class="caption-number">Table 3 - </span><span class="caption-text">Mesh specifications for the micromodels. The voxel size, grid dimensions, and digital porosity (<span class="math notranslate nohighlight">\(\phi_{\mathrm{dig}}\)</span>)
 are expressed in micrometers, number of voxels, and percentage, respectively. Mesh 2 has twice the grid resolution of Mesh 1.</span><a class="headerlink" href="#grid-micromodels" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 10.0%" />
@@ -217,18 +218,18 @@ connect the inlet and outlet of the periodic domain.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p><a class="reference internal" href="#mx-pore-res"><span class="std std-numref">Figure 29</span></a> illustrates the velocity magnitude field obtained for each micromodel.
-<a class="reference internal" href="#microodels-perm-0"><span class="std std-numref">Tabela 3</span></a> analyzes and compares the obtained permeability values for each
+<p><a class="reference internal" href="#mx-pore-res"><span class="std std-numref">Figure 30</span></a> illustrates the velocity magnitude field obtained for each micromodel.
+<a class="reference internal" href="#microodels-perm-0"><span class="std std-numref">Tabela 4</span></a> analyzes and compares the obtained permeability values for each
 grid and with the experimental results of <span id="id2">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>.</p>
 <figure class="align-center" id="mx-pore-res">
 <a class="reference internal image-reference" href="../../../_images/MX-Pore_Res.png"><img alt="../../../_images/MX-Pore_Res.png" src="../../../_images/MX-Pore_Res.png" style="width: 80%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 29 - </span><span class="caption-text">Velocity magnitude field obtained for each micromodel.</span><a class="headerlink" href="#mx-pore-res" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 30 - </span><span class="caption-text">Velocity magnitude field obtained for each micromodel.</span><a class="headerlink" href="#mx-pore-res" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <table class="docutils align-center" id="microodels-perm-0">
-<caption><span class="caption-number">Table 3 - </span><span class="caption-text">Numerical and experimental comparisons of micromodel permeability. The numerical results obtained using the two meshes are compared with the experimental data reported by <span id="id3">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>. Permeability values are given in darcies (Da), and the discrepancies are expressed as percentages.</span><a class="headerlink" href="#microodels-perm-0" title="Link to this table">¶</a></caption>
+<caption><span class="caption-number">Table 4 - </span><span class="caption-text">Numerical and experimental comparisons of micromodel permeability. The numerical results obtained using the two meshes are compared with the experimental data reported by <span id="id3">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>. Permeability values are given in darcies (Da), and the discrepancies are expressed as percentages.</span><a class="headerlink" href="#microodels-perm-0" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 10.0%" />
 <col style="width: 15.0%" />
