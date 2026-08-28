@@ -23,7 +23,7 @@
 
 
 ScaLBL_MRTModel::ScaLBL_MRTModel(int RANK, int NP, const Utilities::MPI &COMM)
-    : rank(RANK), nprocs(NP), Restart(0), timestep(0), timestepMax(0), tau(0),
+    : rank(RANK), nprocs(NP), Restart(0), Start(0), timestep(0), timestepMax(0), tau(0),
       Fx(0), Fy(0), Fz(0), flux(0), din(0), dout(0), dp(0), mu(0), Nx(0), Ny(0),
       Nz(0), N(0), Np(0), nprocx(0), nprocy(0), nprocz(0), BoundaryCondition(0), Lx(0),
       Ly(0), Lz(0), comm(COMM) {}
@@ -46,6 +46,7 @@ void ScaLBL_MRTModel::ReadParams(string filename) {
     VISUAL_INTERVAL     = 100001;
     save_velocity       = true;
     save_pressure       = false;
+    Start               = false;
     tolerance           = 1.0e-8;
     Fx = Fy = 0.0;
     Fz = 1.0e-5;
@@ -85,6 +86,9 @@ void ScaLBL_MRTModel::ReadParams(string filename) {
     }
     if (mrt_db->keyExists("Restart")) {
         Restart = mrt_db->getScalar<bool>("Restart");
+    }
+    if (mrt_db->keyExists("Start")) {
+        Start = mrt_db->getScalar<bool>("Start");
     }
     if (mrt_db->keyExists("dp")) {
         dp = mrt_db->getScalar<double>("dp");
