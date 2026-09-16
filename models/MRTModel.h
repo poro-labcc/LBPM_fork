@@ -90,6 +90,12 @@ public:
     DoubleArray Velocity_y;
     DoubleArray Velocity_z;
     DoubleArray Pressure_f;
+
+
+    // For analysis of stop criteria
+    DoubleArray Velocity_x_prev;
+    DoubleArray Velocity_y_prev;
+    DoubleArray Velocity_z_prev;
 private:
     Utilities::MPI comm;
 

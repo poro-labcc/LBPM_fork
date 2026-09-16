@@ -37,8 +37,9 @@ void ScaLBL_MRTModel::ReadParams(string filename) {
     db = std::make_shared<Database>(filename);
     domain_db = db->getDatabase("Domain");
     mrt_db = db->getDatabase("MRT");
-    vis_db = db->getDatabase("Visualization");
     ana_db = db->getDatabase("Analysis");
+    vis_db = db->getDatabase("Visualization");
+
 
     tau                 = 1.0;
     timestepMax         = 100000;
@@ -134,6 +135,11 @@ void ScaLBL_MRTModel::SetDomain() {
     Velocity_y.resize(Nx, Ny, Nz);
     Velocity_z.resize(Nx, Ny, Nz);
     Pressure_f.resize(Nx, Ny, Nz);
+
+    // For analysis of stop criteria
+    Velocity_x_prev.resize(Nx, Ny, Nz);
+    Velocity_y_prev.resize(Nx, Ny, Nz);
+    Velocity_z_prev.resize(Nx, Ny, Nz);
 
     for (int i = 0; i < Nx * Ny * Nz; i++)
         Dm->id[i] = 1; // initialize this way
@@ -298,7 +304,7 @@ void ScaLBL_MRTModel::Initialize_Dist() {
         unsigned int n_items = 19;
 
         // Announces the start of the process
-        if (rank == 0) printf("Reading start file (19 items float64): %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+        printf("Reading start file (19 items float64): %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
 
         // Allocate buffer for the domain
         // n_items doubles per voxel (Ux, Uy, Uz, Pr)
@@ -380,7 +386,7 @@ void ScaLBL_MRTModel::Initialize_fEq() {
         unsigned int n_items = 4;
 
         // Announces the start of the process
-        if (rank == 0) printf("Reading start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+        printf("Reading start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
 
         // --- D3Q19 CONSTANTS ---
 
@@ -603,41 +609,64 @@ void ScaLBL_MRTModel::Initialize_fEq() {
 }
 
 void ScaLBL_MRTModel::Initialize_fEqNeq() {
-    //
-	// This function initializes model with equilibrium distributions
-    // given by custom velocity and pressure fields.
-    // The non-equilibrium moments of: 'e', 'pxx', 'pww', 'pxy', 'pxz' and 'pyz' are initialized
-	//
-    // Initialize distributions as no velocity Equilibrium
     ScaLBL_D3Q19_Init(fq, Np);
 
-
-    // If there is a .raw file
     char raw_filename[256];
     sprintf(raw_filename, "Start.%05d.raw", rank);
     std::ifstream binaryFile(raw_filename, std::ios::binary);
 
     if (binaryFile.good() && Start) {
-        // Remove halo extra voxels (added in Domain class)
-        unsigned int nx = Nx - 2;
-        unsigned int ny = Ny - 2;
-        unsigned int nz = Nz - 2;
-        unsigned int n_items = 4;
+        unsigned int nx = Nx - 2; // Not couting for first and last halo
+        unsigned int ny = Ny - 2; // Not couting for first and last halo
+        unsigned int nz = Nz - 2; // Not couting for first and last halo
+        unsigned int n_items = 4; // Ux, Uy, Uz, P
 
-        // Announces the start of the process
-        if (rank == 0) printf("Reading start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
+        printf("Reading start file: %s (%dx%dx%d)\n", raw_filename, nx, ny, nz);
 
-
-        // Allocate buffer for the domain
-        // n_items doubles per voxel (Ux, Uy, Uz, Pr)
         size_t total_voxels = (size_t)nx * ny * nz;
         std::vector<double> file_data(total_voxels * n_items);
         binaryFile.read(reinterpret_cast<char*>(file_data.data()), file_data.size() * sizeof(double));
         binaryFile.close();
 
+        // 1. Create a 3D Array for Density (Rho)
+        Array<double> Rho(Nx, Ny, Nz);
+        Rho.fill(1.0);
+        Velocity_x.fill(0.0);
+        Velocity_y.fill(0.0);
+        Velocity_z.fill(0.0);
+
+        // 2.  Read file data into the INTERIOR of the 3D Arrays
+        for (unsigned int k = 1; k < nz+1; k++) {
+            for (unsigned int j = 1; j < ny+1; j++) {
+                for (unsigned int i = 1; i < nx+1; i++) {
+                    int cell_offset = Map(i, j, k);
+                    if (cell_offset >= 0) {
+                        size_t flat_idx = ((size_t)(k - 1) * nx * ny + (size_t)(j - 1) * nx + (i - 1)) * n_items;
+                        Velocity_x(i, j, k) = file_data[flat_idx + 0];
+                        Velocity_y(i, j, k) = file_data[flat_idx + 1];
+                        Velocity_z(i, j, k) = file_data[flat_idx + 2];
+                        Rho(i, j, k)        = file_data[flat_idx + 3] * 3.0;
+                    }
+                }
+            }
+        }
+
+        // 3. Exchange sub-domains information within halo
+        fillHalo<double> fillDouble(comm, Mask->rank_info,
+                                    { (int)nx, (int)ny, (int)nz },
+                                    {1, 1, 1}, 0, 1,
+                                    {true, true, true},
+                                    {false, false, false}); // non-periodic boundaries
+
+        fillDouble.fill(Velocity_x);
+        fillDouble.fill(Velocity_y);
+        fillDouble.fill(Velocity_z);
+        fillDouble.fill(Rho);
+        comm.barrier();
+
         // Allocate auxiliary distributions
         double* temp_fq = new double[19 * Np];
-        memset(temp_fq, 0, 19 * Np * sizeof(double)); // Initialize it with zeros
+        ScaLBL_CopyToHost(temp_fq, fq, 19 * Np * sizeof(double));
 
         // MRT constants
         constexpr double mrt_V1 = 0.05263157894736842;
@@ -653,136 +682,85 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
         constexpr double mrt_V11 = 0.01388888888888889;
         constexpr double mrt_V12 = 0.04166666666666666;
 
-        // For each cell
-        for (unsigned int k = 1; k < nz+1; k++) {
-            for (unsigned int j = 1; j < ny+1; j++) {
-                for (unsigned int i = 1; i < nx+1; i++) {
+        // Check if a coordinate is an valid fluid cell to be used in derivatives
+        auto is_active_fluid = [&](int x, int y, int z) {
+            if (x < 0 || x >= Nx || y < 0 || y >= Ny || z < 0 || z >= Nz) return false;
+            return Distance(x, y, z) > 0.0;
+        };
 
+        // 4. SECOND PASS: Calculate gradients and set equilibrium
+        for (unsigned int k = 1; k < (Nz-1); k++) {
+            for (unsigned int j = 1; j < (Ny-1); j++) {
+                for (unsigned int i = 1; i < (Nx-1); i++) {
 
-                    // Get index in flatten array (solid + fluid + extra cells)
                     int cell_offset = Map(i, j, k);
 
-
-                    // If is a fluid cell
+                    // Solids/padding are not modified in temp_fq.
                     if (cell_offset >= 0) {
-                        // Calculate flatten index for file_data (discounting offset of 1)
-                        size_t flat_idx = ((size_t)(k - 1) * nx * ny + (size_t)(j - 1) * nx + (i - 1)) * n_items;
-                        // Get velocity data from flatten
-                        double ux   = file_data[flat_idx + 0];
-                        double uy   = file_data[flat_idx + 1];
-                        double uz   = file_data[flat_idx + 2];
-                        double rho  = file_data[flat_idx + 3]*3.0;
 
-                        // Get derivatives
-                        // ADD NON-EQUILIBRIUM
+                        double ux  = Velocity_x(i, j, k);
+                        double uy  = Velocity_y(i, j, k);
+                        double uz  = Velocity_z(i, j, k);
+                        double rho = Rho(i, j, k);
+
                         // Gradients (default values)
-                        double dux_x    = 0.0;
-                        double duy_x    = 0.0;
-                        double duz_x    = 0.0;
-                        double dux_y    = 0.0;
-                        double duy_y    = 0.0;
-                        double duz_y    = 0.0;
-                        double dux_z    = 0.0;
-                        double duy_z    = 0.0;
-                        double duz_z    = 0.0;
-                        // If x direction is free to flow
-                        if (Map(i+1, j, k) >= 0 && Map(i-1, j, k) >= 0){
-                            size_t id_pox   = ((size_t)(k - 1 +0) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 1)) * n_items; // Index in Start.Raw
-                            size_t id_prx   = ((size_t)(k - 1 -0) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 1)) * n_items; // Index in Start.Raws
-                            double ux_pox   = file_data[id_pox + 0]; // Indexes of velocities from next cell
-                            double uy_pox   = file_data[id_pox + 1];
-                            double uz_pox   = file_data[id_pox + 2];
-                            double ux_prx   = file_data[id_prx + 0]; // Indexes of velocities from previous cell
-                            double uy_prx   = file_data[id_prx + 1];
-                            double uz_prx   = file_data[id_prx + 2];
-                            dux_x           = (ux_pox - ux_prx)/(2.0);   // Ux derivate along x
-                            duy_x           = (uy_pox - uy_prx)/(2.0);   // Uy derivate along x
-                            duz_x           = (uz_pox - uz_prx)/(2.0);   // Uz derivate along x
-                        }
-                        // If only next x cell is free to flow
-                        else if(Map(i+1, j, k) >= 0){
-                            size_t id_pox   = ((size_t)(k - 1 +0) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 1)) * n_items; // Index in Start.Raw
-                            double ux_pox   = file_data[id_pox + 0]; // Indexes of velocities from next cell
-                            double uy_pox   = file_data[id_pox + 1];
-                            double uz_pox   = file_data[id_pox + 2];
-                            dux_x           = (ux_pox - ux);   // Ux derivate along x
-                            duy_x           = (uy_pox - uy);   // Uy derivate along x
-                            duz_x           = (uz_pox - uz);   // Uz derivate along x
-                        }
-                        // If only prev. x cell is free to flow
-                        else if(Map(i-1, j, k) >= 0){
-                            size_t id_prx   = ((size_t)(k - 1 -0) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 1)) * n_items; // Index in Start.Raw
-                            double ux_prx   = file_data[id_prx + 0]; // Indexes of velocities from previous cell
-                            double uy_prx   = file_data[id_prx + 1];
-                            double uz_prx   = file_data[id_prx + 2];
-                            dux_x           = (ux - ux_prx);   // Ux derivate along x
-                            duy_x           = (uy - uy_prx);   // Uy derivate along x
-                            duz_x           = (uz - uz_prx);   // Uz derivate along x
+                        double dux_x = 0.0, duy_x = 0.0, duz_x = 0.0;
+                        double dux_y = 0.0, duy_y = 0.0, duz_y = 0.0;
+                        double dux_z = 0.0, duy_z = 0.0, duz_z = 0.0;
 
+                        // Check neighbors dynamically and safely
+                        bool next_x = is_active_fluid(i+1, j, k);
+                        bool prev_x = is_active_fluid(i-1, j, k);
+                        bool next_y = is_active_fluid(i, j+1, k);
+                        bool prev_y = is_active_fluid(i, j-1, k);
+                        bool next_z = is_active_fluid(i, j, k+1);
+                        bool prev_z = is_active_fluid(i, j, k-1);
+
+                        // --- X Direction ---
+                        if (next_x && prev_x) {
+                            dux_x = (Velocity_x(i+1, j, k) - Velocity_x(i-1, j, k)) / 2.0;
+                            duy_x = (Velocity_y(i+1, j, k) - Velocity_y(i-1, j, k)) / 2.0;
+                            duz_x = (Velocity_z(i+1, j, k) - Velocity_z(i-1, j, k)) / 2.0;
+                        } else if (next_x) {
+                            dux_x = (Velocity_x(i+1, j, k) - ux);
+                            duy_x = (Velocity_y(i+1, j, k) - uy);
+                            duz_x = (Velocity_z(i+1, j, k) - uz);
+                        } else if (prev_x) {
+                            dux_x = (ux - Velocity_x(i-1, j, k));
+                            duy_x = (uy - Velocity_y(i-1, j, k));
+                            duz_x = (uz - Velocity_z(i-1, j, k));
                         }
 
-                        // If y direction is free to flow
-                        if (Map(i, j+1, k) >= 0 && Map(i, j-1, k) >= 0){
-                            size_t id_poy   = ((size_t)(k - 1 + 0) * nx * ny + (size_t)(j - 1 + 1) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
-                            size_t id_pry   = ((size_t)(k - 1 - 0) * nx * ny + (size_t)(j - 1 - 1) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
-                            double ux_poy   = file_data[id_poy + 0]; // Indexes of velocities from next cell
-                            double uy_poy   = file_data[id_poy + 1];
-                            double uz_poy   = file_data[id_poy + 2];
-                            double ux_pry   = file_data[id_pry + 0]; // Indexes of velocities from previous cell
-                            double uy_pry   = file_data[id_pry + 1];
-                            double uz_pry   = file_data[id_pry + 2];
-                            dux_y           = (ux_poy - ux_pry)/2.0;   // Ux derivate along y
-                            duy_y           = (uy_poy - uy_pry)/2.0;   // Uy derivate along y
-                            duz_y           = (uz_poy - uz_pry)/2.0;   // Uz derivate along y
-                        }else if(Map(i, j+1, k) >= 0){
-                            size_t id_poy   = ((size_t)(k - 1 + 0) * nx * ny + (size_t)(j - 1 + 1) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
-                            double ux_poy   = file_data[id_poy + 0]; // Indexes of velocities from next cell
-                            double uy_poy   = file_data[id_poy + 1];
-                            double uz_poy   = file_data[id_poy + 2];
-                            dux_y           = (ux_poy - ux);   // Ux derivate along y
-                            duy_y           = (uy_poy - uy);   // Uy derivate along y
-                            duz_y           = (uz_poy - uz);   // Uz derivate along y
-                        }else if(Map(i, j-1, k) >= 0){
-                            size_t id_pry   = ((size_t)(k - 1 - 0) * nx * ny + (size_t)(j - 1 - 1) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
-                            double ux_pry   = file_data[id_pry + 0]; // Indexes of velocities from previous cell
-                            double uy_pry   = file_data[id_pry + 1];
-                            double uz_pry   = file_data[id_pry + 2];
-                            dux_y           = (ux - ux_pry);   // Ux derivate along y
-                            duy_y           = (uy - uy_pry);   // Uy derivate along y
-                            duz_y           = (uz - uz_pry);   // Uz derivate along y
+                        // --- Y Direction ---
+                        if (next_y && prev_y) {
+                            dux_y = (Velocity_x(i, j+1, k) - Velocity_x(i, j-1, k)) / 2.0;
+                            duy_y = (Velocity_y(i, j+1, k) - Velocity_y(i, j-1, k)) / 2.0;
+                            duz_y = (Velocity_z(i, j+1, k) - Velocity_z(i, j-1, k)) / 2.0;
+                        } else if (next_y) {
+                            dux_y = (Velocity_x(i, j+1, k) - ux);
+                            duy_y = (Velocity_y(i, j+1, k) - uy);
+                            duz_y = (Velocity_z(i, j+1, k) - uz);
+                        } else if (prev_y) {
+                            dux_y = (ux - Velocity_x(i, j-1, k));
+                            duy_y = (uy - Velocity_y(i, j-1, k));
+                            duz_y = (uz - Velocity_z(i, j-1, k));
                         }
 
-                        // If z direction is free to flow
-                        if (Map(i, j, k+1) >= 0 && Map(i, j, k-1) >= 0){
-                            size_t id_poz   = ((size_t)(k - 1 + 1) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
-                            size_t id_prz   = ((size_t)(k - 1 - 1) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
-                            double ux_poz   = file_data[id_poz + 0]; // Indexes of velocities from next cell
-                            double uy_poz   = file_data[id_poz + 1];
-                            double uz_poz   = file_data[id_poz + 2];
-                            double ux_prz   = file_data[id_prz + 0]; // Indexes of velocities from previous cell
-                            double uy_prz   = file_data[id_prz + 1];
-                            double uz_prz   = file_data[id_prz + 2];
-                            dux_z           = (ux_poz - ux_prz)/(2.0);   // Ux derivate along z
-                            duy_z           = (uy_poz - uy_prz)/(2.0);   // Uy derivate along z
-                            duz_z           = (uz_poz - uz_prz)/(2.0);   // Uz derivate along z
-                        } else if(Map(i, j, k+1) >= 0){
-                            size_t id_poz   = ((size_t)(k - 1 + 1) * nx * ny + (size_t)(j - 1 + 0) * nx + (i - 1 + 0)) * n_items; // Index in Start.Raw
-                            double ux_poz   = file_data[id_poz + 0]; // Indexes of velocities from next cell
-                            double uy_poz   = file_data[id_poz + 1];
-                            double uz_poz   = file_data[id_poz + 2];
-                            dux_z           = (ux_poz - ux);   // Ux derivate along z
-                            duy_z           = (uy_poz - uy);   // Uy derivate along z
-                            duz_z           = (uz_poz - uz);   // Uz derivate along z
-
-                        } else if(Map(i, j, k-1) >= 0){
-                            size_t id_prz   = ((size_t)(k - 1 - 1) * nx * ny + (size_t)(j - 1 - 0) * nx + (i - 1 - 0)) * n_items; // Index in Start.Raw
-                            double ux_prz   = file_data[id_prz + 0]; // Indexes of velocities from previous cell
-                            double uy_prz   = file_data[id_prz + 1];
-                            double uz_prz   = file_data[id_prz + 2];
-                            dux_z           = (ux - ux_prz);   // Ux derivate along z
-                            duy_z           = (uy - uy_prz);   // Uy derivate along z
-                            duz_z           = (uz - uz_prz);   // Uz derivate along z
+                        // --- Z Direction ---
+                        if (next_z && prev_z) {
+                            dux_z = (Velocity_x(i, j, k+1) - Velocity_x(i, j, k-1)) / 2.0;
+                            duy_z = (Velocity_y(i, j, k+1) - Velocity_y(i, j, k-1)) / 2.0;
+                            duz_z = (Velocity_z(i, j, k+1) - Velocity_z(i, j, k-1)) / 2.0;
+                        } else if (next_z) {
+                            dux_z = (Velocity_x(i, j, k+1) - ux);
+                            duy_z = (Velocity_y(i, j, k+1) - uy);
+                            duz_z = (Velocity_z(i, j, k+1) - uz);
+                        } else if (prev_z) {
+                            dux_z = (ux - Velocity_x(i, j, k-1));
+                            duy_z = (uy - Velocity_y(i, j, k-1));
+                            duz_z = (uz - Velocity_z(i, j, k-1));
                         }
+
                         // Macroscopic momentums from read file
                         double jx   = rho*ux;
                         double jy   = rho*uy;
@@ -809,17 +787,17 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                         // MRT Non-equilibrium momentums
                         // Relaxations according to collisor
                         double relax_e = rlx_setA; //m1
-                        double relax_p = rlx_setA; //m9, m10, m13, m14, m15 
+                        double relax_p = rlx_setA; //m9, m10, m13, m14, m15
                         double relax_q = rlx_setB; // m16, m17, m18
                         // e
-                        double m_neq1 = - 19* divergent /  relax_e; 
+                        double m_neq1 = - 19* divergent /  relax_e;
                         m_neq1 *= (1-relax_e); // Convert to post-collision
 
                         double m_neq2 = 0.0;   // Epsilon
                         double m_neq4 = 0.0;   // q_x
                         double m_neq6 = 0.0;   // q_y
                         double m_neq8 = 0.0;   // q_z
-                        
+
                         // 3p_xx
                         double m_neq9 = - 2.0 * rho * (2*dux_x-duy_y-duz_z) / (3.0*relax_p);
                         m_neq9 *= (1-relax_p); // Convert to post-collision
@@ -844,7 +822,7 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
 
                         double m_neq16 = 0.0*relax_q;  // m_x
                         m_neq16 *= (1-relax_q);
-                        
+
                         double m_neq17 = 0.0*relax_q;  // m_y
                         m_neq17 *= (1-relax_q);
 
@@ -852,7 +830,7 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                         m_neq18 *= (1-relax_q);
 
 
-                        // Define total of initialized moments 
+                        // Define total of initialized moments
                         double m1 = m_eq1 + m_neq1;
                         double m2 = m_eq2 + m_neq2;
                         double m4 = m_eq4 + m_neq4;
@@ -986,9 +964,6 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
                             0.025 * (m8 - m6) - mrt_V6 * m9 - mrt_V7 * m10 - 0.25 * m14 -
                             0.125 * (m17 + m18) - 0.08333333333 * (Fy - Fz);
                         temp_fq[18 * Np + cell_offset] = f_value;
-
-
-
                     }
                 }
             }
@@ -1002,19 +977,18 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
     }
 
     // Update Velocity state from fq
-    ScaLBL_D3Q19_Momentum(fq,Velocity,Np);
+    ScaLBL_D3Q19_Momentum(fq, Velocity, Np);
     ScaLBL_DeviceBarrier();
     comm.barrier();
-    ScaLBL_Comm->RegularLayout(Map, &Velocity[0   ], Velocity_x);
-    ScaLBL_Comm->RegularLayout(Map, &Velocity[Np  ], Velocity_y);
-    ScaLBL_Comm->RegularLayout(Map, &Velocity[2*Np], Velocity_z);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[0], Velocity_x);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[Np], Velocity_y);
+    ScaLBL_Comm->RegularLayout(Map, &Velocity[2 * Np], Velocity_z);
 
     // Update Pressure State from fq
-    ScaLBL_D3Q19_Pressure(fq, Pressure, Np);    // Calculate Pressure Field
-    ScaLBL_DeviceBarrier();                     // Sync
-    comm.barrier();                             // Sync
-    ScaLBL_Comm->RegularLayout(Map, &Pressure[0   ], Pressure_f);  // Transform Pressure Field in 3D domain
-
+    ScaLBL_D3Q19_Pressure(fq, Pressure, Np);
+    ScaLBL_DeviceBarrier();
+    comm.barrier();
+    ScaLBL_Comm->RegularLayout(Map, &Pressure[0], Pressure_f);
 }
 
 
@@ -1080,27 +1054,9 @@ void ScaLBL_MRTModel::Run_Timesteps(const std::vector<int>& coords) {
 
     // --- 1. DYNAMIC HEADER GENERATION ---
     if (rank == 0) {
-        // 10 (Time) + 20 (Global) = 30 spaces padding
-        printf("\n%-10s %-20s", "", "");
-        for (size_t n = 0; n < coords.size(); n += 3) {
-            int i = coords[n]+1, j = coords[n+1]+1, k = coords[n+2]+1;
-            if (Distance(i, j, k) > 0) {
-                char label[32];
-                sprintf(label, "Point (%d,%d,%d)", i, j, k);
-                // MATH: '| ' (2) + label + remaining spaces to hit 33
-                // The %-31s ensures the point block is exactly 33 chars wide (including the |)
-                printf("| %-31s", label);
-            }
-        }
 
         // --- LEVEL 2: VARIABLE LABELS ---
-        printf("\n%-10s %-20s", "Timestep", "Global Kin. Energy");
-        for (size_t n = 0; n < coords.size(); n += 3) {
-            if (Distance(coords[n]+1, coords[n+1]+1, coords[n+2]+1) > 0) {
-                // MATH: '| ' (2) + 14 (Kin) + ' | ' (3) + 14 (Press) = 33 characters
-                printf("| %-14s | %-14s", "Kin. Energy", "Pressure");
-            }
-        }
+        printf("\n%-10s %-20s %-20s", "Timestep", "Global Kin. Energy", "Vel.Mag change");
         printf("\n----------------------------------------------------------------------------------------------------------\n");
     }
 
@@ -1169,31 +1125,27 @@ void ScaLBL_MRTModel::Run_Timesteps(const std::vector<int>& coords) {
 
             // Calculate global kinectic energy
             double kin_energy   = 0;
+            double local_change = 0;
             for (int k = 1; k < Nz - 1; k++) {
                 for (int j = 1; j < Ny - 1; j++) {
                     for (int i = 1; i < Nx - 1; i++) {
                         if (Distance(i, j, k) > 0) {
                             kin_energy    += std::pow(Velocity_x(i, j, k),2) + std::pow(Velocity_y(i, j, k),2) + std::pow(Velocity_z(i, j, k),2);
+
+                            local_change  += std::sqrt(   std::pow(Velocity_x(i, j, k)-Velocity_x_prev(i, j, k),2)
+                                                        + std::pow(Velocity_y(i, j, k)-Velocity_y_prev(i, j, k),2)
+                                                        + std::pow(Velocity_z(i, j, k)-Velocity_z_prev(i, j, k),2)
+                                            );
+
+                            Velocity_x_prev(i, j, k) = Velocity_x(i, j, k);
+                            Velocity_y_prev(i, j, k) = Velocity_y(i, j, k);
+                            Velocity_z_prev(i, j, k) = Velocity_z(i, j, k);
                         }
                     }
                 }
             }
-            kin_energy /= count_loc;
 
-            // Checking analyzed points
-            if (rank == 0) {
-                printf("%-10d %-20.6e", timestep, kin_energy);
-                for (size_t n = 0; n < coords.size(); n += 3) {
-                    int i = coords[n]+1, j = coords[n+1]+1, k = coords[n+2]+1;
-                    if (Distance(i, j, k) > 0) {
-                        double u_loc = std::pow(Velocity_x(i, j, k), 2) + std::pow(Velocity_y(i, j, k), 2) + std::pow(Velocity_z(i, j, k), 2);
-                        double p_loc = Pressure_f(i, j, k);
-                        // Matches the 33-char header block exactly
-                        printf("| %-14.6e | %-14.6e", u_loc, p_loc);
-                    }
-                }
-                printf("\n");
-            }
+            printf("%-10d %-20.6e %-25.6e\n", timestep, kin_energy, local_change);
 
             if (timestep % VISUAL_INTERVAL == 0) SaveFields();
 
