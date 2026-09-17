@@ -971,10 +971,76 @@ void ScaLBL_MRTModel::Initialize_fEqNeq() {
 
         ScaLBL_CopyToDevice(fq, temp_fq, 19 * Np * sizeof(double));
         delete[] temp_fq;
+
+
+
     }
     else {
-        if (rank == 0) printf("No start file. Initializing with null velocity case.\n");
+        printf("No start file %s. Initializing with null velocity and unitary density.\n", raw_filename);
     }
+
+
+// ============================================================
+// DEBUG: Save GLOBAL initialized D3Q19 distributions using LBPM IO
+// Output format: RAW (Sequential variables -> [Q][Z][Y][X])
+// ============================================================
+        ScaLBL_DeviceBarrier();
+        comm.barrier();
+
+        // 1. Copy flattened distributions from GPU to CPU
+        std::vector<double> host_fq(19 * Np);
+        ScaLBL_CopyToHost(host_fq.data(), fq, 19 * Np * sizeof(double));
+
+        // 2. Setup LBPM's IO MeshDataStruct
+        std::vector<IO::MeshDataStruct> debugData;
+
+        // Use "bov" to natively dump a raw binary file (.dat)
+        IO::initialize("", "vtk", false);
+
+        debugData.resize(1);
+        debugData[0].meshName = "Debug_fq";
+        debugData[0].mesh = std::make_shared<IO::DomainMesh>(
+            Dm->rank_info, Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2,
+            Dm->Lx, Dm->Ly, Dm->Lz);
+
+        // Helper to copy data from local 3D array (with halos) to IO array (without halos)
+        fillHalo<double> fillData(Dm->Comm, Dm->rank_info,
+                                  {Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2},
+                                  {1, 1, 1}, 0, 1);
+
+        Array<double> temp_3D(Nx, Ny, Nz);
+
+        // 3. Map all 19 channels to 3D and add to IO struct
+        for (int q = 0; q < 19; q++) {
+            // Unscramble the 1D optimized layout into standard 3D local domain
+            ScaLBL_Comm->RegularLayout(Map, &host_fq[q * Np], temp_3D);
+
+            // Create an IO variable for this specific Q channel
+            auto qVar = std::make_shared<IO::Variable>();
+            char var_name[32];
+            sprintf(var_name, "fq_%02d", q);
+            qVar->name = var_name;
+            qVar->type = IO::VariableType::VolumeVariable;
+            qVar->dim = 1;
+            qVar->data.resize(Dm->Nx - 2, Dm->Ny - 2, Dm->Nz - 2);
+
+            // Extract the interior (removes ghost/halo cells) and push to IO
+            fillData.copy(temp_3D, qVar->data);
+            debugData[0].vars.push_back(qVar);
+        }
+
+        // 4. Save using LBPM parallel writer
+        // Passed '0' as timestep -> outputs Debug_fq_00000.bov and Debug_fq_00000.dat
+        IO::writeData(0, debugData, Dm->Comm);
+
+        if (rank == 0) {
+            printf("DEBUG: Saved GLOBAL D3Q19 distributions via LBPM IO (Debug_fq_00000.dat)\n");
+        }
+// ============================================================
+// END DEBUG BLOCK
+// ============================================================
+
+
 
     // Update Velocity state from fq
     ScaLBL_D3Q19_Momentum(fq, Velocity, Np);
