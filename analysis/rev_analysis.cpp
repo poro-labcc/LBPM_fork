@@ -18,7 +18,6 @@
  * Multi-relaxation time LBM Model
  */
 #include "analysis/rev_analysis.h"
-#include "models/MRTModel.h"
 #include "analysis/distance.h"
 #include "common/ReadMicroCT.h"
 #include <cmath>
