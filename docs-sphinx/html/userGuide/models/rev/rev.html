@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis) &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sidebar.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/background-table-transparent.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="../../../_static/css/sidebar.js?v=29393464"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Domain Decomposition (lbpm_serial_decomp)" href="../domain/domain.html" />
+    <link rel="prev" title="Digital drainage" href="../morph/ylm-inc.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mrt/mrt.html">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#methodology">Methodology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-rev-analysis">Run REV Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benchmark-cases">Benchmark Cases</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#lbpm-support-routines">LBPM Support Routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/rev/rev.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="representative-elementary-volume-rev-analysis-lbpm-rev-analysis">
+<h1>Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)<a class="headerlink" href="#representative-elementary-volume-rev-analysis-lbpm-rev-analysis" title="Link to this heading">¶</a></h1>
+<p>The degree of heterogeneity observed in digital rocks is an important factor in characterizing porous media. Advances
+in the resolution and sample size achievable with X-ray microtomography have made it increasingly feasible to digitally
+investigate larger volumes that capture the intrinsic heterogeneities of porous structures. These developments enable the
+identification of representative elementary volumes (REVs), beyond which the influence of local heterogeneities becomes
+negligible and specific effective properties of the porous medium can be reliably characterized.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> routine provides an automated REV analysis for a range of
+geometrical and hydrodynamic properties, as summarized in <a class="reference internal" href="#rev-properties"><span class="std std-numref">Table 1</span></a>. By combining deterministic and statistical approaches,
+the routine enables a comprehensive characterization of these properties, providing valuable insights for assessing the
+representativeness of microtomography images and estimating effective sample volumes for subsequent numerical analyses.</p>
+<span id="rev-properties"></span><table class="docutils align-center" id="id4">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Properties available for REV analysis.</span><a class="headerlink" href="#id4" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Property 1</p></th>
+<th class="head"><p>Property 2</p></th>
+<th class="head"><p>Property 3</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Geometrical</p></td>
+<td><p>Porosity (<span class="math notranslate nohighlight">\(\phi\)</span>)</p></td>
+<td><p>Tortuosity (<span class="math notranslate nohighlight">\(\tau\)</span>)</p></td>
+<td><p>Superficial Area (<span class="math notranslate nohighlight">\(A_{s}\)</span>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hydrodynamic</p></td>
+<td><p>Absolute Permeability (<span class="math notranslate nohighlight">\(K_{z}\)</span>)</p></td>
+<td><p>Hydraulic Tortuosity (<span class="math notranslate nohighlight">\(\tau_{h}\)</span>)</p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<section id="methodology">
+<h2>Methodology<a class="headerlink" href="#methodology" title="Link to this heading">¶</a></h2>
+<p>The implemented REV routine combines deterministic and statistical approaches into a <strong>hybrid methodology</strong>, as illustrated
+in the workflow diagram presented in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>. The deterministic stage provides an initial estimate of the REV
+size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
+evaluates the spatial variability of the property over randomly distributed subvolumes. <strong>Both deterministic and statistical
+analyses employ a default convergence threshold of 0.1 for their respective criteria. The final REV is accepted only when the
+statistical convergence conditions are satisfied</strong>. For a detailed explanation of the steps illustrated in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>,
+expand the toggle sections below for the deterministic and statistical analyses.</p>
+<table class="borderless docutils align-center">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><figure class="align-center" id="id5">
+<span id="rev-workflow"></span><a class="reference internal image-reference" href="../../../_images/rev-workflow.svg"><img alt="../../../_images/rev-workflow.svg" src="../../../_images/rev-workflow.svg" style="width: 70%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 5 </span><span class="caption-text">Workflow of the hybrid REV analysis, combining deterministic
+(steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#id5" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+<td><figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../../../_images/REVHybridAnimation.gif"><img alt="../../../_images/REVHybridAnimation.gif" src="../../../_images/REVHybridAnimation.gif" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">GIF Animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+</td>
+</tr>
+</tbody>
+</table>
+<section id="deterministic-analysis">
+<h3>Deterministic Analysis<a class="headerlink" href="#deterministic-analysis" title="Link to this heading">¶</a></h3>
+<details>
+<summary><strong>Click here to open: Deterministic Analysis</strong></summary><p>The <strong>deterministic approach</strong> evaluates a property of interest within a
+subvolume centered in the computational domain. The analysis is repeated
+for progressively larger subvolumes until the measured property becomes
+approximately independent of the subvolume edge length. The smallest
+subvolume satisfying the prescribed convergence criteria is identified
+as the deterministic REV.</p>
+<p>The main advantage of this approach is its relatively low computational
+cost, as only one subvolume is evaluated for each edge length. However,
+the results may be sensitive to local fluctuations, including maxima,
+minima, and inflection points, potentially leading to false convergence.</p>
+<p>The deterministic procedure, illustrated in the upper part of the
+workflow diagram, consists of the following steps:</p>
+<ol class="arabic">
+<li><p><strong>Initialize the subvolume size:</strong> The initial edge length is defined
+as twice the average pore diameter,</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-0">
+<span class="eqno">(110)<a class="headerlink" href="#equation-userguide-models-rev-rev-0" title="Link to this equation">¶</a></span>\[\ell_0 = 2\overline{d}_p.\]</div>
+</li>
+<li><p><strong>Evaluate the domain-size constraint:</strong> Before each evaluation,
+the subvolume dimensions are checked against the available computational
+domain. If the prescribed maximum size is exceeded before convergence,
+no deterministic REV is identified.</p></li>
+<li><p><strong>Measure the property:</strong> The property of interest, <span class="math notranslate nohighlight">\(\eta_i\)</span>,
+is evaluated within the centered subvolume.</p></li>
+<li><p><strong>Compute the convergence criteria:</strong> Two complementary metrics are
+calculated to quantify the variation of the measured property with
+increasing subvolume size.</p>
+<p>The first metric is the relative error (RE), defined following
+<span id="id1"></span> as</p>
+<div class="math notranslate nohighlight" id="equation-rev-relative-error">
+<span class="eqno">(111)<a class="headerlink" href="#equation-rev-relative-error" title="Link to this equation">¶</a></span>\[RE_i =
+\left|
+\frac{\eta_{i+1}-\eta_{i-1}}
+{\eta_{i+1}+\eta_{i-1}}
+\frac{V_{i-1}}{V_{i+1}}
+\right|,\]</div>
+<p>where <span class="math notranslate nohighlight">\(RE_i\)</span> is the relative error at iteration <span class="math notranslate nohighlight">\(i\)</span>,
+<span class="math notranslate nohighlight">\(\eta_i\)</span> represents the measured property in the <span class="math notranslate nohighlight">\(i\)</span>-th
+subvolume, and <span class="math notranslate nohighlight">\(V_i\)</span> denotes its corresponding volume.
+This metric quantifies the local variation of the property as the
+evaluated subvolume increases in size.</p>
+<p>The second metric is the convergence criterion (CC), introduced by
+<span id="id2"></span>:</p>
+<div class="math notranslate nohighlight" id="equation-rev-convergence-criterion">
+<span class="eqno">(112)<a class="headerlink" href="#equation-rev-convergence-criterion" title="Link to this equation">¶</a></span>\[CC_i =
+\frac{
+\sigma(\eta_{i-m+1},\ldots,\eta_i)
+}{
+\overline{\eta}(\eta_{i-m+1},\ldots,\eta_i)
+},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma\)</span> denotes the standard deviation,
+<span class="math notranslate nohighlight">\(\overline{\eta}\)</span> represents the arithmetic mean, and
+<span class="math notranslate nohighlight">\(m\)</span> is the number of consecutive measurements considered.
+By evaluating the dispersion of the most recent measurements,
+this metric reduces the likelihood of false convergence associated
+with local fluctuations. The default value is <span class="math notranslate nohighlight">\(m=10\)</span>.</p>
+</li>
+<li><p><strong>Assess convergence and update the subvolume size:</strong> The deterministic
+REV is identified when both convergence criteria satisfy the prescribed
+tolerance. Otherwise, the subvolume edge length is increased by 6%,
+according to</p>
+<div class="math notranslate nohighlight" id="equation-rev-edge-growth">
+<span class="eqno">(113)<a class="headerlink" href="#equation-rev-edge-growth" title="Link to this equation">¶</a></span>\[\ell_{i+1}=1.06\ell_i,\]</div>
+<p>and the procedure is repeated until convergence is achieved or
+the maximum admissible subvolume size is reached.</p>
+</li>
+</ol>
+</details><br></section>
+<section id="statistical-analysis">
+<h3>Statistical Analysis<a class="headerlink" href="#statistical-analysis" title="Link to this heading">¶</a></h3>
+<details>
+<summary><strong>Click here to open: Statistical Analysis</strong></summary><p>The <strong>statistical approach</strong> evaluates the spatial variability of a
+property by sampling multiple subvolumes distributed throughout the
+computational domain. For a given edge length, the property is measured
+in a set of randomly selected subvolumes, and the dispersion of the
+resulting measurements is assessed.</p>
+<p>If the dispersion exceeds the prescribed tolerance, the subvolume size
+is increased and the procedure is repeated until the measurements become
+sufficiently consistent.</p>
+<p>Compared with the deterministic approach, statistical analysis is
+computationally more expensive because multiple subvolumes must be
+evaluated at each edge length. Nevertheless, it provides a more robust
+assessment of spatial heterogeneity and reduces the risk of identifying
+false convergence caused by localized features.</p>
+<p>An important limitation arises as the subvolume size approaches the
+dimensions of the computational domain. In this situation, increasing
+overlap between sampled subvolumes can artificially reduce the measured
+dispersion, potentially leading to an overestimation of convergence.</p>
+<p>The statistical procedure, represented in the lower part of the workflow
+diagram, follows these steps:</p>
+<ol class="arabic" start="6">
+<li><p><strong>Initialize the statistical analysis:</strong> The edge length corresponding
+to the deterministic REV is adopted as the initial subvolume size,
+avoiding the repeated evaluation of smaller volumes that have already
+been assessed.</p></li>
+<li><p><strong>Select and evaluate random subvolumes:</strong> For the prescribed edge
+length, <span class="math notranslate nohighlight">\(N\)</span> subvolumes are randomly distributed within the
+computational domain, and the property of interest is evaluated
+independently in each subvolume.</p></li>
+<li><p><strong>Evaluate statistical convergence:</strong> The dispersion of the measurements
+is quantified using the coefficient of variation (CV), following
+<span id="id3"></span>:</p>
+<div class="math notranslate nohighlight" id="equation-rev-coefficient-variation">
+<span class="eqno">(114)<a class="headerlink" href="#equation-rev-coefficient-variation" title="Link to this equation">¶</a></span>\[CV = \frac{\sigma(\eta)}{\overline{\eta}},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma(\eta)\)</span> is the standard deviation of the property
+measurements and <span class="math notranslate nohighlight">\(\overline{\eta}\)</span> is their arithmetic mean.
+Normalization by the mean provides a dimensionless measure of relative
+dispersion.</p>
+<p>The number of sampled subvolumes is determined adaptively by monitoring
+the variation of the CV as additional subvolumes are included.
+Sampling continues until the estimated dispersion stabilizes, ensuring
+that the statistical measure is sufficiently representative of the
+selected subvolume size.</p>
+</li>
+<li><p><strong>Determine the statistical REV:</strong> Once the CV has stabilized, its
+value is compared with the prescribed convergence tolerance.
+If the criterion is satisfied, the current edge length is identified
+as the statistical REV. Otherwise, the subvolume edge length is
+increased by 6%, and the statistical evaluation is repeated.
+If the admissible domain size is exceeded before convergence,
+no statistical REV is identified.</p></li>
+</ol>
+</details><br></section>
+</section>
+<section id="run-rev-analysis">
+<h2>Run REV Analysis<a class="headerlink" href="#run-rev-analysis" title="Link to this heading">¶</a></h2>
+<p>A typical command to launch the LBPM single-phase simulator is as follows. The REV analysis can be run
+in two different routines: on the <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> and inside of <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>.</p>
+<section id="lbpm-permeability-simulator">
+<h3>lbpm_permeability_simulator<a class="headerlink" href="#lbpm-permeability-simulator" title="Link to this heading">¶</a></h3>
+<p>Inside of <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>, the proceddure follow the typical command to launch the LBPM
+single-phase simulator is as follows. However, inside <code class="docutils literal notranslate"><span class="pre">input.db</span></code> you have activate REV inside of Domain class by set <code class="docutils literal notranslate"><span class="pre">REV</span> <span class="pre">=</span> <span class="pre">True</span></code>. With REV analysis
+activated the REV class of parameters need to be set, where we have</p>
+</section>
+<section id="model-parameters">
+<h3>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h3>
+</section>
+<section id="assessing-steady-state-permeability">
+<h3>Assessing Steady State Permeability<a class="headerlink" href="#assessing-steady-state-permeability" title="Link to this heading">¶</a></h3>
+</section>
+</section>
+<section id="benchmark-cases">
+<h2>Benchmark Cases<a class="headerlink" href="#benchmark-cases" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../morph/ylm-inc.html" class="btn btn-neutral float-left" title="Digital drainage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../domain/domain.html" class="btn btn-neutral float-right" title="Domain Decomposition (lbpm_serial_decomp)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

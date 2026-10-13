@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cell model &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sidebar.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/background-table-transparent.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="../../../_static/css/sidebar.js?v=29393464"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Greyscale Color Model" href="../greyscaleColor/greyscaleColor.html" />
+    <link rel="prev" title="Color model – Subphase Analysis" href="../color/analysis/subphase.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mrt/mrt.html">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Cell model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#nernst-planck-model">Nernst-Planck model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gauss-s-law-model">Gauss’s Law Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#membrane-model">Membrane Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-input-file">Example Input File</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../rev/rev.html">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#lbpm-support-routines">LBPM Support Routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">Cell model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/cell/cell.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cell-model">
+<h1>Cell model<a class="headerlink" href="#cell-model" title="Link to this heading">¶</a></h1>
+<p>LBPM includes a whole-cell simulator based on a coupled solution of the Nernst-Planck equations with Gauss’s law.
+The resulting model is fully non-equilibrium, and can resolve the dynamics of how ions diffuse through the cellular
+environment when subjected to complex membrane responses.
+The lattice Boltzmann formulation is described below.</p>
+<section id="nernst-planck-model">
+<h2>Nernst-Planck model<a class="headerlink" href="#nernst-planck-model" title="Link to this heading">¶</a></h2>
+<p>The Nernst-Planck model is designed to model ion transport based on the
+Nernst-Planck equation.</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-0">
+$$
+
+  \frac{\partial C_k}{\partial t} + \nabla \cdot \mathbf{j}_k = 0
+
+$$</div><p>where</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-1">
+$$
+
+  \mathbf{j}_k = C_k \mathbf{u} - D_k \Big( \nabla C_k + \frac{z_k C_k}{V_T} \nabla \psi\Big)
+
+
+
+$$</div><p>A LBM solution is developed using a three-dimensional, seven velocity (D3Q7) lattice structure for each species. Each distribution is associated with a particular discrete velocity, such that the concentration is given  by their sum,</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-2">
+$$
+
+ C_k  = \sum_{q=0}^{6} f^k_q \;.
+
+$$</div><p>Lattice Boltzmann equations (LBEs) are defined to determine the evolution of the distributions</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-3">
+$$
+
+ f^{k}_q (\mathbf{x}_n + \boldsymbol{\xi}_q \Delta t, t+ \Delta t)-
+     f^{k}_q (\mathbf{x}_n, t) = \frac{1}{\lambda_k}
+     \Big( f^{k}_q - f^{eq}_q \Big)\;,
+
+$$</div><p>where the relaxation time <span class="math notranslate nohighlight">\(\lambda_k\)</span> controls the bulk diffusion coefficient,</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-4">
+$$
+
+    D_k = c_s^2\Big( \lambda_k - \frac 12\Big)\;.
+
+$$</div><p>The speed of sound for the D3Q7 lattice model is <span class="math notranslate nohighlight">\(c_s^2 = \frac 14\)</span> and the weights are <span class="math notranslate nohighlight">\(W_0 = 1/4\)</span> and <span class="math notranslate nohighlight">\(W_1,\ldots, W_6 = 1/8\)</span>.
+Equilibrium distributions are established from the fact that molecular velocity distribution follows a Gaussian distribution within the bulk fluids,</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-5">
+$$
+
+       f^{eq}_q = W_q C_k \Big[ 1 + \frac{\boldsymbol{\xi_q}\cdot \mathbf{u}^\prime}{c_s^2} \Big]\;.
+
+$$</div><p>The velocity is given by</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-6">
+$$
+
+ \mathbf{u}^\prime = \mathbf{u} - \frac{z_k D_k}{V_T} \nabla \psi \;.
+
+$$</div><p>Keys for the Nernst-Planck solver are provided in the <code class="docutils literal notranslate"><span class="pre">Ion</span></code> section of the input file database. Supported keys are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">use_membrane</span></code> – set up a membrane structure (defaults to <code class="docutils literal notranslate"><span class="pre">true</span></code> if not specified)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Restart</span></code> – read concentrations from restart file (defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code> if not specified)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number_ion_species</span></code> – number of ions to use in the model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code> – temperature to use for the thermal voltage (<span class="math notranslate nohighlight">\(V_T=k_B T / e\)</span>, where the electron charge is <span class="math notranslate nohighlight">\(e=1.6\times10^{-19}\)</span> Coulomb)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FluidVelDummy</span></code> – vector providing a dummy fluid velocity field (for advection component)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ElectricFieldDummy</span></code> – vectory providing a dummy electric field (for force component)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tauList</span></code> – list of relaxation times to set the diffusion coefficient based on <span class="math notranslate nohighlight">\(\lambda_k\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IonDiffusivityList</span></code> – list of physical ion diffusivities in units <span class="math notranslate nohighlight">\(\mbox{m}^2/\mbox{second}\)</span>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IonValenceList</span></code> – list of ion valence charges for each ion in the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IonConcentrationList</span></code> – list of concentrations to set for each ion.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MembraneIonConcentrationList</span></code> – list of concentrations to set for each ion inside the membrane.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC_InletList</span></code> – boundary conditions for each ion at the z-inlet (<code class="docutils literal notranslate"><span class="pre">0</span></code> for periodic, <code class="docutils literal notranslate"><span class="pre">1</span></code> to set concentration)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BC_OutletList</span></code> – boundary conditions for each ion at the z-outlet</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InletValueList</span></code> – concentration value to set at the inlet (if not periodic)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OutletValueList</span></code> – concentration value to set at the outlet (if not periodic)</p></li>
+</ul>
+</section>
+<section id="gauss-s-law-model">
+<h2>Gauss’s Law Model<a class="headerlink" href="#gauss-s-law-model" title="Link to this heading">¶</a></h2>
+<p>The LBPM Gauss’s law solver is designed to solve for the electric field in an ionic fluid.</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-7">
+$$
+
+ \nabla^2_{fe} \psi (\mathbf{x}_i) = \frac{1}{6 \Delta x^2}
+ \Bigg( 2 \sum_{q=1}^{6} \psi(\mathbf{x}_i + \boldsymbol{\xi}_q \Delta t)
+   +  \sum_{q=7}^{18} \psi(\mathbf{x}_i + \boldsymbol{\xi}_q \Delta t)
+- 24 \psi (\mathbf{x}_i) \Bigg) \;,
+
+$$</div><p>The equilibrium functions are defined as</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-8">
+$$
+
+ g_q^{eq} =  w_q \psi\;,
+
+$$</div><p>where <span class="math notranslate nohighlight">\(w_0=1/2\)</span>, <span class="math notranslate nohighlight">\(w_q=1/24\)</span> for <span class="math notranslate nohighlight">\(q=1,\ldots,6\)</span> and <span class="math notranslate nohighlight">\(w_q=1/48\)</span> for <span class="math notranslate nohighlight">\(q=7,\ldots,18\)</span></p>
+<p>which implies that</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-9">
+$$
+
+ \psi = \sum_{q=0}^{Q} g_q^{eq}\;.
+
+$$</div><p>Given a particular initial condition for <span class="math notranslate nohighlight">\(\psi\)</span>, let us consider application of the standard D3Q19 streaming step based on the equilibrium distributions</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-10">
+$$
+
+ g_q^\prime(\mathbf{x}, t) = g_q^{eq}(\mathbf{x}-\boldsymbol{\xi}_q\Delta t, t+ \Delta t)\;.
+
+$$</div><p>Relative to the solution of Gauss’s law, the error is given by</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-11">
+$$
+
+\varepsilon_{\psi} =
+8 \Big[ -g_0 +  \sum_{q=1}^Q g_q^\prime(\mathbf{x}, t) \Big]
++ \frac{\rho_e}{\epsilon_r \epsilon_0} \;.
+
+$$</div><p>Using the fact that <span class="math notranslate nohighlight">\(f_0 = W_0 \psi\)</span>, we can compute the value
+<span class="math notranslate nohighlight">\(\psi^\prime\)</span> that would kill the error. We set <span class="math notranslate nohighlight">\(\varepsilon_{\psi}=0\)</span>
+and rearrange terms to obtain</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-12">
+$$
+
+\psi^\prime (\mathbf{x},t) = \frac{1}{W_0}\Big[   \sum_{q=1}^Q g_q^\prime(\mathbf{x}, t)
++ \frac{1}{8}\frac{\rho_e}{\epsilon_r \epsilon_0}\Big]  \;.
+
+$$</div><p>The local value of the potential is then updated based on a relaxation scheme, which is controlled by the relaxation time <span class="math notranslate nohighlight">\(\tau_\psi\)</span></p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-13">
+$$
+
+\psi(\mathbf{x},t+\Delta t) \leftarrow \Big(1 - \frac{1}{\tau_\psi} \Big )\psi (\mathbf{x},t)
++ \frac{1}{\tau_\psi} \psi^\prime (\mathbf{x},t)\;.
+
+$$</div><p>The algorithm can then proceed to the next timestep.</p>
+<p>Keys to control the Gauss’s law solver are specified in the <code class="docutils literal notranslate"><span class="pre">Poisson</span></code> section of the input database.
+Supported keys are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Restart</span></code> – read electric potential from a restart file (default <code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestepMax</span></code> – maximum number of timesteps to run before exiting</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> – relaxation time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">analysis_interval</span></code> – how often to check solution for steady state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tolerance</span></code> – controls the required accuracy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilonR</span></code> – controls the electric permittivity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WriteLog</span></code> – write a convergence log</p></li>
+</ul>
+</section>
+<section id="membrane-model">
+<h2>Membrane Model<a class="headerlink" href="#membrane-model" title="Link to this heading">¶</a></h2>
+<p>The LBPM membrane model provides the basis to model cellular dynamics.
+There are currently two supported ways to specify the membrane location:</p>
+<p>1. provide a segemented image that is labeled to differentiate the cell
+interior and exterior. See the script <code class="docutils literal notranslate"><span class="pre">NaCl-cell.py</span></code> and input file <code class="docutils literal notranslate"><span class="pre">NaCl.db</span></code> as a reference for how to use labeled images.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">IonConcentrationFile</span></code> – list of files that specify the initial concentration for each ion</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Filename</span></code> – 8-bit binary file provided in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section of the input database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadType</span></code> – this should be <code class="docutils literal notranslate"><span class="pre">&quot;8bit&quot;</span></code> (this is the default)</p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p>provide a <code class="docutils literal notranslate"><span class="pre">.swc</span></code> file that specifies the geometry (see example input file below).</p></li>
+</ol>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Filename</span></code> – swc file name should be provided in the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> section of the input database</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadType</span></code> – this should be <code class="docutils literal notranslate"><span class="pre">&quot;swc&quot;</span></code> (required since <code class="docutils literal notranslate"><span class="pre">&quot;8bit&quot;</span></code> is the internal default)</p></li>
+</ul>
+<p>Example input files for both cases are stored within the LBPM repository, located at <code class="docutils literal notranslate"><span class="pre">example/SingleCell/</span></code></p>
+<p>The membrane simply prevents the diffusion of ions. All lattice links crossing the membrane are stored in a dedicated data structure so that transport is decoupled from the bulk regions. Suppose that site <span class="math notranslate nohighlight">\(\mathbf{x}_{q\ell}\)</span> is inside the membrane and <span class="math notranslate nohighlight">\(\mathbf{x}_{p\ell}\)</span> is outside the membrane, with <span class="math notranslate nohighlight">\(\mathbf{x}_{p \ell } = \mathbf{x}_{q\ell} + \boldsymbol{\xi}_q \Delta t\)</span>. For each species <span class="math notranslate nohighlight">\(k\)</span>, transport across each link <span class="math notranslate nohighlight">\(\ell\)</span> is controlled by a pair of coefficients, <span class="math notranslate nohighlight">\(\alpha^k_{\ell p}\)</span> and <span class="math notranslate nohighlight">\(\alpha^k_{\ell q}\)</span>. Ions transported from the outside to the inside are transported by the particular distribution that is associated with the direction <span class="math notranslate nohighlight">\(\xi_q\)</span></p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-14">
+$$
+
+{ f_{q}^{k \prime} (\mathbf{x}_{q \ell})  \gets (1-\alpha^k_{\ell q}) f_{q}^{k} (\mathbf{x}_{q\ell}) + \alpha^k_{\ell p } f_{ p}^{k}  (\mathbf{x}_{p\ell})}
+
+$$</div><p>Similarly, for ions transported from the inside to the outside</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-15">
+$$
+
+{f_{p}^{k \prime} (\mathbf{x}_{p\ell})  \gets (1-\alpha^k_{\ell p}) f_{p}^{k} (\mathbf{x}_{p\ell}) + \alpha^k_{\ell q } f_{q}^{k}  (\mathbf{x}_{q\ell})}
+
+$$</div><p>The basic closure relationship that is implemented is for voltage-gated ion channels.
+Let <span class="math notranslate nohighlight">\(\Delta \psi_\ell = \psi(\mathbf{x}_{p\ell} ,t) - \psi(\mathbf{x}_{q\ell},t)\)</span> be the membrane potential across link <span class="math notranslate nohighlight">\(\ell\)</span>. Since <span class="math notranslate nohighlight">\(\psi\)</span> is determined based on the charge density, <span class="math notranslate nohighlight">\(\Delta \psi_\ell\)</span> can vary with both space and time. The behavior of the gate is implmented as follows,</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-16">
+$$
+
+\Delta \psi_\ell &gt; \tilde{V}_m\; \Rightarrow \; \mbox{gate is open} \; \Rightarrow \; \alpha^{k}_{q \ell} = \alpha_{1} + \alpha_2\;,
+
+$$</div><p>and</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-17">
+$$
+
+\Delta \psi_\ell \le \tilde{V}_m\; \Rightarrow  \; \mbox{gate is closed}\; \Rightarrow \; \alpha^{{k}}_{q \ell} = \alpha_1\;
+
+$$</div><p>where <span class="math notranslate nohighlight">\(\tilde{V}_m\)</span> is the membrane voltage threshold that controls gate. Mass conservation dictates that</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-18">
+$$
+
+ \alpha_1 \ge 0\;, \quad \alpha_2 \ge 0\;, \quad \alpha_1 + \alpha_2 \le 1\;.
+
+$$</div><p>The rule is enforced based on the Heaviside function, as follows</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-cell-cell-19">
+$$
+
+\alpha_{\ell q}^{k} (\Delta \psi_\ell) = \alpha_1 + \alpha_2 H\big(\Delta \psi_\ell - \tilde{V}_m \big)\;.
+
+$$</div><p>Note that different coefficients are specified for each ion in the model.</p>
+<p>Keys for the membrane model are set in the <code class="docutils literal notranslate"><span class="pre">Membrane</span></code> section of the input file database.  Supported keys are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">VoltageThreshold</span></code> – voltage threshold (may be different for each ion)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MassFractionIn</span></code> – value of <span class="math notranslate nohighlight">\(\alpha^k_{\ell p}\)</span> when the voltage threshold is not met</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MassFractionOut</span></code> – value of <span class="math notranslate nohighlight">\(\alpha^k_{\ell q}\)</span> when the voltage threshold is not met</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ThresholdMassFractionIn</span></code> – value of <span class="math notranslate nohighlight">\(\alpha^k_{\ell p}\)</span> when the voltage threshold is met</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ThresholdMassFractionOut</span></code> – value of <span class="math notranslate nohighlight">\(\alpha^k_{\ell q}\)</span> when the voltage threshold is met</p></li>
+</ul>
+</section>
+<section id="example-input-file">
+<h2>Example Input File<a class="headerlink" href="#example-input-file" title="Link to this heading">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MultiphysController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25000</span>
+<span class="w">    </span><span class="n">num_iter_Ion_List</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<span class="w">    </span><span class="n">analysis_interval</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">    </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-9</span>
+<span class="w">    </span><span class="n">visualization_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="w">        </span><span class="c1">// Frequency to write visualization data</span>
+<span class="p">}</span>
+<span class="n">Ions</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">use_membrane</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="n">Restart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="w">    </span><span class="n">MembraneIonConcentrationList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">150.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">10.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">15.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">155.0e-3</span><span class="w"> </span><span class="c1">//user-input unit: [mol/m^3]</span>
+<span class="w">    </span><span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">293.15</span><span class="w"> </span><span class="c1">//unit [K]</span>
+<span class="w">    </span><span class="n">number_ion_species</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w">  </span><span class="c1">//number of ions</span>
+<span class="w">    </span><span class="n">tauList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="n">IonDiffusivityList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-9</span><span class="w"> </span><span class="c1">//user-input unit: [m^2/sec]</span>
+<span class="w">    </span><span class="n">IonValenceList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="c1">//valence charge of ions; dimensionless; positive/negative integer</span>
+<span class="w">    </span><span class="n">IonConcentrationList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">4.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">20.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">16.0e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0e-3</span><span class="w"> </span><span class="c1">//user-input unit: [mol/m^3]</span>
+<span class="w">    </span><span class="n">BC_Solid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1">//solid boundary condition; 0=non-flux BC; 1=surface ion concentration</span>
+<span class="w">    </span><span class="c1">//SolidLabels = 0 //solid labels for assigning solid boundary condition; ONLY for BC_Solid=1</span>
+<span class="w">    </span><span class="c1">//SolidValues = 1.0e-5 // user-input surface ion concentration unit: [mol/m^2]; ONLY for BC_Solid=1</span>
+<span class="w">    </span><span class="n">FluidVelDummy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="w"> </span><span class="c1">// dummy fluid velocity for debugging</span>
+<span class="w">    </span><span class="n">BC_InletList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="n">BC_OutletList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="p">}</span>
+<span class="n">Poisson</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">lattice_scheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;D3Q19&quot;</span>
+<span class="w">    </span><span class="n">epsilonR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">78.5</span><span class="w"> </span><span class="c1">//fluid dielectric constant [dimensionless]</span>
+<span class="w">    </span><span class="n">BC_Inlet</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c1">// -&gt;1: fixed electric potential; -&gt;2: sine/cosine periodic electric potential</span>
+<span class="w">    </span><span class="n">BC_Outlet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c1">// -&gt;1: fixed electric potential; -&gt;2: sine/cosine periodic electric potential</span>
+<span class="w">    </span><span class="c1">//--------------------------------------------------------------------------</span>
+<span class="w">    </span><span class="c1">//--------------------------------------------------------------------------</span>
+<span class="w">    </span><span class="n">BC_Solid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="c1">//solid boundary condition; 1=surface potential; 2=surface charge density</span>
+<span class="w">    </span><span class="n">SolidLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1">//solid labels for assigning solid boundary condition</span>
+<span class="w">    </span><span class="n">SolidValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="c1">//if surface potential, unit=[V]; if surface charge density, unit=[C/m^2]</span>
+<span class="w">    </span><span class="n">WriteLog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="c1">//write convergence log for LB-Poisson solver</span>
+<span class="w">    </span><span class="c1">// ------------------------------- Testing Utilities ----------------------------------------</span>
+<span class="w">    </span><span class="c1">// ONLY for code debugging; the followings test sine/cosine voltage BCs; disabled by default</span>
+<span class="w">    </span><span class="n">TestPeriodic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="w">    </span><span class="n">TestPeriodicTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="c1">//unit:[sec]</span>
+<span class="w">    </span><span class="n">TestPeriodicTimeConv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="w"> </span><span class="c1">//unit:[sec]</span>
+<span class="w">    </span><span class="n">TestPeriodicSaveInterval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.2</span><span class="w"> </span><span class="c1">//unit:[sec]</span>
+<span class="w">    </span><span class="c1">//------------------------------ advanced setting ------------------------------------</span>
+<span class="w">    </span><span class="n">timestepMax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4000</span><span class="w"> </span><span class="c1">//max timestep for obtaining steady-state electrical potential</span>
+<span class="w">    </span><span class="n">analysis_interval</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="c1">//timestep checking steady-state convergence</span>
+<span class="w">    </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e-10</span><span class="w">  </span><span class="c1">//stopping criterion for steady-state solution</span>
+<span class="w">    </span><span class="n">InitialValueLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="n">InitialValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+
+<span class="p">}</span>
+<span class="n">Domain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Bacterium.swc&quot;</span>
+<span class="w">    </span><span class="n">nproc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">     </span><span class="c1">// Number of processors (Npx,Npy,Npz)</span>
+<span class="w">    </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="w">      </span><span class="c1">// Size of local domain (Nx,Ny,Nz)</span>
+<span class="w">    </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="w">         </span><span class="c1">// size of the input image</span>
+<span class="w">    </span><span class="n">voxel_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span><span class="w">   </span><span class="c1">//resolution; user-input unit: [um]</span>
+<span class="w">    </span><span class="n">BC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">              </span><span class="c1">// Boundary condition type</span>
+<span class="w">    </span><span class="n">ReadType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;swc&quot;</span>
+<span class="w">    </span><span class="n">ReadValues</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="n">WriteValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">}</span>
+<span class="n">Analysis</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">analysis_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">    </span><span class="n">subphase_analysis_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span><span class="w">    </span><span class="c1">// Frequency to perform analysis</span>
+<span class="w">    </span><span class="n">restart_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5000</span><span class="w">    </span><span class="c1">// Frequency to write restart data</span>
+<span class="w">    </span><span class="n">restart_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Restart&quot;</span><span class="w">    </span><span class="c1">// Filename to use for restart file (will append rank)</span>
+<span class="w">    </span><span class="n">N_threads</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w">            </span><span class="c1">// Number of threads to use</span>
+<span class="w">    </span><span class="n">load_balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;independent&quot;</span><span class="w"> </span><span class="c1">// Load balance method to use: &quot;none&quot;, &quot;default&quot;, &quot;independent&quot;</span>
+<span class="p">}</span>
+<span class="n">Visualization</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">save_electric_potential</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="n">save_concentration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="n">save_velocity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="p">}</span>
+<span class="n">Membrane</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">MembraneLabels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="n">VoltageThreshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="n">MassFractionIn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="n">MassFractionOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="n">ThresholdMassFractionIn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="n">ThresholdMassFractionOut</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1e-1</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5e-3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../color/analysis/subphase.html" class="btn btn-neutral float-left" title="Color model – Subphase Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../greyscaleColor/greyscaleColor.html" class="btn btn-neutral float-right" title="Greyscale Color Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

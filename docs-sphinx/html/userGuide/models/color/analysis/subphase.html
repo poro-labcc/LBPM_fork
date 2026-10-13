@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color model – Subphase Analysis &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/eqno.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/sidebar.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/background-table-transparent.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="../../../../_static/css/sidebar.js?v=29393464"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Cell model" href="../../cell/cell.html" />
+    <link rel="prev" title="Color model – Basic Analysis" href="basic.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../mrt/mrt.html">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../greyscale/greyscale.html">Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../index.html#simulation-protocols">Simulation protocols</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html#analysis-capabilities">Analysis capabilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#model-parameters">Model parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#lbm-formulation">LBM Formulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#boundary-conditions">Boundary Conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../index.html#example-data">Example data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../morph/ylm-inc.html">Digital drainage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../rev/rev.html">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../index.html#lbpm-support-routines">LBPM Support Routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">LBPM model summary</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a></li>
+      <li class="breadcrumb-item active">Color model – Subphase Analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/userGuide/models/color/analysis/subphase.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="color-model-subphase-analysis">
+<h1>Color model – Subphase Analysis<a class="headerlink" href="#color-model-subphase-analysis" title="Link to this heading">¶</a></h1>
+<p>The subphase analysis routine for the LBPM color model logs a time series
+of averaged information to the space-delimited CSV file <code class="docutils literal notranslate"><span class="pre">subphase.csv</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">subphase_analysis_interval</span></code> key should be specified to control the interval at
+to perform basic analysis, which corresponds to the number of simulation timesteps
+to perform between analyses. The subphase analys routine performs the following functions</p>
+<ul class="simple">
+<li><p>analyzes the connectivity of fluid phases using a connected components algorithm</p></li>
+<li><p>constructs iso-surfaces to represent interfaces within the system</p></li>
+<li><p>computes averages of physical quantities based on the defined entities</p></li>
+</ul>
+<p>Since it is more computationally expensive to carry out these operations compared to the
+basic analysis, it may be useful to choose <code class="docutils literal notranslate"><span class="pre">subphase_analysis_interval</span></code> to be larger than
+<code class="docutils literal notranslate"><span class="pre">analysis_interval</span></code>. Nevertheless, since analysis is performed in memory, it is orders of
+magnitude faster than to analyze data <em>in situ</em> rather than writing fields to disc. Monitoring
+the performance in MLUPS provides an easy way to tune the analysis interval so that the
+overall simulation performance is not subject to significant penalties.</p>
+<p>There are three main entities that are constructed for subphase analysis</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\Omega_w:\phi&lt;0\)</span> : region of space filled by fluid w</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega_n:\phi&lt;0\)</span> : region of space filled by fluid n</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Omega_i: |\nabla \phi|&lt;0 &gt; \epsilon\)</span> : region of space for the interface region</p></li>
+</ul>
+<p>The phase regions are defined identical to what is reported in <code class="docutils literal notranslate"><span class="pre">timelog.csv</span></code>.
+The interface region is defined explicitly as the portion of space where
+significant composition gradients are present. For each entity, sub-entities are
+constructed by running a connected components algorithm on the set. This is done to
+separate the connected part of the phase from the disconnected part. This subset operation
+is performed by identifying the largest connected component (based on volume)
+and denoting this as the connected part of that region. The remaining portion of the
+phase is lumped into a disconnected sub-entity. Subphase analysis is therefore performed
+for the following six entities</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wc</span></code> – connected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wd</span></code> – disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nc</span></code> – connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nd</span></code> – disconnected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ic</span></code> – connected part of interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> – disconnected part of interface region</p></li>
+</ul>
+<p>For each entity <span class="math notranslate nohighlight">\(\Omega_k\)</span> with <span class="math notranslate nohighlight">\(k\in\{wc,wd,nc,nd,ic,id\}\)</span>
+an isosurface is constructed to approximate the boundary of the region,
+<span class="math notranslate nohighlight">\(\Gamma_k\)</span>. Once each region is identified, the following measures are determined</p>
+<p><strong>Geometric invariants</strong></p>
+<ul class="simple">
+<li><p>Volume – <span class="math notranslate nohighlight">\(V_k=\int_{\Omega_k} dV\)</span></p></li>
+<li><p>Surface area – <span class="math notranslate nohighlight">\(A_k=\int_{\Gamma_k} dS\)</span></p></li>
+<li><p>Integral mean curvature – <span class="math notranslate nohighlight">\(H_k=\int_{\Gamma_k} \frac 12 (\kappa_1 + \kappa_2) dS\)</span></p></li>
+<li><p>Euler characteristic – <span class="math notranslate nohighlight">\(\chi_k= \frac{1}{4\pi} \int_{\Gamma_k} \kappa_1 \kappa_2 dS\)</span></p></li>
+</ul>
+<p><strong>Conserved quantities</strong></p>
+<ul class="simple">
+<li><p>Total mass within the region <span class="math notranslate nohighlight">\(M_k=\int_{\Omega_k} \rho dV\)</span></p></li>
+<li><p>Total momentum within the region <span class="math notranslate nohighlight">\(\mathbf{P}_k=\int_{\Omega_k} \rho \mathbf{u} dV\)</span></p></li>
+<li><p>Total kinetic energy within the region <span class="math notranslate nohighlight">\(K_k=\frac 12 \int_{\Omega_k} \rho \mathbf{u} \cdot \mathbf{u} dV\)</span></p></li>
+</ul>
+<p><strong>Thermodynamic quantities</strong></p>
+<ul class="simple">
+<li><p>Pressure – <span class="math notranslate nohighlight">\(p_k=\frac{1}{V_k}\int_{\Omega_k} p dV\)</span></p></li>
+<li><p>Solid wetting energy – <span class="math notranslate nohighlight">\(\gamma_s=\int_{\Gamma_s}\gamma dS\)</span></p></li>
+<li><p>Viscous dissipation – <span class="math notranslate nohighlight">\(\Phi_k=\int_{\Omega_k}\boldsymbol{\varepsilon} : \nabla \mathbf{u} dV\)</span></p></li>
+</ul>
+<p>The total solid wetting energy is determined by integrating the interfacial stresses in the
+immediate vicinity of the solid surface <span class="math notranslate nohighlight">\(\Gamma_s\)</span>. The integral of the
+dissipation function is determined based on the viscous stress tensor, denoted by <span class="math notranslate nohighlight">\(\boldsymbol{\varepsilon}\)</span>.</p>
+<p>The full list of measures are associated with the labels in <code class="docutils literal notranslate"><span class="pre">subphase.csv</span></code></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> – timestep</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rn</span></code> – density for phase n (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rw</span></code> – density for phase w (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nun</span></code> – kinematic viscosity for phase n (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nuw</span></code> – kinematic viscosity for phase w (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Fx</span></code> – external force in x direction (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Fy</span></code> – external force in y direction (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Fz</span></code> – external force in z direction (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iftwn</span></code> – interfacial tension (input parameter)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wet</span></code> – total solid wetting energy</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pwc</span></code> – average pressure for connected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pwd</span></code> – average pressure for disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pnc</span></code> – average pressure for connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pnd</span></code> – average pressure for disconnected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mwc</span></code> – mass for connected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mwd</span></code> –mass for disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mwi</span></code> – mass for phase within diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mnc</span></code> – mass for connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mnd</span></code> – mass for disconnected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Mni</span></code> – mass for phase n within diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Msw</span></code> – mass for component w within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Msn</span></code> – mass for component n within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwc_x</span></code> – x- momentum for connected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwd_x</span></code> – x- momentum for disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwi_x</span></code> – x- momentum for phase w within diffuse interface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pnc_x</span></code> – x- momentum for connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pnd_x</span></code> – x- momentum for disconnected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pni_x</span></code> – x- momentum for phase n within diffuse interface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Psw_x</span></code> – x- momentum for phase w within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Psn_x</span></code> – x- momentum for phase n within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwc_y</span></code> – y- momentum for connected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwd_y</span></code> – y- momentum for disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwi_y</span></code> – y- momentum for phase w within diffuse interface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pnc_y</span></code> – y- momentum for connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pnd_y</span></code> – y- momentum for connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pni_y</span></code> – y- momentum for phase n within diffuse interface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Psw_y</span></code> – y- momentum for phase w within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Psn_y</span></code> – y- momentum for phase n within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwc_z</span></code> – z- momentum for connected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwd_z</span></code> – z- momentum for disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pwi_z</span></code> – z- momentum for phase w within diffuse interface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pnc_z</span></code> – z- momentum for connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pnd_z</span></code> – z- momentum for disconnected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pni_z</span></code> – z- momentum for phase n within diffuse interface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Psw_z</span></code> – z- momentum for phase w within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Psn_z</span></code> – z- momentum for phase n within 2 voxels of solid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Kwc</span></code> – Kinetic energy for transport within connected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Kwd</span></code> – Kinetic energy for transport within disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Kwi</span></code> – Kinetic energy for transport of phase w within diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Knc</span></code> – Kinetic energy for transport in connected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Knd</span></code> – Kinetic energy for transport within disconnected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Kni</span></code> – Kinetic energy for transport of phase n within diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dwc</span></code> – Viscous dissipation for conneced pathway for phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dwd</span></code> – Viscous dissipation for disconnected part of phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dnc</span></code> – Viscous dissipation for connected pathway for phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Dnd</span></code> – Viscous dissipation for disconnected part of phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vwc</span></code> – Volume for connected pathway for phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Awc</span></code> – Surface area for connected pathway for phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hwc</span></code> – Integral mean curvature for connected pathway for phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xwc</span></code> – Euler characteristic for connected pathway for phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vwd</span></code> – Volume for disconnected phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Awd</span></code> – Surface area for disconnected phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hwd</span></code> – Integral mean curvature for disconnected phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xwd</span></code> – Euler characteristic for disconnected phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nwd</span></code> – Number of connected components in disconnected phase w</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vnc</span></code> – Volume for connected pathway for phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Anc</span></code> – Surface area for connected pathway for phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hnc</span></code> – Integral mean curvature for connected pathway for phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xnc</span></code> – Euler characteristic for connected pathway for phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vnd</span></code> – Volume for disconnected phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">And</span></code> – Surface area for disconnected phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hnd</span></code> – Integral mean curvature for disconnected phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xnd</span></code> – Euler characteristic for disconnected phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nnd</span></code> – number of connected components within disconnected phase n</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vi</span></code> – volume for diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Ai</span></code> – surface area for boundary of diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hi</span></code> – integral mean curvature for boundary of diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xi</span></code> – Euler characteristic for diffuse interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Vic</span></code> – volume for connected interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Aic</span></code> – surface area for boundary of connected interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Hic</span></code> – Integral mean curvature for connected interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Xic</span></code> – Euler characteristic for connected interface region</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Nic</span></code> – number of connected components in connected interface region</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="basic.html" class="btn btn-neutral float-left" title="Color model – Basic Analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../cell/cell.html" class="btn btn-neutral float-right" title="Cell model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator) &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sidebar.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/background-table-transparent.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="../../../_static/css/sidebar.js?v=29393464"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Two-Phase Pore-Scale Simulator (lbpm_color_simulator)" href="../color/index.html" />
+    <link rel="prev" title="Single-Phase Pore-Scale Model (lbpm_permeability_simulator)" href="../mrt/mrt.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mrt/mrt.html">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lbm-formulation">LBM Formulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-lbpm-greyscale-simulator">Run lbpm_greyscale_simulator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-parameters">Model parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../rev/rev.html">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#lbpm-support-routines">LBPM Support Routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/greyscale/greyscale.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="single-phase-multi-scale-porous-media-greyscale-model-lbpm-greyscale-simulator">
+<h1>Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)<a class="headerlink" href="#single-phase-multi-scale-porous-media-greyscale-model-lbpm-greyscale-simulator" title="Link to this heading">¶</a></h1>
+<p>The LBPM model to simulate single-phase multi-scale porous media, also called greyscale model,
+is constructed to approximate the solution of the Darcy-Brinkman equations in grey regions,
+coupled to a Navier-Stokes solution in open regions. The generalized model for isothermal fluid
+flow in porous media employs volume-averaged Navier-Stokes equations that account for both linear
+and nonlinear drag effects:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-0">
+<span class="eqno">(12)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-0" title="Link to this equation">¶</a></span>\[\nabla \cdot \boldsymbol{u} = 0 \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-1">
+<span class="eqno">(13)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-1" title="Link to this equation">¶</a></span>\[\frac{\partial \boldsymbol{u}}{\partial t} + (\boldsymbol{u} \cdot \nabla) \left(\frac{\boldsymbol{u}}{\epsilon}\right) = -\frac{1}{\rho} \nabla(\epsilon p) + \nu_eff \nabla^2 \boldsymbol{u}  -\frac{\epsilon \nu}{K} \boldsymbol{u} - \frac{\epsilon F_e}{\sqrt{K}} |\boldsymbol{u}| \boldsymbol{u} + \epsilon \boldsymbol{g} \;.\]</div>
+<p>In this formulation, <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\boldsymbol{u}\)</span> denote the volume-averaged pressure and velocity,
+respectively, and <span class="math notranslate nohighlight">\(\rho\)</span> represents the fluid density. The model incorporates <span class="math notranslate nohighlight">\(\nu\)</span> as the
+kinematic viscosity of the fluid and <span class="math notranslate nohighlight">\(\nu_eff\)</span> as an effective viscosity parameter. External force
+effects are captured through the acceleration term <span class="math notranslate nohighlight">\(\boldsymbol{g}\)</span>. The geometric function <span class="math notranslate nohighlight">\(F_e\)</span>,
+derived from Ergun’s experimental investigations, characterizes the porous medium structure through the relation:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-2">
+<span class="eqno">(14)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-2" title="Link to this equation">¶</a></span>\[F_e = \frac{1.75}{\sqrt{150\epsilon^3}} \;.\]</div>
+<section id="lbm-formulation">
+<h2>LBM Formulation<a class="headerlink" href="#lbm-formulation" title="Link to this heading">¶</a></h2>
+<details>
+<summary><strong>Click here to open: LBM Formulation</strong></summary><p>A multiple-relaxation-time (MRT) lattice Boltzmann equation with D3Q19 discretization describes momentum transport for the phase-averaged equations:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-3">
+<span class="eqno">(15)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-3" title="Link to this equation">¶</a></span>\[f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta_t,t + \delta_t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} S_{kk} (m_k^{eq}-m_k)  + \sum^{Q-1}_{k=0} M^{-1}_{qk} \left(1-\frac{S_{kk}}{2}\right) \hat{F}_q \;.\]</div>
+<p>The total force <span class="math notranslate nohighlight">\(\boldsymbol{F}\)</span> is imposed based on the discrete force construction developed by Guo et al. (2002):</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-4">
+<span class="eqno">(16)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-4" title="Link to this equation">¶</a></span>\[\boldsymbol{F} = - \frac{\epsilon \nu \rho}{K} \boldsymbol{u} - \frac{\epsilon F_{e}}{\sqrt{K}} \rho |\boldsymbol{u}|\boldsymbol{u} +  \epsilon \rho \boldsymbol{g} \;.\]</div>
+<p>The fluid velocity is computed through the relation for the forcing scheme:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-5">
+<span class="eqno">(17)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-5" title="Link to this equation">¶</a></span>\[\rho \boldsymbol{u} = \sum_i \boldsymbol{\xi}_i f_i + \frac{\delta_t}{2}  \boldsymbol{F} \;.\]</div>
+<p>However, to handle the nonlinearity arising from the velocity-dependent force term, an explicit solution for the velocity is employed:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-6">
+<span class="eqno">(18)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-6" title="Link to this equation">¶</a></span>\[\boldsymbol{u} = \frac{\boldsymbol{v}}{c_0 + \sqrt{c_0^2 + c_1 |\boldsymbol{v}|}} \;,\]</div>
+<p>that utilizes a temporal velocity field <span class="math notranslate nohighlight">\(\boldsymbol{v}\)</span>:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-7">
+<span class="eqno">(19)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-7" title="Link to this equation">¶</a></span>\[\rho \boldsymbol{v} = \sum_i \boldsymbol{\xi}_i f_i + \frac{\delta_t}{2} \rho \epsilon \boldsymbol{g} \;,\]</div>
+<p>and the coefficients governing this nonlinear transformation are:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-8">
+<span class="eqno">(20)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-8" title="Link to this equation">¶</a></span>\[c_0 = \frac{1}{2} \left(  1 + \frac{\delta_t}{2}\frac{\epsilon \nu}{K} \right), \qquad c_1 = \frac{\delta_t}{2}\frac{\epsilon F_e}{\sqrt{K}} \;.\]</div>
+<p>where <span class="math notranslate nohighlight">\(c_s^2 = 1/3\)</span> is the speed of sound and <span class="math notranslate nohighlight">\(\boldsymbol{\xi}_q\)</span> are the unit lattice vectors for the D3Q19 lattice discretization:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-9">
+<span class="eqno">(21)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-9" title="Link to this equation">¶</a></span>\[\begin{split}\boldsymbol{\xi}_q=\xi_{q,\alpha} =\left\{
+\begin{array}{llll}
+   \alpha=0, &amp; \{0,0,0\}, &amp; \text{for } q = 0, &amp; w_{0}=1/3 \\
+   \alpha=x, &amp; \{\pm 1,0,0\}, &amp; \text{for } q = 1,2, &amp; w_{1,2}=1/18 \\
+   \alpha=y, &amp; \{0,\pm 1,0\}, &amp; \text{for } q = 3,4, &amp; w_{3,4}=1/18 \\
+   \alpha=z, &amp; \{0,0,\pm 1\}, &amp; \text{for } q = 5,6, &amp; w_{5,6}=1/18 \\
+   \alpha=x,y,&amp; \{\pm 1,\pm 1,0\}, &amp; \text{for } q = 7,8,9,10, &amp; w_{7,8,9,10}=1/36 \\
+   \alpha=x,z,&amp; \{\pm 1,0,\pm 1\}, &amp; \text{for } q = 11,12,13,14, &amp; w_{11,12,13,14}=1/36 \\
+   \alpha=y,z,&amp; \{0,\pm 1,\pm 1\}, &amp; \text{for } q = 15,16,17,18, &amp; w_{15,16,17,18}=1/36 .
+\end{array}\right.\end{split}\]</div>
+<p>The moments defined in the Gram-Schmidt basis are linearly independent functions of the distribution functions:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-10">
+<span class="eqno">(22)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-10" title="Link to this equation">¶</a></span>\[\begin{split}m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(
+\begin{array}{rrrrrrrrrrrrrrrrrrr}
+1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 \\
+-30 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 \\
+12 &amp; -4 &amp; -4 &amp; -4 &amp; -4 &amp; -4 &amp; -4 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 \\
+0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 \\
+0 &amp; -4 &amp; 4 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 \\
+0 &amp; 0 &amp; 0 &amp; -4 &amp; 4 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; -1 &amp; 1 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -4 &amp; 4 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; -1 &amp; 1 \\
+0 &amp; 2 &amp; 2 &amp; -1 &amp; -1 &amp; -1 &amp; -1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 \\
+0 &amp; -4 &amp; -4 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; -2 &amp; -2 \\
+0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; -2 &amp; -2 &amp; 2 &amp; 2 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; -1 &amp; -1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; -1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; -1 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; -1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; 1 &amp; -1 &amp; 0 &amp; 0 &amp; 1 &amp; -1 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; 1 &amp; -1
+\end{array}
+\right)\end{split}\]</div>
+<p>The equilibrium formulation is adapted from the generalized volume-averaged macroscopic equations. As established in the appendix of Guo and Zhao (2002), the definition of the equilibrium distribution function yields the following moments, where the presence of the porous matrix modifies the second-order velocity terms by a factor of <span class="math notranslate nohighlight">\(1/\epsilon\)</span>:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-11">
+<span class="eqno">(23)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-11" title="Link to this equation">¶</a></span>\[\sum_i f_i^{(eq)} = \rho \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-12">
+<span class="eqno">(24)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-12" title="Link to this equation">¶</a></span>\[\sum_i \xi_{i\alpha} f_i^{(eq)} = \rho u_\alpha \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-13">
+<span class="eqno">(25)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-13" title="Link to this equation">¶</a></span>\[\sum_i \xi_{i\alpha} \xi_{i\beta} f_i^{(eq)} = c_s^2 \rho \delta_{\alpha\beta} + \frac{1}{\epsilon} \rho u_\alpha u_\beta \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-14">
+<span class="eqno">(26)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-14" title="Link to this equation">¶</a></span>\[\sum_i \xi_{i\alpha} \xi_{i\beta} \xi_{i\gamma} f_i^{(eq)} = c_s^2 \rho (u_\alpha \delta_{\beta\gamma} + u_\beta \delta_{\alpha\gamma} + u_\gamma \delta_{\alpha\beta}) \;.\]</div>
+<p>Applying this to the D3Q19 MRT basis yields the corresponding equilibrium moments, given by:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-15">
+<span class="eqno">(27)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-15" title="Link to this equation">¶</a></span>\[m_0^{eq} = \rho \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-16">
+<span class="eqno">(28)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-16" title="Link to this equation">¶</a></span>\[m_1^{eq} = \frac{19}{\rho \epsilon} \left(j_x^2+j_y^2+j_z^2\right) - 11\rho \;, \qquad m_2^{eq} = 3\rho - \frac{11}{2 \rho \epsilon}\left(j_x^2+j_y^2+j_z^2\right) \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-17">
+<span class="eqno">(29)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-17" title="Link to this equation">¶</a></span>\[m_3^{eq} = j_x = \rho u_x \;, \qquad m_5^{eq} = j_y = \rho u_y \;, \qquad m_7^{eq} = j_z = \rho u_z \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-18">
+<span class="eqno">(30)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-18" title="Link to this equation">¶</a></span>\[m_4^{eq} = -\frac{2}{3} j_x \;, \qquad m_6^{eq} = -\frac{2}{3} j_y \;, \qquad m_8^{eq} = -\frac{2}{3} j_z \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-19">
+<span class="eqno">(31)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-19" title="Link to this equation">¶</a></span>\[m_9^{eq} = \frac{1}{\rho \epsilon}\left(2j_x^2-j_y^2-j_z^2\right) \;, \qquad m_{10}^{eq} = -\frac{1}{2 \rho \epsilon}\left(2j_x^2-j_y^2-j_z^2\right) \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-20">
+<span class="eqno">(32)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-20" title="Link to this equation">¶</a></span>\[m_{11}^{eq} = \frac{1}{\rho \epsilon} \left(j_y^2-j_z^2\right) \;, \qquad m_{12}^{eq} = -\frac{1}{2 \rho \epsilon}\left(j_y^2-j_z^2\right) \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-21">
+<span class="eqno">(33)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-21" title="Link to this equation">¶</a></span>\[m_{13}^{eq} = \frac{1}{\rho \epsilon}(j_x j_y) \;, \qquad m_{14}^{eq} = \frac{1}{\rho \epsilon}(j_y j_z) \;, \qquad m_{15}^{eq} = \frac{1}{\rho \epsilon} (j_x j_z) \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-22">
+<span class="eqno">(34)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-22" title="Link to this equation">¶</a></span>\[m_{16}^{eq} = 0 \;, \qquad m_{17}^{eq} = 0 \;, \qquad m_{18}^{eq} = 0 \;.\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the theoretical derivation of the macroscopic equations yields the non-zero expressions shown above for <span class="math notranslate nohighlight">\(m_{10}^{eq}\)</span> and <span class="math notranslate nohighlight">\(m_{12}^{eq}\)</span>, the actual LBPM MRT implementation enforces these moments to be strictly zero (i.e., <span class="math notranslate nohighlight">\(m_{10}^{eq} = 0\)</span> and <span class="math notranslate nohighlight">\(m_{12}^{eq} = 0\)</span>). The theoretical values remain commented out in the source code.</p>
+</div>
+<p>The relaxation parameters for the momentum diffusion (collision operator) are determined based on the effective relaxation time <span class="math notranslate nohighlight">\(\tau_{eff}\)</span>:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-23">
+<span class="eqno">(35)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-23" title="Link to this equation">¶</a></span>\[\lambda_1 =  \lambda_2 =  \lambda_9 = \lambda_{10} = \lambda_{11} = \lambda_{12} = \lambda_{13} = \lambda_{14} = \lambda_{15} = s_\nu = \frac{1}{\tau_{eff}} \;,\]</div>
+<div class="math notranslate nohighlight" id="equation-userguide-models-greyscale-greyscale-24">
+<span class="eqno">(36)<a class="headerlink" href="#equation-userguide-models-greyscale-greyscale-24" title="Link to this equation">¶</a></span>\[\lambda_4 = \lambda_6 = \lambda_8 = \lambda_{16} = \lambda_{17} = \lambda_{18} = \frac{8(2-s_\nu)}{8-s_\nu} \;.\]</div>
+<p>where the effective relaxation time <span class="math notranslate nohighlight">\(\tau_{eff}\)</span> is related to the effective kinematic viscosity of the fluid by <span class="math notranslate nohighlight">\(\nu_{eff} = (\tau_{eff} - 1/2)/3\)</span>. Note that in the generalized volume-averaged formulation, this effective viscosity <span class="math notranslate nohighlight">\(\nu_{eff}\)</span> dictates the viscous momentum diffusion (Brinkman term), while the linear drag term (Darcy) depends strictly on the thermodynamic fluid kinematic viscosity <span class="math notranslate nohighlight">\(\nu\)</span>, defined by the base relaxation time <span class="math notranslate nohighlight">\(\tau\)</span>. The relation imposed on the even relaxation times enforces the no-slip velocity condition exactly at a position one-half lattice spacing from the solid boundary. Consequently, it leads to a viscosity-independent numerical error in the permeability estimate.</p>
+</details><br></section>
+<section id="run-lbpm-greyscale-simulator">
+<h2>Run lbpm_greyscale_simulator<a class="headerlink" href="#run-lbpm-greyscale-simulator" title="Link to this heading">¶</a></h2>
+<p>To use the lbpm_greyscale_simulator, the input image
+should be segmented into “grey” and open regions. Each particular “grey” label should be assigned
+both a porosity and permeability value.</p>
+<p>A typical command to launch the LBPM color simulator is as follows</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">mpirun</span> <span class="pre">-np</span> <span class="pre">$NUMPROCS</span> <span class="pre">lbpm_greyscale_simulator</span> <span class="pre">input.db</span>
+<span class="pre">`</span></code></p>
+<p>where <code class="docutils literal notranslate"><span class="pre">$NUMPROCS</span></code> is the number of MPI processors to be used and <code class="docutils literal notranslate"><span class="pre">input.db</span></code> is
+the name of the input database that provides the simulation parameters.
+Note that the specific syntax to launch MPI tasks may vary depending on your system.
+For additional details please refer to your local system documentation.</p>
+</section>
+<section id="model-parameters">
+<h2>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h2>
+<p>The essential model parameters for the single phase greyscale model are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tau</span></code> – control the fluid viscosity – <span class="math notranslate nohighlight">\(0.7 &lt; \tau &lt; 1.5\)</span></p></li>
+</ul>
+<p>The kinematic viscosity is given by</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../mrt/mrt.html" class="btn btn-neutral float-left" title="Single-Phase Pore-Scale Model (lbpm_permeability_simulator)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../color/index.html" class="btn btn-neutral float-right" title="Two-Phase Pore-Scale Simulator (lbpm_color_simulator)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

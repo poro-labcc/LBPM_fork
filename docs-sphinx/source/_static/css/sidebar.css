@@ -1,0 +1,39 @@
+/* Sidebar transition */
+.wy-nav-side {
+    transition: transform 0.3s ease;
+}
+
+/* Normal documentation area */
+.wy-nav-content-wrap {
+    transition: margin-left 0.3s ease;
+}
+
+/* Collapsed state */
+body.sidebar-collapsed .wy-nav-side {
+    transform: translateX(-300px);
+}
+
+body.sidebar-collapsed .wy-nav-content-wrap {
+    margin-left: 0;
+}
+
+/* Toggle button */
+.sidebar-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    padding: 7px 11px;
+
+    background-color: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Move the button when the sidebar is open */
+body:not(.sidebar-collapsed) .sidebar-toggle {
+    left: 310px;
+}
