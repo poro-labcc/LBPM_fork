@@ -39,7 +39,7 @@ struct VoxelDist {
     double dist;
 };
 
-det_convergence_metrics det_compute_convergence(const std::vector<double>& data, int iter_step, int det_samples) {
+det_convergence_metrics det_compute_convergence(const std::vector<double>& data, int iter_step, int cc_interval) {
     det_convergence_metrics m = {-1, -1};
     
     if (iter_step < 1) 
@@ -48,7 +48,7 @@ det_convergence_metrics det_compute_convergence(const std::vector<double>& data,
     double mean = 0.0;
     double std_dev = 0.0;
     int valid_count = 0;
-    int start_idx = (iter_step >= det_samples - 1) ? (iter_step + 1 - det_samples) : 0;
+    int start_idx = (iter_step >= cc_interval - 1) ? (iter_step + 1 - cc_interval) : 0;
     for (int l = start_idx; l <= iter_step; l++) {
         if (data[l] != -1) {
             mean += data[l];
@@ -228,15 +228,17 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
 
 
     size_step = 0.1;
-    det_samples = 10;
+    cc_interval = 10;
     gamma = 0.1;
 
 
     auto rev_db = db->getDatabase("REV");
+    geometrical = rev_db->getWithDefault<bool>("Geometrical", true);
+    hydraulic = rev_db->getWithDefault<bool>("Hydraulic", true);
     if(rev_db->keyExists("SizeStep"))
         size_step = rev_db->getScalar<double>("SizeStep");
-    if(rev_db->keyExists("DetSamples"))
-        det_samples = rev_db->getScalar<int>("DetSamples");
+    if(rev_db->keyExists("CCInterval"))
+        cc_interval = rev_db->getScalar<int>("CCInterval");
     if(rev_db->keyExists("gamma"))
         gamma = rev_db->getScalar<double>("gamma");
         
@@ -263,13 +265,18 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
     std::vector<double> tort(vector_size_x);
     std::vector<double> surf(vector_size_x);
 
-    std::ofstream log_file("det_rev_analysis.csv", std::ios::app);
-    if (log_file.tellp() == 0) {
-    log_file << "iter_step x_size_um x_size_vx "
-             << "porosity rev_poro_um rev_poro_vx RE_poro CC_poro "
-             << "permeability rev_perm_um rev_perm_vx RE_perm CC_perm "
-             << "tortuosity rev_tort_um rev_tort_vx RE_tort CC_tort "
-             << "surface rev_surf_um rev_surf_vx RE_surf CC_surf\n";
+    std::ofstream geometric_log("det_rev_geometric.csv", std::ios::app);
+    if (geometric_log.tellp() == 0) {
+        geometric_log << "iter_step x_size_um x_size_vx "
+                      << "porosity rev_poro_um rev_poro_vx RE_poro CC_poro "
+                      << "surface rev_surf_um rev_surf_vx RE_surf CC_surf\n";
+    }
+
+    std::ofstream hydraulic_log("det_rev_hydraulic.csv", std::ios::app);
+    if (hydraulic_log.tellp() == 0) {
+        hydraulic_log << "iter_step x_size_um x_size_vx "
+                      << "permeability rev_perm_um rev_perm_vx RE_perm CC_perm "
+                      << "tortuosity rev_tort_um rev_tort_vx RE_tort CC_tort\n";
     }
 
 
@@ -355,33 +362,36 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
         surf[iter_step] = current_surf;
 
         //Porosity deterministic approach
-        det_convergence_metrics poro_m = det_compute_convergence(poro, iter_step, det_samples);
+        det_convergence_metrics poro_m = det_compute_convergence(poro, iter_step, cc_interval);
         if (poro_m.RE >= 0 && poro_m.RE < gamma && poro_m.CC >= 0 && poro_m.CC < gamma && rev_x_poro == -1) {
             rev_x_poro = x_size;
         }
-        log_file << iter_step << " " << x_size * h << " " << x_size << " "
-                 << poro[iter_step] << " " << rev_x_poro*h << " " << rev_x_poro << " " << poro_m.RE << " " << poro_m.CC << " ";
 
         //Permeability deterministic approach
-        det_convergence_metrics perm_m = det_compute_convergence(perm, iter_step, det_samples);
+        det_convergence_metrics perm_m = det_compute_convergence(perm, iter_step, cc_interval);
         if (perm_m.RE >= 0 && perm_m.RE < gamma && perm_m.CC >= 0 && perm_m.CC < gamma && rev_x_perm == -1) {
             rev_x_perm = x_size;
         }
-        log_file << perm[iter_step] << " " << rev_x_perm*h << " " << rev_x_perm << " " << perm_m.RE << " " << perm_m.CC << " ";
 
         //Tortuosity deterministic approach
-        det_convergence_metrics tort_m = det_compute_convergence(tort, iter_step, det_samples);
+        det_convergence_metrics tort_m = det_compute_convergence(tort, iter_step, cc_interval);
         if (tort_m.RE >= 0 && tort_m.RE < gamma && tort_m.CC >= 0 && tort_m.CC < gamma && rev_x_tort == -1) {
             rev_x_tort = x_size;
         }
-        log_file << tort[iter_step]+1 << " " << rev_x_tort*h << " " << rev_x_tort << " " << tort_m.RE << " " << tort_m.CC << " ";
 
         //Surface Deterministic approach
-        det_convergence_metrics surf_m = det_compute_convergence(surf, iter_step, det_samples);
+        det_convergence_metrics surf_m = det_compute_convergence(surf, iter_step, cc_interval);
         if (surf_m.RE >= 0 && surf_m.RE < gamma && surf_m.CC >= 0 && surf_m.CC < gamma && rev_x_surf == -1) {
             rev_x_surf = x_size;
         }
-        log_file << surf[iter_step] << " " << rev_x_surf*h << " " << rev_x_surf << " " << surf_m.RE << " " << surf_m.CC << "\n";
+
+        geometric_log << iter_step << " " << x_size * h << " " << x_size << " "
+                      << poro[iter_step] << " " << rev_x_poro*h << " " << rev_x_poro << " " << poro_m.RE << " " << poro_m.CC << " "
+                      << surf[iter_step] << " " << rev_x_surf*h << " " << rev_x_surf << " " << surf_m.RE << " " << surf_m.CC << "\n";
+
+        hydraulic_log << iter_step << " " << x_size * h << " " << x_size << " "
+                      << perm[iter_step] << " " << rev_x_perm*h << " " << rev_x_perm << " " << perm_m.RE << " " << perm_m.CC << " "
+                      << tort[iter_step]+1 << " " << rev_x_tort*h << " " << rev_x_tort << " " << tort_m.RE << " " << tort_m.CC << "\n";
 
         double min_step = std::max(1.0, average_pore_size);
         double proportional_step = current_size_x_double * size_step;
@@ -447,13 +457,16 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
         double current_tort = (vaz != 0) ? (v_tort / (vaz * count) - 1.0) : -1;
         current_surf = current_surf / ((Nx-2) * (Ny-2) * (Nz-2));
 
-        log_file << "-1 " << (Nx-2)*h << " " << (Nx-2) << " " 
-                 << current_poro << " " << rev_x_poro*h << " " << rev_x_poro << " 0 0 " 
-                 << current_perm << " " << rev_x_perm*h << " " << rev_x_perm << " 0 0 " 
-                 << current_tort << " " << rev_x_tort*h << " " << rev_x_tort << " 0 0 " 
-                 << current_surf << " " << rev_x_surf*h << " " << rev_x_surf << " 0 0\n";
+        geometric_log << "-1 " << (Nx-2)*h << " " << (Nx-2) << " "
+                      << current_poro << " " << rev_x_poro*h << " " << rev_x_poro << " 0 0 "
+                      << current_surf << " " << rev_x_surf*h << " " << rev_x_surf << " 0 0\n";
 
-            log_file.close();
+        hydraulic_log << "-1 " << (Nx-2)*h << " " << (Nx-2) << " "
+                      << current_perm << " " << rev_x_perm*h << " " << rev_x_perm << " 0 0 "
+                      << current_tort << " " << rev_x_tort*h << " " << rev_x_tort << " 0 0\n";
+
+            geometric_log.close();
+            hydraulic_log.close();
             printf("\n\nEnded Deterministic Analysis \n\n");
 }
 
@@ -469,6 +482,8 @@ void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
 
     stat_samples = 50;
     auto rev_db = db->getDatabase("REV");
+    geometrical = rev_db->getWithDefault<bool>("Geometrical", true);
+    hydraulic = rev_db->getWithDefault<bool>("Hydraulic", true);
     if (rev_db->keyExists("StatSamples"))
         stat_samples = rev_db->getScalar<int>("StatSamples");
 

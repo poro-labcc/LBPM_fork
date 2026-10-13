@@ -42,8 +42,10 @@ public:
     double average_pore_size;
     double rev_x_poro, rev_x_perm, rev_x_tort, rev_x_surf;
     double size_step;
-    int det_samples, stat_samples;
+    int cc_interval, stat_samples;
     double gamma;
+    bool geometrical = true;
+    bool hydraulic = true;
     void PoreSize(ScaLBL_MRTModel& model);
     void DetRevAnalysis(ScaLBL_MRTModel& model, string filename);
     void StatRevAnalysis(ScaLBL_MRTModel& model, string filename);

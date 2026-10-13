@@ -148,9 +148,9 @@ representativeness of microtomography images and estimating effective sample vol
 <p>The implemented REV routine combines deterministic and statistical approaches into a <strong>hybrid methodology</strong>, as illustrated
 in the workflow diagram presented in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>. The deterministic stage provides an initial estimate of the REV
 size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
-evaluates the spatial variability of the property over randomly distributed subvolumes. <strong>Both deterministic and statistical
-analyses employ a default convergence threshold of 0.1 for their respective criteria. The final REV is accepted only when the
-statistical convergence conditions are satisfied</strong>. For a detailed explanation of the steps illustrated in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>,
+evaluates the spatial variability of the property over randomly distributed subvolumes. Both deterministic and statistical
+analyses employ a default convergence threshold of <span class="math notranslate nohighlight">\(\gamma = 0.1\)</span>  for their respective criteria. The final REV is accepted only when the
+statistical convergence conditions are satisfied. For a detailed explanation of the steps illustrated in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>,
 expand the toggle sections below for the deterministic and statistical analyses.</p>
 <table class="borderless docutils align-center">
 <colgroup>
@@ -216,7 +216,7 @@ increasing subvolume size.</p>
 \frac{\eta_{i+1}-\eta_{i-1}}
 {\eta_{i+1}+\eta_{i-1}}
 \frac{V_{i-1}}{V_{i+1}}
-\right|,\]</div>
+\right| &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(RE_i\)</span> is the relative error at iteration <span class="math notranslate nohighlight">\(i\)</span>,
 <span class="math notranslate nohighlight">\(\eta_i\)</span> represents the measured property in the <span class="math notranslate nohighlight">\(i\)</span>-th
 subvolume, and <span class="math notranslate nohighlight">\(V_i\)</span> denotes its corresponding volume.
@@ -230,7 +230,7 @@ evaluated subvolume increases in size.</p>
 \sigma(\eta_{i-m+1},\ldots,\eta_i)
 }{
 \overline{\eta}(\eta_{i-m+1},\ldots,\eta_i)
-},\]</div>
+} &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma\)</span> denotes the standard deviation,
 <span class="math notranslate nohighlight">\(\overline{\eta}\)</span> represents the arithmetic mean, and
 <span class="math notranslate nohighlight">\(m\)</span> is the number of consecutive measurements considered.
@@ -284,7 +284,7 @@ independently in each subvolume.</p></li>
 is quantified using the coefficient of variation (CV), following
 <span id="id3"></span>:</p>
 <div class="math notranslate nohighlight" id="equation-rev-coefficient-variation">
-<span class="eqno">(114)<a class="headerlink" href="#equation-rev-coefficient-variation" title="Link to this equation">¶</a></span>\[CV = \frac{\sigma(\eta)}{\overline{\eta}},\]</div>
+<span class="eqno">(114)<a class="headerlink" href="#equation-rev-coefficient-variation" title="Link to this equation">¶</a></span>\[CV = \frac{\sigma(\eta)}{\overline{\eta}} &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma(\eta)\)</span> is the standard deviation of the property
 measurements and <span class="math notranslate nohighlight">\(\overline{\eta}\)</span> is their arithmetic mean.
 Normalization by the mean provides a dimensionless measure of relative
@@ -312,11 +312,38 @@ in two different routines: on the <code class="docutils literal notranslate"><sp
 <section id="lbpm-permeability-simulator">
 <h3>lbpm_permeability_simulator<a class="headerlink" href="#lbpm-permeability-simulator" title="Link to this heading">¶</a></h3>
 <p>Inside of <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>, the proceddure follow the typical command to launch the LBPM
-single-phase simulator is as follows. However, inside <code class="docutils literal notranslate"><span class="pre">input.db</span></code> you have activate REV inside of Domain class by set <code class="docutils literal notranslate"><span class="pre">REV</span> <span class="pre">=</span> <span class="pre">True</span></code>. With REV analysis
-activated the REV class of parameters need to be set, where we have</p>
+single-phase simulator is as follows. However, inside <code class="docutils literal notranslate"><span class="pre">input.db</span></code> you have activate REV inside of MRT
+class by set <code class="docutils literal notranslate"><span class="pre">REV</span> <span class="pre">=</span> <span class="pre">True</span></code>. With REV analysis activated the REV class of parameters need to be set, where
+we have:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">REV</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">Geomtrical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">True</span>
+<span class="w">   </span><span class="n">Hydraulic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">True</span>
+<span class="w">   </span><span class="n">gamma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span>
+<span class="w">   </span><span class="n">SizeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.06</span>
+<span class="w">   </span><span class="n">CCInterval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="w">   </span><span class="n">StatSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">Geomtrical</span></code> and <code class="docutils literal notranslate"><span class="pre">Hidraulic</span></code> equal Ture means that REV analysis for each list of geometrical and hydraulic
+properties will be done and <code class="docutils literal notranslate"><span class="pre">False</span></code> they will note be performed. The gamma</p>
+<p>By default, when <code class="docutils literal notranslate"><span class="pre">REV</span> <span class="pre">=</span> <span class="pre">True</span></code> inside of <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code> the
+<code class="docutils literal notranslate"><span class="pre">Geomtrical</span></code> and <code class="docutils literal notranslate"><span class="pre">Hidraulic</span></code> will be equal True beeing not necessary activate</p>
 </section>
 <section id="model-parameters">
 <h3>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REV {
+   Geometrical = True
+   Hydraulic = True
+   gamma = 0.1
+   SizeStep = 0.06
+   CCInterval = 10
+   StatSamples = 50
+}
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Geometrical</span></code> and <code class="docutils literal notranslate"><span class="pre">Hydraulic</span></code> are boolean settings read into the REV class.
+Both default to <code class="docutils literal notranslate"><span class="pre">True</span></code> when omitted and accept <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </section>
 <section id="assessing-steady-state-permeability">
 <h3>Assessing Steady State Permeability<a class="headerlink" href="#assessing-steady-state-permeability" title="Link to this heading">¶</a></h3>

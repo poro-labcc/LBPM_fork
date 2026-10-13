@@ -40,9 +40,9 @@ Methodology
 The implemented REV routine combines deterministic and statistical approaches into a **hybrid methodology**, as illustrated 
 in the workflow diagram presented in :numref:`rev-workflow`. The deterministic stage provides an initial estimate of the REV 
 size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which 
-evaluates the spatial variability of the property over randomly distributed subvolumes. **Both deterministic and statistical 
-analyses employ a default convergence threshold of 0.1 for their respective criteria. The final REV is accepted only when the 
-statistical convergence conditions are satisfied**. For a detailed explanation of the steps illustrated in :numref:`rev-workflow`, 
+evaluates the spatial variability of the property over randomly distributed subvolumes. Both deterministic and statistical 
+analyses employ a default convergence threshold of :math:`\gamma = 0.1`  for their respective criteria. The final REV is accepted only when the 
+statistical convergence conditions are satisfied. For a detailed explanation of the steps illustrated in :numref:`rev-workflow`, 
 expand the toggle sections below for the deterministic and statistical analyses.
 
 .. list-table::
@@ -119,7 +119,7 @@ workflow diagram, consists of the following steps:
       \frac{\eta_{i+1}-\eta_{i-1}}
       {\eta_{i+1}+\eta_{i-1}}
       \frac{V_{i-1}}{V_{i+1}}
-      \right|,
+      \right| < \gamma,
 
    where :math:`RE_i` is the relative error at iteration :math:`i`,
    :math:`\eta_i` represents the measured property in the :math:`i`-th
@@ -138,7 +138,7 @@ workflow diagram, consists of the following steps:
       \sigma(\eta_{i-m+1},\ldots,\eta_i)
       }{
       \overline{\eta}(\eta_{i-m+1},\ldots,\eta_i)
-      },
+      } < \gamma,
 
    where :math:`\sigma` denotes the standard deviation,
    :math:`\overline{\eta}` represents the arithmetic mean, and
@@ -218,7 +218,7 @@ diagram, follows these steps:
    .. math::
       :label: rev-coefficient-variation
 
-      CV = \frac{\sigma(\eta)}{\overline{\eta}},
+      CV = \frac{\sigma(\eta)}{\overline{\eta}} < \gamma,
 
    where :math:`\sigma(\eta)` is the standard deviation of the property
    measurements and :math:`\overline{\eta}` is their arithmetic mean.
@@ -259,14 +259,45 @@ lbpm_permeability_simulator
 -------------------------------
 
 Inside of ``lbpm_permeability_simulator``, the proceddure follow the typical command to launch the LBPM 
-single-phase simulator is as follows. However, inside ``input.db`` you have activate REV inside of Domain class by set ``REV = True``. With REV analysis
-activated the REV class of parameters need to be set, where we have
+single-phase simulator is as follows. However, inside ``input.db`` you have activate REV inside of MRT 
+class by set ``REV = True``. With REV analysis activated the REV class of parameters need to be set, where 
+we have:
+
+.. code-block:: c
+
+   REV {
+      Geomtrical = True
+      Hydraulic = True
+      gamma = 0.1
+      SizeStep = 0.06
+      CCInterval = 10
+      StatSamples = 50
+   }
+
+where ``Geomtrical`` and ``Hidraulic`` equal Ture means that REV analysis for each list of geometrical and hydraulic
+properties will be done and ``False`` they will note be performed. The gamma 
 
 
+By default, when ``REV = True`` inside of ``lbpm_permeability_simulator`` the 
+``Geomtrical`` and ``Hidraulic`` will be equal True beeing not necessary activate
 
 ------------------------------
 Model parameters
 ------------------------------
+
+.. code-block:: text
+
+   REV {
+      Geometrical = True
+      Hydraulic = True
+      gamma = 0.1
+      SizeStep = 0.06
+      CCInterval = 10
+      StatSamples = 50
+   }
+
+``Geometrical`` and ``Hydraulic`` are boolean settings read into the REV class.
+Both default to ``True`` when omitted and accept ``True`` or ``False``.
 
 --------------------------------------
 Assessing Steady State Permeability
