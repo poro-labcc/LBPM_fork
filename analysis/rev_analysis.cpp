@@ -233,8 +233,12 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
 
 
     auto rev_db = db->getDatabase("REV");
-    geometrical = rev_db->getWithDefault<bool>("Geometrical", true);
-    hydraulic = rev_db->getWithDefault<bool>("Hydraulic", true);
+    geometrical = rev_db->keyExists("Geomtrical")
+        ? rev_db->getScalar<bool>("Geomtrical")
+        : rev_db->getWithDefault<bool>("Geometrical", true);
+    hydraulic = rev_db->keyExists("Hydraulic")
+        ? rev_db->getScalar<bool>("Hydraulic")
+        : true;
     if(rev_db->keyExists("SizeStep"))
         size_step = rev_db->getScalar<double>("SizeStep");
     if(rev_db->keyExists("CCInterval"))
@@ -265,22 +269,30 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
     std::vector<double> tort(vector_size_x);
     std::vector<double> surf(vector_size_x);
 
-    std::ofstream geometric_log("det_rev_geometric.csv", std::ios::app);
-    if (geometric_log.tellp() == 0) {
-        geometric_log << "iter_step x_size_um x_size_vx "
-                      << "porosity rev_poro_um rev_poro_vx RE_poro CC_poro "
-                      << "surface rev_surf_um rev_surf_vx RE_surf CC_surf\n";
+    std::ofstream geometric_log;
+    if (geometrical) {
+        geometric_log.open("det_rev_geometric.csv", std::ios::app);
+        if (geometric_log.tellp() == 0) {
+            geometric_log << "iter_step x_size_um x_size_vx "
+                          << "porosity rev_poro_um rev_poro_vx RE_poro CC_poro "
+                          << "surface rev_surf_um rev_surf_vx RE_surf CC_surf\n";
+        }
     }
 
-    std::ofstream hydraulic_log("det_rev_hydraulic.csv", std::ios::app);
-    if (hydraulic_log.tellp() == 0) {
-        hydraulic_log << "iter_step x_size_um x_size_vx "
-                      << "permeability rev_perm_um rev_perm_vx RE_perm CC_perm "
-                      << "tortuosity rev_tort_um rev_tort_vx RE_tort CC_tort\n";
+    std::ofstream hydraulic_log;
+    if (hydraulic) {
+        hydraulic_log.open("det_rev_hydraulic.csv", std::ios::app);
+        if (hydraulic_log.tellp() == 0) {
+            hydraulic_log << "iter_step x_size_um x_size_vx "
+                          << "permeability rev_perm_um rev_perm_vx RE_perm CC_perm "
+                          << "tortuosity rev_tort_um rev_tort_vx RE_tort CC_tort\n";
+        }
     }
 
 
-    while (x_size < Nx - 2) {
+    const int max_x_size = Nx - 2;
+    while (true) {
+        x_size = std::min(x_size, max_x_size);
 
         //(still have to test for 2d geometries)
         int y_size = (Ny - 2) * x_size / (Nx - 2);
@@ -303,6 +315,7 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
 
         double current_surf = 0;
         double count = 0.0;
+        double vxb = 0.0, vyb = 0.0, vzb = 0.0;
         double vax = 0.0, vay = 0.0, vaz = 0.0;
         double v_tort=0.0;
 
@@ -310,88 +323,108 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
             for (int j = start_y; j <= end_y; j++) {
                 for (int i = start_x; i <= end_x; i++) {
                     if (MRT.Distance(i, j, k) > 0) {
-                        vax += MRT.Velocity_x(i, j, k);
-                        vay += MRT.Velocity_y(i, j, k);
-                        vaz += MRT.Velocity_z(i, j, k);
-                        v_tort += sqrt(MRT.Velocity_x(i, j, k)*MRT.Velocity_x(i, j, k) + MRT.Velocity_y(i, j, k)*MRT.Velocity_y(i, j, k) + MRT.Velocity_z(i, j, k)*MRT.Velocity_z(i, j, k));
+                        if (hydraulic) {
+                            vxb = MRT.Velocity_x(i, j, k);
+                            vyb = MRT.Velocity_y(i, j, k);
+                            vzb = MRT.Velocity_z(i, j, k);
+                            vax += vxb;
+                            vay += vyb;
+                            vaz += vzb;
+                            v_tort += sqrt(vxb*vxb + vyb*vyb + vzb*vzb);
+                        }
                         count += 1.0;
                     }
-                    if ((MRT.Distance(i, j, k) * MRT.Distance(i, j, k + 1) < 0) && (k != end_z))
-                        current_surf++;
+                    if (geometrical) {
+                        if ((MRT.Distance(i, j, k) * MRT.Distance(i, j, k + 1) < 0) && (k != end_z))
+                            current_surf++;
 
-                    if ((MRT.Distance(i, j, k) * MRT.Distance(i, j + 1, k) < 0) && (j != end_y))
-                        current_surf++;
+                        if ((MRT.Distance(i, j, k) * MRT.Distance(i, j + 1, k) < 0) && (j != end_y))
+                            current_surf++;
 
-                    if ((MRT.Distance(i, j, k) * MRT.Distance(i + 1, j, k) < 0) && (i != end_x))
-                        current_surf++;
+                        if ((MRT.Distance(i, j, k) * MRT.Distance(i + 1, j, k) < 0) && (i != end_x))
+                            current_surf++;
+                    }
                 }
             }
         }
 
-        if (count == 0)
-        {
-            vax = 0.0;
-            vay = 0.0;
-            vaz = 0.0;
-        } else {
-        vax /= count;
-        vay /= count;
-        vaz /= count;}
+        if (hydraulic) {
+            if (count == 0)
+            {
+                vax = 0.0;
+                vay = 0.0;
+                vaz = 0.0;
+            } else {
+            vax /= count;
+            vay /= count;
+            vaz /= count;}
 
-        double force_mag = sqrt(MRT.Fx * MRT.Fx + MRT.Fy * MRT.Fy + MRT.Fz * MRT.Fz);
-        double dir_x = MRT.Fx / force_mag;
-        double dir_y = MRT.Fy / force_mag;
-        double dir_z = MRT.Fz / force_mag;
-        if (force_mag == 0.0) {
-            dir_x = 0.0;
-            dir_y = 0.0;
-            dir_z = 1.0;
-            force_mag = 1.0;
+            double force_mag = sqrt(MRT.Fx * MRT.Fx + MRT.Fy * MRT.Fy + MRT.Fz * MRT.Fz);
+            double dir_x = MRT.Fx / force_mag;
+            double dir_y = MRT.Fy / force_mag;
+            double dir_z = MRT.Fz / force_mag;
+            if (force_mag == 0.0) {
+                dir_x = 0.0;
+                dir_y = 0.0;
+                dir_z = 1.0;
+                force_mag = 1.0;
+            }
+
+            double flow_rate = (vax * dir_x + vay * dir_y + vaz * dir_z);
+            double current_poro = count / ((end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1));
+            double current_perm = 1013 * h * h * mu * current_poro * flow_rate / force_mag;
+            double current_tort = (vaz != 0) ? (v_tort / (vaz * count) - 1.0) : -1;
+
+            sub_x_size[iter_step] = x_size;
+            perm[iter_step] = current_perm;
+            tort[iter_step] = current_tort;
+
+            //Permeability deterministic approach
+            det_convergence_metrics perm_m = det_compute_convergence(perm, iter_step, cc_interval);
+            if (perm_m.RE >= 0 && perm_m.RE < gamma && perm_m.CC >= 0 && perm_m.CC < gamma && rev_x_perm == -1) {
+                rev_x_perm = x_size;
+            }
+
+            //Tortuosity deterministic approach
+            det_convergence_metrics tort_m = det_compute_convergence(tort, iter_step, cc_interval);
+            if (tort_m.RE >= 0 && tort_m.RE < gamma && tort_m.CC >= 0 && tort_m.CC < gamma && rev_x_tort == -1) {
+                rev_x_tort = x_size;
+            }
+
+            hydraulic_log << iter_step << " " << x_size * h << " " << x_size << " "
+                          << perm[iter_step] << " " << rev_x_perm*h << " " << rev_x_perm << " " << perm_m.RE << " " << perm_m.CC << " "
+                          << tort[iter_step]+1 << " " << rev_x_tort*h << " " << rev_x_tort << " " << tort_m.RE << " " << tort_m.CC << "\n";
         }
 
-        current_surf = current_surf / ((end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1));
-        double flow_rate = (vax * dir_x + vay * dir_y + vaz * dir_z);
-        double current_poro = count / ((end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1));
-        double current_perm = 1013 * h * h * mu * current_poro * flow_rate / force_mag;
-        double current_tort = (vaz != 0) ? (v_tort / (vaz * count) - 1.0) : -1;
+        if (geometrical) {
+            current_surf = current_surf / ((end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1));
+            double current_poro = count / ((end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1));
 
-        sub_x_size[iter_step] = x_size;
-        poro[iter_step] = current_poro;
-        perm[iter_step] = current_perm;
-        tort[iter_step] = current_tort;
-        surf[iter_step] = current_surf;
+            sub_x_size[iter_step] = x_size;
+            poro[iter_step] = current_poro;
+            surf[iter_step] = current_surf;
 
-        //Porosity deterministic approach
-        det_convergence_metrics poro_m = det_compute_convergence(poro, iter_step, cc_interval);
-        if (poro_m.RE >= 0 && poro_m.RE < gamma && poro_m.CC >= 0 && poro_m.CC < gamma && rev_x_poro == -1) {
-            rev_x_poro = x_size;
+            //Porosity deterministic approach
+            det_convergence_metrics poro_m = det_compute_convergence(poro, iter_step, cc_interval);
+            if (poro_m.RE >= 0 && poro_m.RE < gamma && poro_m.CC >= 0 && poro_m.CC < gamma && rev_x_poro == -1) {
+                rev_x_poro = x_size;
+            }
+
+            //Surface Deterministic approach
+            det_convergence_metrics surf_m = det_compute_convergence(surf, iter_step, cc_interval);
+            if (surf_m.RE >= 0 && surf_m.RE < gamma && surf_m.CC >= 0 && surf_m.CC < gamma && rev_x_surf == -1) {
+                rev_x_surf = x_size;
+            }
+
+            geometric_log << iter_step << " " << x_size * h << " " << x_size << " "
+                          << poro[iter_step] << " " << rev_x_poro*h << " " << rev_x_poro << " " << poro_m.RE << " " << poro_m.CC << " "
+                          << surf[iter_step] << " " << rev_x_surf*h << " " << rev_x_surf << " " << surf_m.RE << " " << surf_m.CC << "\n";
         }
 
-        //Permeability deterministic approach
-        det_convergence_metrics perm_m = det_compute_convergence(perm, iter_step, cc_interval);
-        if (perm_m.RE >= 0 && perm_m.RE < gamma && perm_m.CC >= 0 && perm_m.CC < gamma && rev_x_perm == -1) {
-            rev_x_perm = x_size;
+        // Stop after processing the full domain once.
+        if (x_size == max_x_size) {
+            break;
         }
-
-        //Tortuosity deterministic approach
-        det_convergence_metrics tort_m = det_compute_convergence(tort, iter_step, cc_interval);
-        if (tort_m.RE >= 0 && tort_m.RE < gamma && tort_m.CC >= 0 && tort_m.CC < gamma && rev_x_tort == -1) {
-            rev_x_tort = x_size;
-        }
-
-        //Surface Deterministic approach
-        det_convergence_metrics surf_m = det_compute_convergence(surf, iter_step, cc_interval);
-        if (surf_m.RE >= 0 && surf_m.RE < gamma && surf_m.CC >= 0 && surf_m.CC < gamma && rev_x_surf == -1) {
-            rev_x_surf = x_size;
-        }
-
-        geometric_log << iter_step << " " << x_size * h << " " << x_size << " "
-                      << poro[iter_step] << " " << rev_x_poro*h << " " << rev_x_poro << " " << poro_m.RE << " " << poro_m.CC << " "
-                      << surf[iter_step] << " " << rev_x_surf*h << " " << rev_x_surf << " " << surf_m.RE << " " << surf_m.CC << "\n";
-
-        hydraulic_log << iter_step << " " << x_size * h << " " << x_size << " "
-                      << perm[iter_step] << " " << rev_x_perm*h << " " << rev_x_perm << " " << perm_m.RE << " " << perm_m.CC << " "
-                      << tort[iter_step]+1 << " " << rev_x_tort*h << " " << rev_x_tort << " " << tort_m.RE << " " << tort_m.CC << "\n";
 
         double min_step = std::max(1.0, average_pore_size);
         double proportional_step = current_size_x_double * size_step;
@@ -401,73 +434,15 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
         iter_step++;
     }
 
-        //whole domain data
+    if (geometrical) {
+        geometric_log.close();
+    }
 
-        double current_surf = 0;
-        double vax = 0.0, vay = 0.0, vaz = 0.0;
-        double count = 0.0;
-        double v_tort = 0.0;
+    if (hydraulic) {
+        hydraulic_log.close();
+    }
 
-        for (int k = 1; k <= Nz-2; k++) { 
-            for (int j = 1; j <= Ny-2; j++) {
-                for (int i = 1; i <= Nx-2; i++) {
-                    if (MRT.Distance(i, j, k) > 0) {
-                        vax += MRT.Velocity_x(i, j, k);
-                        vay += MRT.Velocity_y(i, j, k);
-                        vaz += MRT.Velocity_z(i, j, k);
-                        v_tort += sqrt(MRT.Velocity_x(i, j, k)*MRT.Velocity_x(i, j, k) + MRT.Velocity_y(i, j, k)*MRT.Velocity_y(i, j, k) + MRT.Velocity_z(i, j, k)*MRT.Velocity_z(i, j, k));
-                        count += 1.0;
-                    }
-                    if ((MRT.Distance(i, j, k) * MRT.Distance(i, j, k + 1) < 0) && (k != Nz-2))
-                        current_surf++;
-
-                    if ((MRT.Distance(i, j, k) * MRT.Distance(i, j + 1, k) < 0) && (j != Ny-2))
-                        current_surf++;
-
-                    if ((MRT.Distance(i, j, k) * MRT.Distance(i + 1, j, k) < 0) && (i != Nx-2))
-                        current_surf++;
-                }
-            }
-        }
-
-        if (count == 0)
-        {
-            vax = 0.0;
-            vay = 0.0;
-            vaz = 0.0;
-        } else {
-        vax /= count;
-        vay /= count;
-        vaz /= count;}
-
-        double force_mag = sqrt(MRT.Fx * MRT.Fx + MRT.Fy * MRT.Fy + MRT.Fz * MRT.Fz);
-        double dir_x = MRT.Fx / force_mag;
-        double dir_y = MRT.Fy / force_mag;
-        double dir_z = MRT.Fz / force_mag;
-        if (force_mag == 0.0) {
-            dir_x = 0.0;
-            dir_y = 0.0;
-            dir_z = 1.0;
-            force_mag = 1.0;
-        }
-
-        double flow_rate = (vax * dir_x + vay * dir_y + vaz * dir_z);
-        double current_poro = count / ((Nx-2) * (Ny-2) * (Nz-2));
-        double current_perm = 1013 * h * h * mu * current_poro * flow_rate / force_mag;
-        double current_tort = (vaz != 0) ? (v_tort / (vaz * count) - 1.0) : -1;
-        current_surf = current_surf / ((Nx-2) * (Ny-2) * (Nz-2));
-
-        geometric_log << "-1 " << (Nx-2)*h << " " << (Nx-2) << " "
-                      << current_poro << " " << rev_x_poro*h << " " << rev_x_poro << " 0 0 "
-                      << current_surf << " " << rev_x_surf*h << " " << rev_x_surf << " 0 0\n";
-
-        hydraulic_log << "-1 " << (Nx-2)*h << " " << (Nx-2) << " "
-                      << current_perm << " " << rev_x_perm*h << " " << rev_x_perm << " 0 0 "
-                      << current_tort << " " << rev_x_tort*h << " " << rev_x_tort << " 0 0\n";
-
-            geometric_log.close();
-            hydraulic_log.close();
-            printf("\n\nEnded Deterministic Analysis \n\n");
+    printf("\n\nEnded Deterministic Analysis \n\n");
 }
 
 void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
@@ -482,8 +457,12 @@ void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
 
     stat_samples = 50;
     auto rev_db = db->getDatabase("REV");
-    geometrical = rev_db->getWithDefault<bool>("Geometrical", true);
-    hydraulic = rev_db->getWithDefault<bool>("Hydraulic", true);
+    geometrical = rev_db->keyExists("Geomtrical")
+        ? rev_db->getScalar<bool>("Geomtrical")
+        : rev_db->getWithDefault<bool>("Geometrical", true);
+    hydraulic = rev_db->keyExists("Hydraulic")
+        ? rev_db->getScalar<bool>("Hydraulic")
+        : true;
     if (rev_db->keyExists("StatSamples"))
         stat_samples = rev_db->getScalar<int>("StatSamples");
 
@@ -497,12 +476,24 @@ void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
     std::vector<double> stat_tort(stat_samples);
     std::vector<double> stat_surf(stat_samples);
 
-    std::ofstream log_file("stat_rev_analysis.csv", std::ios::app);
-    if (log_file.tellp() == 0) {
-        log_file << "x_size_um x_size_vx stat_poro stat_poro_mean stat_poro_max stat_poro_min "
-                 << "stat_perm stat_perm_mean stat_perm_max stat_perm_min "
-                 << "stat_tort stat_tort_mean stat_tort_max stat_tort_min "
-                 << "stat_surf stat_surf_mean stat_surf_max stat_surf_min\n";
+    std::ofstream geometric_log;
+    if (geometrical) {
+        geometric_log.open("stat_rev_geometric.csv", std::ios::app);
+        if (geometric_log.tellp() == 0) {
+            geometric_log << "x_size_um x_size_vx "
+                          << "stat_poro stat_poro_mean stat_poro_max stat_poro_min "
+                          << "stat_surf stat_surf_mean stat_surf_max stat_surf_min\n";
+        }
+    }
+
+    std::ofstream hydraulic_log;
+    if (hydraulic) {
+        hydraulic_log.open("stat_rev_hydraulic.csv", std::ios::app);
+        if (hydraulic_log.tellp() == 0) {
+            hydraulic_log << "x_size_um x_size_vx "
+                          << "stat_perm stat_perm_mean stat_perm_max stat_perm_min "
+                          << "stat_tort stat_tort_mean stat_tort_max stat_tort_min\n";
+        }
     }
 
     double current_size_x_double = 1e100;
@@ -549,55 +540,70 @@ void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
                     for (int i = start_x; i <= end_x; i++) {
                         double dist_val = MRT.Distance(i, j, k);
                         if (dist_val > 0) {
-                            vax += MRT.Velocity_x(i, j, k);
-                            vay += MRT.Velocity_y(i, j, k);
-                            vaz += MRT.Velocity_z(i, j, k);
-                            v_tort += std::sqrt(std::pow(MRT.Velocity_x(i, j, k), 2) + 
-                                                std::pow(MRT.Velocity_y(i, j, k), 2) + 
-                                                std::pow(MRT.Velocity_z(i, j, k), 2));
+                            if (hydraulic) {
+                                vax += MRT.Velocity_x(i, j, k);
+                                vay += MRT.Velocity_y(i, j, k);
+                                vaz += MRT.Velocity_z(i, j, k);
+                                v_tort += std::sqrt(std::pow(MRT.Velocity_x(i, j, k), 2) +
+                                                    std::pow(MRT.Velocity_y(i, j, k), 2) +
+                                                    std::pow(MRT.Velocity_z(i, j, k), 2));
+                            }
                             count += 1.0;
                         }
                         
-                        if (k != end_z && (dist_val * MRT.Distance(i, j, k + 1) < 0)) current_surf++;
-                        if (j != end_y && (dist_val * MRT.Distance(i, j + 1, k) < 0)) current_surf++;
-                        if (i != end_x && (dist_val * MRT.Distance(i + 1, j, k) < 0)) current_surf++;
+                        if (geometrical) {
+                            if (k != end_z && (dist_val * MRT.Distance(i, j, k + 1) < 0)) current_surf++;
+                            if (j != end_y && (dist_val * MRT.Distance(i, j + 1, k) < 0)) current_surf++;
+                            if (i != end_x && (dist_val * MRT.Distance(i + 1, j, k) < 0)) current_surf++;
+                        }
                     }
                 }
             }
 
-            if (count > 0) {
-                vax /= count; vay /= count; vaz /= count;
+            double vol = (end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1);
+            double current_poro = count / vol;
+
+            if (hydraulic) {
+                if (count > 0) {
+                    vax /= count; vay /= count; vaz /= count;
+                }
+
+                double force_mag = std::sqrt(MRT.Fx * MRT.Fx + MRT.Fy * MRT.Fy + MRT.Fz * MRT.Fz);
+                double dir_x = (force_mag > 0) ? MRT.Fx / force_mag : 0.0;
+                double dir_y = (force_mag > 0) ? MRT.Fy / force_mag : 0.0;
+                double dir_z = (force_mag > 0) ? MRT.Fz / force_mag : 1.0;
+                if (force_mag == 0.0) force_mag = 1.0;
+
+                double flow_rate = (vax * dir_x + vay * dir_y + vaz * dir_z);
+                double current_perm = 1013.0 * h * h * mu * current_poro * flow_rate / force_mag;
+                double current_tort = (vaz != 0) ? (v_tort / (vaz * count) - 1.0) : -1;
+
+                stat_perm[l] = current_perm;
+                stat_tort[l] = current_tort;
             }
 
-            double force_mag = std::sqrt(MRT.Fx * MRT.Fx + MRT.Fy * MRT.Fy + MRT.Fz * MRT.Fz);
-            double dir_x = (force_mag > 0) ? MRT.Fx / force_mag : 0.0;
-            double dir_y = (force_mag > 0) ? MRT.Fy / force_mag : 0.0;
-            double dir_z = (force_mag > 0) ? MRT.Fz / force_mag : 1.0;
-            if (force_mag == 0.0) force_mag = 1.0;
-
-            double vol = (end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1);
-            current_surf /= vol;
-            
-            double flow_rate = (vax * dir_x + vay * dir_y + vaz * dir_z);
-            double current_poro = count / vol;
-            double current_perm = 1013.0 * h * h * mu * current_poro * flow_rate / force_mag;
-            double current_tort = (vaz != 0) ? (v_tort / (vaz * count) - 1.0) : -1;
-
-            stat_poro[l] = current_poro;
-            stat_perm[l] = current_perm;
-            stat_tort[l] = current_tort;
-            stat_surf[l] = current_surf;
+            if (geometrical) {
+                current_surf /= vol;
+                stat_poro[l] = current_poro;
+                stat_surf[l] = current_surf;
+            }
         }
 
-        stat_convergence_metrics p_stats = stat_compute_convergence(stat_poro, stat_samples); 
-        stat_convergence_metrics k_stats = stat_compute_convergence(stat_perm, stat_samples); 
-        stat_convergence_metrics t_stats = stat_compute_convergence(stat_tort, stat_samples); 
-        stat_convergence_metrics s_stats = stat_compute_convergence(stat_surf, stat_samples); 
-        log_file << x_size * h << " " << x_size << " "
-                << p_stats.CC << " " << p_stats.mean << " " << p_stats.max << " " << p_stats.min << " "
-                << k_stats.CC << " " << k_stats.mean << " " << k_stats.max << " " << k_stats.min << " "
-                << t_stats.CC << " " << t_stats.mean + 1 << " " << t_stats.max + 1 << " " << t_stats.min + 1 << " "
-                << s_stats.CC << " " << s_stats.mean / h << " " << s_stats.max / h << " " << s_stats.min / h << "\n";
+        if (hydraulic) {
+            stat_convergence_metrics k_stats = stat_compute_convergence(stat_perm, stat_samples);
+            stat_convergence_metrics t_stats = stat_compute_convergence(stat_tort, stat_samples);
+            hydraulic_log << x_size * h << " " << x_size << " "
+                          << k_stats.CC << " " << k_stats.mean << " " << k_stats.max << " " << k_stats.min << " "
+                          << t_stats.CC << " " << t_stats.mean + 1 << " " << t_stats.max + 1 << " " << t_stats.min + 1 << "\n";
+        }
+
+        if (geometrical) {
+            stat_convergence_metrics p_stats = stat_compute_convergence(stat_poro, stat_samples);
+            stat_convergence_metrics s_stats = stat_compute_convergence(stat_surf, stat_samples);
+            geometric_log << x_size * h << " " << x_size << " "
+                          << p_stats.CC << " " << p_stats.mean << " " << p_stats.max << " " << p_stats.min << " "
+                          << s_stats.CC << " " << s_stats.mean / h << " " << s_stats.max / h << " " << s_stats.min / h << "\n";
+        }
 
         double min_step = std::max(1.0, average_pore_size);
         double proportional_step = current_size_x_double * size_step;
@@ -605,6 +611,9 @@ void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
         x_size = static_cast<int>(std::ceil(current_size_x_double));
     }
     
-    log_file.close();
+    if (geometrical)
+        geometric_log.close();
+    if (hydraulic)
+        hydraulic_log.close();
     printf("\n\nEnded Statistical Analysis\n\n");
 }
