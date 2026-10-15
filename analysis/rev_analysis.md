@@ -49,18 +49,29 @@ For hydraulic analysis, set `Hydraulic = true` and supply output from an earlier
 simulation:
 
 ```text
-MRT {
-    REV = true
-    tau = 1.0
-    F = 0.0, 0.0, 1.0e-5
-}
 REV {
     Geometrical = true
     Hydraulic = true
+    SimulationParams = "/path/to/simulation/params.db"
     VelocityPath = "/path/to/simulation/results"
     VelocityTimestep = "vis3000"
 }
 ```
+
+`SimulationParams` points to the database used to run the simulation. REV reads
+`tau` and `F` from its `MRT` section, or its `BGK` section if `MRT` is absent.
+You do not need to repeat these values in the analysis database. Relative
+`SimulationParams` paths are resolved against the directory containing the
+analysis database; absolute paths are also accepted. For example,
+`SimulationParams = "../simulation/params.db"` selects a sibling simulation
+directory.
+
+The referenced file supplies the flow parameters only: keep `Domain` and the
+REV settings in the analysis database. Its `MRT.REV` value does not enable or
+disable the analysis. Without `SimulationParams`, the analysis continues to
+read `tau` and `F` from its own `MRT` section, with the usual solver defaults
+for omitted values. When `SimulationParams` is present, the referenced flow
+parameters take precedence over the analysis database's `MRT` values.
 
 `VelocityPath` is the output directory containing `LBM.visit` and timestep
 directories. It defaults to the current working directory. `VelocityTimestep`
@@ -94,5 +105,7 @@ Call `rev.ReadParams(filename)` first. The model must expose `Nx`, `Ny`, `Nz`,
 usual one-cell halos. MRT and BGK models meet this interface.
 
 These calls borrow the model's arrays; they do not copy them or load saved
-velocities. The calculations remain implemented in `rev_analysis.cpp`, while
+velocities. They also use the model's `tau` and `F`, while `SimulationParams`
+supplies the parameters for standalone analysis. The calculations remain
+implemented in `rev_analysis.cpp`, while
 the template wrappers in the header provide the common data interface.

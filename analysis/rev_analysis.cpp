@@ -72,11 +72,40 @@ void ScaLBL_REV::ReadParams(string filename) {
     INSIST(size_step > 0.0, "REV.SizeStep must be positive");
     INSIST(cc_interval > 0, "REV.CCInterval must be positive");
     INSIST(stat_samples > 0, "REV.StatSamples must be positive");
-    if (mrt_db) {
-        tau = mrt_db->getWithDefault<double>("tau", 1.0);
-        if (mrt_db->keyExists("F")) {
-            auto force = mrt_db->getVector<double>("F");
-            INSIST(force.size() == 3, "MRT.F must have three components");
+    auto simulation_params = mrt_db;
+    std::string simulation_model = "MRT";
+    if (rev_db->keyExists("SimulationParams")) {
+        auto simulation_filename =
+            rev_db->getScalar<std::string>("SimulationParams");
+        INSIST(!simulation_filename.empty(), "REV.SimulationParams cannot be empty");
+        const bool absolute = simulation_filename.front() == '/' ||
+                              simulation_filename.front() == '\\' ||
+                              (simulation_filename.size() > 1 &&
+                               simulation_filename[1] == ':');
+        if (!absolute) {
+            auto separator = filename.find_last_of("/\\");
+            if (separator != std::string::npos)
+                simulation_filename = filename.substr(0, separator + 1) +
+                                      simulation_filename;
+        }
+
+        auto simulation_db = std::make_shared<Database>(simulation_filename);
+        if (simulation_db->keyExists("MRT")) {
+            simulation_model = "MRT";
+        } else {
+            INSIST(simulation_db->keyExists("BGK"),
+                   "REV.SimulationParams must reference a database with "
+                   "an MRT or BGK section");
+            simulation_model = "BGK";
+        }
+        simulation_params = simulation_db->getDatabase(simulation_model);
+    }
+    if (simulation_params) {
+        tau = simulation_params->getWithDefault<double>("tau", 1.0);
+        if (simulation_params->keyExists("F")) {
+            auto force = simulation_params->getVector<double>("F");
+            INSIST(force.size() == 3,
+                   simulation_model + ".F must have three components");
             Fx = force[0];
             Fy = force[1];
             Fz = force[2];
