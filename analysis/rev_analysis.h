@@ -18,7 +18,7 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
- * Multi-relaxation time LBM Model
+ * Representative elementary volume analysis
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,12 +33,35 @@
 #include "common/MPI.h"
 #include "analysis/Minkowski.h"
 #include "ProfilerApp.h"
-#include "models/MRTModel.h"
+#include "common/Domain.h"
 
 
 
-class REVfunc {
+class ScaLBL_REV {
 public:
+    ScaLBL_REV(int RANK, int NP, const Utilities::MPI &COMM);
+    ~ScaLBL_REV();
+
+    // Standalone analysis: read settings, load the domain, then run analysis.
+    void ReadParams(string filename);
+    void SetDomain();
+    void PoreSize();
+    void DetRevAnalysis();
+    void StatRevAnalysis();
+
+    // Models supply dimensions, domain, distance, velocity, tau and force.
+    template<class Model> void PoreSize(const Model& model) {
+        PoreSizeImpl(GetModelData(model));
+    }
+    template<class Model> void DetRevAnalysis(const Model& model) {
+        if (run_rev && (geometrical || hydraulic))
+            DetRevAnalysisImpl(GetModelData(model));
+    }
+    template<class Model> void StatRevAnalysis(const Model& model) {
+        if (run_rev && (geometrical || hydraulic))
+            StatRevAnalysisImpl(GetModelData(model));
+    }
+
     double average_pore_size;
     double rev_x_poro, rev_x_perm, rev_x_tort, rev_x_surf;
     double size_step;
@@ -46,9 +69,46 @@ public:
     double gamma;
     bool geometrical = true;
     bool hydraulic = true;
-    void PoreSize(ScaLBL_MRTModel& model);
-    void DetRevAnalysis(ScaLBL_MRTModel& model, string filename);
-    void StatRevAnalysis(ScaLBL_MRTModel& model, string filename);
+
+    DoubleArray Distance, Velocity_x, Velocity_y, Velocity_z;
+    double tau, Fx, Fy, Fz;
+
+    int Nx, Ny, Nz, N, Np;
+    int rank, nprocx, nprocy, nprocz, nprocs;
+    double Lx, Ly, Lz;
+
+    std::shared_ptr<Domain> Dm;   // this domain is for analysis
+    std::shared_ptr<Domain> Mask; // this domain is for lbm
+    std::shared_ptr<ScaLBL_Communicator> ScaLBL_Comm;
+    // input database
+    std::shared_ptr<Database> db;
+
+private:
+    // Borrow model arrays so generic calls do not copy simulation fields.
+    struct ModelData {
+        int Nx, Ny, Nz;
+        double voxel_length;
+        const DoubleArray& Distance;
+        const DoubleArray& Velocity_x;
+        const DoubleArray& Velocity_y;
+        const DoubleArray& Velocity_z;
+        double tau, Fx, Fy, Fz;
+    };
+
+    template<class Model> static ModelData GetModelData(const Model& model) {
+        INSIST(model.Dm, "REV analysis requires an initialized domain");
+        return {model.Nx, model.Ny, model.Nz, model.Dm->voxel_length,
+                model.Distance, model.Velocity_x, model.Velocity_y,
+                model.Velocity_z, model.tau, model.Fx, model.Fy, model.Fz};
+    }
+
+    void PoreSizeImpl(const ModelData& model);
+    void DetRevAnalysisImpl(const ModelData& model);
+    void StatRevAnalysisImpl(const ModelData& model);
+    void LoadVelocityFields();
+    Utilities::MPI comm;
+    bool run_rev = false;
+    bool standalone_ready = false;
 };
 
 #endif // REV_ANALYSIS_H

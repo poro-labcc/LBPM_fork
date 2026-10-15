@@ -15,15 +15,208 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*
- * Multi-relaxation time LBM Model
+ * Representative elementary volume analysis
  */
 #include "analysis/rev_analysis.h"
 #include "analysis/distance.h"
 #include "common/ReadMicroCT.h"
+#include "IO/Reader.h"
 #include <cmath>
 #include <algorithm>
 #include <random>
 
+ScaLBL_REV::ScaLBL_REV(int RANK, int NP, const Utilities::MPI &COMM)
+    : average_pore_size(0), rev_x_poro(-1), rev_x_perm(-1), rev_x_tort(-1),
+      rev_x_surf(-1), size_step(0.1), cc_interval(10), stat_samples(50), gamma(0.1),
+      tau(1.0), Fx(0), Fy(0), Fz(1.0e-5),
+      Nx(0), Ny(0), Nz(0), N(0), Np(0), rank(RANK), nprocx(0), nprocy(0),
+      nprocz(0), nprocs(NP), Lx(0), Ly(0), Lz(0), comm(COMM) {}
+
+ScaLBL_REV::~ScaLBL_REV() = default;
+
+void ScaLBL_REV::ReadParams(string filename) {
+    size_step = 0.1;
+    cc_interval = 10;
+    gamma = 0.1;
+    stat_samples = 50;
+    geometrical = true;
+    hydraulic = true;
+    standalone_ready = false;
+    tau = 1.0;
+    Fx = Fy = 0.0;
+    Fz = 1.0e-5;
+
+    db = std::make_shared<Database>(filename);
+    auto mrt_db = db->keyExists("MRT") ? db->getDatabase("MRT") : nullptr;
+    run_rev = mrt_db ? mrt_db->getWithDefault<bool>("REV", false)
+                     : db->keyExists("REV");
+    if (!run_rev)
+        return;
+
+    auto rev_db = db->getDatabase("REV");
+    geometrical = rev_db->keyExists("Geomtrical")
+        ? rev_db->getScalar<bool>("Geomtrical")
+        : rev_db->getWithDefault<bool>("Geometrical", true);
+    hydraulic = rev_db->keyExists("Hydraulic")
+        ? rev_db->getScalar<bool>("Hydraulic")
+        : true;
+    if (rev_db->keyExists("SizeStep"))
+        size_step = rev_db->getScalar<double>("SizeStep");
+    if (rev_db->keyExists("CCInterval"))
+        cc_interval = rev_db->getScalar<int>("CCInterval");
+    if (rev_db->keyExists("gamma"))
+        gamma = rev_db->getScalar<double>("gamma");
+    if (rev_db->keyExists("StatSamples"))
+        stat_samples = rev_db->getScalar<int>("StatSamples");
+
+    INSIST(size_step > 0.0, "REV.SizeStep must be positive");
+    INSIST(cc_interval > 0, "REV.CCInterval must be positive");
+    INSIST(stat_samples > 0, "REV.StatSamples must be positive");
+    if (mrt_db) {
+        tau = mrt_db->getWithDefault<double>("tau", 1.0);
+        if (mrt_db->keyExists("F")) {
+            auto force = mrt_db->getVector<double>("F");
+            INSIST(force.size() == 3, "MRT.F must have three components");
+            Fx = force[0];
+            Fy = force[1];
+            Fz = force[2];
+        }
+    }
+}
+
+void ScaLBL_REV::SetDomain() {
+    standalone_ready = false;
+    if (!run_rev || (!geometrical && !hydraulic))
+        return;
+    INSIST(db, "Call REV.ReadParams before REV.SetDomain");
+    INSIST(comm.getSize() == 1,
+           "Standalone REV analysis currently requires one MPI process");
+
+    auto domain_db = db->getDatabase("Domain");
+    Dm = std::make_shared<Domain>(domain_db, comm);
+    Mask = Dm;
+    Nx = Dm->Nx;
+    Ny = Dm->Ny;
+    Nz = Dm->Nz;
+    N = Nx * Ny * Nz;
+    Lx = Dm->Lx;
+    Ly = Dm->Ly;
+    Lz = Dm->Lz;
+    rank = Dm->rank();
+    nprocx = Dm->nprocx();
+    nprocy = Dm->nprocy();
+    nprocz = Dm->nprocz();
+
+    // Use the full domain when building the signed distance field.
+    std::fill(Dm->id.begin(), Dm->id.end(), 1);
+    Dm->CommInit();
+    if (domain_db->keyExists("Filename")) {
+        Dm->Decomp(domain_db->getScalar<std::string>("Filename"));
+    } else if (domain_db->keyExists("GridFile")) {
+        auto input_id = readMicroCT(*domain_db, comm);
+        INSIST(input_id.size(0) == size_t(Nx - 2) &&
+                   input_id.size(1) == size_t(Ny - 2) &&
+                   input_id.size(2) == size_t(Nz - 2),
+               "Input geometry does not match Domain.n");
+        Array<signed char> id_view;
+        id_view.viewRaw({size_t(Nx), size_t(Ny), size_t(Nz)}, Dm->id.data());
+        fillHalo<signed char> fill(comm, Dm->rank_info,
+                                  {Nx - 2, Ny - 2, Nz - 2}, {1, 1, 1}, 0, 1);
+        fill.copy(input_id, id_view);
+    } else {
+        Dm->ReadIDs();
+    }
+    Np = Dm->PoreCount();
+
+    Distance.resize(Nx, Ny, Nz);
+    Array<char> pore(Nx, Ny, Nz);
+    for (int i = 0; i < N; ++i)
+        pore(i) = Dm->id[i] > 0 ? 1 : 0;
+    CalcDist(Distance, pore, *Dm);
+
+    Velocity_x.resize(Nx, Ny, Nz);
+    Velocity_y.resize(Nx, Ny, Nz);
+    Velocity_z.resize(Nx, Ny, Nz);
+    Velocity_x.fill(0.0);
+    Velocity_y.fill(0.0);
+    Velocity_z.fill(0.0);
+    if (hydraulic)
+        LoadVelocityFields();
+
+    average_pore_size = 0.0;
+    rev_x_poro = rev_x_perm = rev_x_tort = rev_x_surf = -1.0;
+    standalone_ready = true;
+}
+
+void ScaLBL_REV::LoadVelocityFields() {
+    auto rev_db = db->getDatabase("REV");
+    auto path = rev_db->getWithDefault<std::string>("VelocityPath", ".");
+    std::string timestep;
+    if (rev_db->keyExists("VelocityTimestep")) {
+        timestep = rev_db->getScalar<std::string>("VelocityTimestep");
+    } else {
+        INSIST(exists(path + "/LBM.visit") || exists(path + "/summary.LBM"),
+               "Standalone hydraulic REV requires saved velocity output: "
+               "set REV.VelocityPath and REV.VelocityTimestep, "
+               "or set REV.Hydraulic = false");
+        auto timesteps = IO::readTimesteps(path);
+        INSIST(!timesteps.empty(), "No saved velocity timesteps found");
+        timestep = timesteps.back();
+    }
+    INSIST(exists(path + "/" + timestep + "/LBM.summary"),
+           "Cannot find LBM.summary for REV velocity input");
+    auto meshes = IO::getMeshList(path, timestep);
+    auto entry = std::find_if(meshes.begin(), meshes.end(),
+                              [](const IO::MeshDatabase& mesh) {
+                                  return mesh.name == "domain";
+                              });
+    INSIST(entry != meshes.end(), "Saved velocity output has no domain mesh");
+    INSIST(entry->domains.size() == 1,
+           "Standalone REV requires saved output from one MPI domain");
+    auto mesh = IO::getMesh(path, timestep, *entry, 0);
+    auto domain_mesh = std::dynamic_pointer_cast<IO::DomainMesh>(mesh);
+    INSIST(domain_mesh && domain_mesh->nx == Nx - 2 &&
+               domain_mesh->ny == Ny - 2 && domain_mesh->nz == Nz - 2,
+           "Saved velocity dimensions do not match the REV geometry");
+
+    fillHalo<double> fill(comm, Dm->rank_info,
+                          {Nx - 2, Ny - 2, Nz - 2}, {1, 1, 1}, 0, 1);
+    const char* names[] = {"Velocity_x", "Velocity_y", "Velocity_z"};
+    DoubleArray* fields[] = {&Velocity_x, &Velocity_y, &Velocity_z};
+    for (int i = 0; i < 3; ++i) {
+        auto variable = IO::getVariable(path, timestep, *entry, 0, names[i]);
+        INSIST(variable && variable->dim == 1 &&
+                   variable->type == IO::VariableType::VolumeVariable,
+               std::string("Missing scalar velocity field: ") + names[i]);
+        IO::reformatVariable(*mesh, *variable);
+        INSIST(variable->data.size(0) == size_t(Nx - 2) &&
+                   variable->data.size(1) == size_t(Ny - 2) &&
+                   variable->data.size(2) == size_t(Nz - 2),
+               "Saved velocity array dimensions do not match the REV geometry");
+        fill.copy(variable->data, *fields[i]);
+    }
+}
+
+void ScaLBL_REV::PoreSize() {
+    INSIST(standalone_ready, "Call REV.SetDomain before REV.PoreSize");
+    PoreSize(*this);
+}
+
+void ScaLBL_REV::DetRevAnalysis() {
+    if (!run_rev || (!geometrical && !hydraulic))
+        return;
+    INSIST(standalone_ready, "Call REV.SetDomain before REV.DetRevAnalysis");
+    DetRevAnalysis(*this);
+}
+
+void ScaLBL_REV::StatRevAnalysis() {
+    if (!run_rev || (!geometrical && !hydraulic))
+        return;
+    INSIST(standalone_ready, "Call REV.SetDomain before REV.StatRevAnalysis");
+    if (average_pore_size == 0.0)
+        PoreSize();
+    StatRevAnalysis(*this);
+}
 
 struct det_convergence_metrics {
     double RE;
@@ -111,9 +304,9 @@ stat_convergence_metrics stat_compute_convergence(const std::vector<double>& dat
     return res;
 }
 
-void REVfunc::PoreSize(ScaLBL_MRTModel &MRT) {
-    int Nx = MRT.Nx, Ny = MRT.Ny, Nz = MRT.Nz;
-    double h = MRT.Dm->voxel_length;
+void ScaLBL_REV::PoreSizeImpl(const ModelData &model) {
+    int Nx = model.Nx, Ny = model.Ny, Nz = model.Nz;
+    double h = model.voxel_length;
 
     DoubleArray distance_updated;
     distance_updated.resize(Nx, Ny, Nz);
@@ -123,7 +316,7 @@ void REVfunc::PoreSize(ScaLBL_MRTModel &MRT) {
     for (int k = 0; k < Nz; k++) {
         for (int j = 0; j < Ny; j++) {
             for (int i = 0; i < Nx; i++) {
-                double val = MRT.Distance(i, j, k);
+                double val = model.Distance(i, j, k);
                 distance_updated(i, j, k) = val;
                 
                 if (i > 0 && i < Nx - 1 && j > 0 && j < Ny - 1 && k > 0 && k < Nz - 1) {
@@ -214,48 +407,20 @@ void REVfunc::PoreSize(ScaLBL_MRTModel &MRT) {
     std::cout << "\n\n\nAverage Pore Size: " << average_pore_size * h << " micrometers\n\n\n" << std::endl;
 }
 
-void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
-
-    auto db = std::make_shared<Database>(filename);
-    auto mrt_db = db->getDatabase("MRT");
-
-    bool run_rev = false;
-    if(mrt_db->keyExists("REV"))
-        run_rev = mrt_db->getScalar<bool>("REV");
-
-    if(run_rev == false)
+void ScaLBL_REV::DetRevAnalysisImpl(const ModelData &model) {
+    if (!run_rev)
         return;
 
-
-    size_step = 0.1;
-    cc_interval = 10;
-    gamma = 0.1;
-
-
-    auto rev_db = db->getDatabase("REV");
-    geometrical = rev_db->keyExists("Geomtrical")
-        ? rev_db->getScalar<bool>("Geomtrical")
-        : rev_db->getWithDefault<bool>("Geometrical", true);
-    hydraulic = rev_db->keyExists("Hydraulic")
-        ? rev_db->getScalar<bool>("Hydraulic")
-        : true;
-    if(rev_db->keyExists("SizeStep"))
-        size_step = rev_db->getScalar<double>("SizeStep");
-    if(rev_db->keyExists("CCInterval"))
-        cc_interval = rev_db->getScalar<int>("CCInterval");
-    if(rev_db->keyExists("gamma"))
-        gamma = rev_db->getScalar<double>("gamma");
-        
-    PoreSize(MRT);
+    PoreSizeImpl(model);
 
     double current_size_x_double = 2.0 * average_pore_size;
     int x_size = static_cast<int>(std::ceil(current_size_x_double)); //could be a problem if the geometry is in the yz plane.
 
 
-    int Nx = MRT.Nx, Ny = MRT.Ny, Nz = MRT.Nz;
+    int Nx = model.Nx, Ny = model.Ny, Nz = model.Nz;
     int iter_step = 0; 
-    double h = MRT.Dm->voxel_length;
-    double mu = (MRT.tau - 0.5) / 3.f;
+    double h = model.voxel_length;
+    double mu = (model.tau - 0.5) / 3.f;
     
     rev_x_poro = -1;
     rev_x_perm = -1;
@@ -322,11 +487,11 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
         for (int k = start_z; k <= end_z; k++) { 
             for (int j = start_y; j <= end_y; j++) {
                 for (int i = start_x; i <= end_x; i++) {
-                    if (MRT.Distance(i, j, k) > 0) {
+                    if (model.Distance(i, j, k) > 0) {
                         if (hydraulic) {
-                            vxb = MRT.Velocity_x(i, j, k);
-                            vyb = MRT.Velocity_y(i, j, k);
-                            vzb = MRT.Velocity_z(i, j, k);
+                            vxb = model.Velocity_x(i, j, k);
+                            vyb = model.Velocity_y(i, j, k);
+                            vzb = model.Velocity_z(i, j, k);
                             vax += vxb;
                             vay += vyb;
                             vaz += vzb;
@@ -335,13 +500,13 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
                         count += 1.0;
                     }
                     if (geometrical) {
-                        if ((MRT.Distance(i, j, k) * MRT.Distance(i, j, k + 1) < 0) && (k != end_z))
+                        if ((model.Distance(i, j, k) * model.Distance(i, j, k + 1) < 0) && (k != end_z))
                             current_surf++;
 
-                        if ((MRT.Distance(i, j, k) * MRT.Distance(i, j + 1, k) < 0) && (j != end_y))
+                        if ((model.Distance(i, j, k) * model.Distance(i, j + 1, k) < 0) && (j != end_y))
                             current_surf++;
 
-                        if ((MRT.Distance(i, j, k) * MRT.Distance(i + 1, j, k) < 0) && (i != end_x))
+                        if ((model.Distance(i, j, k) * model.Distance(i + 1, j, k) < 0) && (i != end_x))
                             current_surf++;
                     }
                 }
@@ -359,10 +524,10 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
             vay /= count;
             vaz /= count;}
 
-            double force_mag = sqrt(MRT.Fx * MRT.Fx + MRT.Fy * MRT.Fy + MRT.Fz * MRT.Fz);
-            double dir_x = MRT.Fx / force_mag;
-            double dir_y = MRT.Fy / force_mag;
-            double dir_z = MRT.Fz / force_mag;
+            double force_mag = sqrt(model.Fx * model.Fx + model.Fy * model.Fy + model.Fz * model.Fz);
+            double dir_x = model.Fx / force_mag;
+            double dir_y = model.Fy / force_mag;
+            double dir_z = model.Fz / force_mag;
             if (force_mag == 0.0) {
                 dir_x = 0.0;
                 dir_y = 0.0;
@@ -445,31 +610,16 @@ void REVfunc::DetRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
     printf("\n\nEnded Deterministic Analysis \n\n");
 }
 
-void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
+void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
+    if (!run_rev)
+        return;
 
     std::mt19937 rng(0);
 
-    auto db = std::make_shared<Database>(filename);
-    auto mrt_db = db->getDatabase("MRT");
+    int Nx = model.Nx, Ny = model.Ny, Nz = model.Nz;
     
-    if (!mrt_db->keyExists("REV") || !mrt_db->getScalar<bool>("REV"))
-        return;
-
-    stat_samples = 50;
-    auto rev_db = db->getDatabase("REV");
-    geometrical = rev_db->keyExists("Geomtrical")
-        ? rev_db->getScalar<bool>("Geomtrical")
-        : rev_db->getWithDefault<bool>("Geometrical", true);
-    hydraulic = rev_db->keyExists("Hydraulic")
-        ? rev_db->getScalar<bool>("Hydraulic")
-        : true;
-    if (rev_db->keyExists("StatSamples"))
-        stat_samples = rev_db->getScalar<int>("StatSamples");
-
-    int Nx = MRT.Nx, Ny = MRT.Ny, Nz = MRT.Nz;
-    
-    double h = MRT.Dm->voxel_length;
-    double mu = (MRT.tau - 0.5) / 3.0f;
+    double h = model.voxel_length;
+    double mu = (model.tau - 0.5) / 3.0f;
 
     std::vector<double> stat_poro(stat_samples);
     std::vector<double> stat_perm(stat_samples);
@@ -538,23 +688,23 @@ void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
             for (int k = start_z; k <= end_z; k++) {
                 for (int j = start_y; j <= end_y; j++) {
                     for (int i = start_x; i <= end_x; i++) {
-                        double dist_val = MRT.Distance(i, j, k);
+                        double dist_val = model.Distance(i, j, k);
                         if (dist_val > 0) {
                             if (hydraulic) {
-                                vax += MRT.Velocity_x(i, j, k);
-                                vay += MRT.Velocity_y(i, j, k);
-                                vaz += MRT.Velocity_z(i, j, k);
-                                v_tort += std::sqrt(std::pow(MRT.Velocity_x(i, j, k), 2) +
-                                                    std::pow(MRT.Velocity_y(i, j, k), 2) +
-                                                    std::pow(MRT.Velocity_z(i, j, k), 2));
+                                vax += model.Velocity_x(i, j, k);
+                                vay += model.Velocity_y(i, j, k);
+                                vaz += model.Velocity_z(i, j, k);
+                                v_tort += std::sqrt(std::pow(model.Velocity_x(i, j, k), 2) +
+                                                    std::pow(model.Velocity_y(i, j, k), 2) +
+                                                    std::pow(model.Velocity_z(i, j, k), 2));
                             }
                             count += 1.0;
                         }
                         
                         if (geometrical) {
-                            if (k != end_z && (dist_val * MRT.Distance(i, j, k + 1) < 0)) current_surf++;
-                            if (j != end_y && (dist_val * MRT.Distance(i, j + 1, k) < 0)) current_surf++;
-                            if (i != end_x && (dist_val * MRT.Distance(i + 1, j, k) < 0)) current_surf++;
+                            if (k != end_z && (dist_val * model.Distance(i, j, k + 1) < 0)) current_surf++;
+                            if (j != end_y && (dist_val * model.Distance(i, j + 1, k) < 0)) current_surf++;
+                            if (i != end_x && (dist_val * model.Distance(i + 1, j, k) < 0)) current_surf++;
                         }
                     }
                 }
@@ -568,10 +718,10 @@ void REVfunc::StatRevAnalysis(ScaLBL_MRTModel &MRT, string filename) {
                     vax /= count; vay /= count; vaz /= count;
                 }
 
-                double force_mag = std::sqrt(MRT.Fx * MRT.Fx + MRT.Fy * MRT.Fy + MRT.Fz * MRT.Fz);
-                double dir_x = (force_mag > 0) ? MRT.Fx / force_mag : 0.0;
-                double dir_y = (force_mag > 0) ? MRT.Fy / force_mag : 0.0;
-                double dir_z = (force_mag > 0) ? MRT.Fz / force_mag : 1.0;
+                double force_mag = std::sqrt(model.Fx * model.Fx + model.Fy * model.Fy + model.Fz * model.Fz);
+                double dir_x = (force_mag > 0) ? model.Fx / force_mag : 0.0;
+                double dir_y = (force_mag > 0) ? model.Fy / force_mag : 0.0;
+                double dir_z = (force_mag > 0) ? model.Fz / force_mag : 1.0;
                 if (force_mag == 0.0) force_mag = 1.0;
 
                 double flow_rate = (vax * dir_x + vay * dir_y + vaz * dir_z);
