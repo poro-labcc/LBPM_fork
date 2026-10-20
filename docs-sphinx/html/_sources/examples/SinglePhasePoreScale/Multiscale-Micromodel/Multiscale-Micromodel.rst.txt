@@ -2,30 +2,30 @@
 Multiscale Micromodels
 ************************
 
-In the field of porous media experimentation, recent advancements in micromodel manufacturing 
-have enabled the creation of multiscale rock analogs. These analogs are characterized by the 
-presence of micro and macro porosities. Thanks to its optical characteristics, micromodels 
-facilitate a clear visualization of flow structures. These models offer two-dimensional 
-approximations that effectively capture the behaviors and connectivity of pores present 
-within the rock structure.
+In the field of porous media experimentation, recent advances in micromodel fabrication have enabled the development of multiscale rock analogs 
+for experimental studies of flow in porous media. These multiscale systems are characterized by the coexistence of two distinct pore-size ranges, 
+corresponding to micro- and macroporosity. Owing to their optical accessibility, micromodels allow direct visualization of flow structures and 
+provide two-dimensional representations that can effectively reproduce key features of pore geometry and connectivity observed in natural porous media.
 
-The micromodels M1, M2, M3 and M4 are simulated and compared with the experimental results of :cite:t:`wolf2022dual`
-(https://doi.org/10.1039/D2LC00445C). Each of these micromodels has a square dimensions of :math:`25 \times 25~mm` and approximate 
-depths of :math:`31(0.5)~\mu m`, :math:`34.8(0.9)~\mu m`, :math:`33.6(0.5)~\mu m`, and :math:`32.0(2.9)~\mu m` for models M1, M2, M3, and M4, 
-respectively. :numref:`Figures %s <MX-Pore-Struc>` illustrate the micromodels structure. Additionally, the M0 micromodel is used 
-to represent microporosity in the M2, M3, and M4 micromodels by overlapping the M1 and M0 micromodels in the specific 
-micro-pore regions. {numref}`MX-P-Micro` illustrates the micro-porosity present in the micromodels M0, M2, and M3, using 
-a zoomed-in images. Consequently, each micromodel is uniquely characterized by its pore structure described by:
+In the present benchmark analysis, four micromodels based on Voronoi tessellation (M1, M2, M3 and M4) are simulated and compared with the experimental 
+data reported by :cite:t:`wolf2022dual`(https://doi.org/10.1039/D2LC00445C). Each micromodel has a square dimensions of :math:`25 \times 25~mm` 
+and approximate depths of :math:`31(0.5)~\mu m`, :math:`34.8(0.9)~\mu m`, :math:`33.6(0.5)~\mu m`, and :math:`32.0(2.9)~\mu m` for models M1, M2, M3, and M4, 
+respectively. :numref:`Figure %s <MX-Pore-Struc>` illustrates the micromodels structure. 
 
-- Micromodel 0 (M0): micro pore scale with pore diameter ranging from :math:`20` to :math:`50` :math:`\mu m`;
+An additional micromodel M0 is used to represent the microporosity regions incorporated into M2, M3, and M4. These regions are constructed by combining the 
+macroporosity structure of M1 with the microporosity structure of M0 at selected locations. :numref:`Figure %s <MX-P-Micro>` illustrates the microporosity present 
+in the micromodels using zoomed-in images of the experimental samples. Consequently, each micromodel is characterized by a distinct pore structure, as 
+summarized below:
 
-- Micromodel 1 (M1): macro pore scale with pore diameter ranging from :math:`200` to :math:`500` :math:`\mu m`;
+* **Micromodel 0 (M0):** micro-pore scale with pore diameters ranging from approximately :math:`20` to :math:`50~\mu\mathrm{m}`.
 
-- Micromodel 2 (M2): dual pore scale version of M1 with porous grains of pore diameter ranging from :math:`20` to :math:`50` :math:`\mu m`;
+* **Micromodel 1 (M1):** macro-pore scale with pore diameters ranging from approximately :math:`200` to :math:`500~\mu\mathrm{m}`.
 
-- Micromodel 3 (M3): dual pore scale version of M1 with porous grains and porous throats, both with pore diameter ranging from :math:`20` to :math:`50` :math:`\mu m`;
+* **Micromodel 2 (M2):** dual-pore-scale version of M1 in which selected solid grains are replaced by porous grains containing the microporosity of M0 in the region.
 
-- Micromodel 4 (M4): dual pore scale version of M1 with voids and porous throats of pore diameter ranging from :math:`20` to :math:`50` :math:`\mu m`.
+* **Micromodel 3 (M3):** dual-pore-scale version of M1 with solid grains and porous throats, both replaced by the microporosity of the M0 sample in specific regions;
+
+* **Micromodel 4 (M4):** dual-pore-scale version of M1 in which selected solid grains are replaced by void regions, while selected throats are replaced by the microporous structure of M0.
 
 .. figure:: ../../../_static/images/MX-Pore-Struc.png
    :width: 80%
@@ -44,13 +44,15 @@ a zoomed-in images. Consequently, each micromodel is uniquely characterized by i
    c) zoomed-in image of the micro-porosity in the experimental micromodel M2; d) zoomed-in image of the micro-porosity in the experimental 
    micromodel M3. The experimental micromodel images c) and d) are saturated with two fluids.
 
+A tutorial to generate 3D micromodels is detailed in :doc:`../../../examples/SinglePhasePoreScale/Multiscale-Micromodel/generate-multiscale-micromodels`
+
 -------------------------------------------
 Absolute Permeability - Numerical Setup
 -------------------------------------------
 
-To simulate the micromodels depicted in :numref:`Figures %s <MX-Pore-Struc>`, the geometries are discretized into two grids as described in 
-:numref:`Tab. %s <grid-micromodels>`. The first and last mesh points along the :math:`y` and :math:`z` axes are designated as solid, representing the walls 
-of the micromodel. The fluid flows through the :math:`z`-axis promoted by an external force.
+To simulate the micromodels depicted in :numref:`Figures %s <MX-Pore-Struc>`, the geometries are generated and discretized using the two grid resolutions 
+described in :numref:`Tab. %s <grid-micromodels>`. The first and last grid points along the :math:`y`- and :math:`z`-axes are defined as solid nodes, 
+representing the micromodel walls. The fluid flow is imposed along the :math:`z`-axis by applying a pressure gradient through an external body force.
 
 
 .. list-table:: Mesh specifications for the micromodels. The voxel size, grid dimensions, and digital porosity (:math:`\phi_{\mathrm{dig}}`) 
@@ -91,10 +93,9 @@ of the micromodel. The fluid flows through the :math:`z`-axis promoted by an ext
       * :math:`2.28 \;-\; 10936 \times 10938 \times 16`
       * 36.7
 
-
-A configurations example for the micromodel simulations is provided in ``.db`` below, using the M1 model with a grid size of 
-:math:`5646 \times 5648 \times 9` as an example. The domain settings ``InletLayers = 0, 0, 5`` and ``OutletLayers = 0, 0, 5`` are used to 
-connect the inlet and outlet of the periodic domain.
+A configuration example for the micromodel simulations is provided in the ``.db`` file below, using the M1 model with a grid size of 
+:math:`5646 \times 5648 \times 9` as an example. The domain settings ``InletLayers = 0, 0, 5`` and ``OutletLayers = 0, 0, 5`` are used 
+to connect the inlet and outlet regions of the periodic domain.
 
 .. code-block:: c
 
@@ -126,7 +127,11 @@ connect the inlet and outlet of the periodic domain.
 
 :numref:`Figure %s <MX-Pore_Res>` illustrates the velocity magnitude field obtained for each micromodel. 
 :numref:`Tabela %s <Microodels-Perm-0>` analyzes and compares the obtained permeability values for each 
-grid and with the experimental results of :cite:t:`wolf2022dual`.
+grid and with the experimental results of :cite:t:`wolf2022dual`. The numerically obtained permeability 
+values for the micromodels M1, M2, and M3 show good agreement with the experimental values reported by 
+:cite:t:`wolf2022dual`. In these cases, the grid convergence test exhibits a trend towards approximating
+the experimental values. However, for the M4 model, there is a divergence from the experimental values as
+the grid size increases.
 
 .. figure:: ../../../_static/images/MX-Pore_Res.png
    :width: 80%
@@ -190,8 +195,3 @@ grid and with the experimental results of :cite:t:`wolf2022dual`.
       * 17.60
       * 5.71 (1.25)
       * 34.32
-
-The numerically obtained permeability values for the micromodels M1, M2, and M3 show good agreement with the 
-experimental values reported by :cite:t:`wolf2022dual`. In these cases, the grid convergence test exhibits a 
-trend towards approximating the experimental values. However, for the M4 model, there is a divergence from the 
-experimental values as the grid size increases.

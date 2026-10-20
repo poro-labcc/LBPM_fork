@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Preprocessing Tutorial for Multiscale Micromodel Simulations &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sidebar.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/background-table-transparent.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/css/sidebar.js?v=29393464"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)" href="greyscale.html" />
+    <link rel="prev" title="Single-Phase Pore-Scale Model (lbpm_permeability_simulator)" href="../mrt/mrt.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mrt/mrt.html">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Image Preprocessing Tutorial for Multiscale Micromodel Simulations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#environment-setup-and-data-download">Environment Setup and Data Download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-the-polytovtk-converter">Installing the <cite>polyToVTK</cite> Converter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#image-conversion-script">Image Conversion Script</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="greyscale.html">Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#lbpm-support-routines">LBPM Support Routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
+      <li class="breadcrumb-item active">Image Preprocessing Tutorial for Multiscale Micromodel Simulations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/userGuide/models/greyscale/generate-multiscale-micromodels.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-preprocessing-tutorial-for-multiscale-micromodel-simulations">
+<h1>Image Preprocessing Tutorial for Multiscale Micromodel Simulations<a class="headerlink" href="#image-preprocessing-tutorial-for-multiscale-micromodel-simulations" title="Link to this heading">¶</a></h1>
+<p>This guide provides instructions on how to download, preprocess, and configure the Voronoi geometry images used for the permeability simulator example.</p>
+<section id="environment-setup-and-data-download">
+<h2>Environment Setup and Data Download<a class="headerlink" href="#environment-setup-and-data-download" title="Link to this heading">¶</a></h2>
+<p>First, it is highly recommended to create a dedicated working directory to organize all files related to the Voronoi geometry simulations.</p>
+<p>Download the original 80 x 80 mm images in Well-Known Text (<cite>.wkt</cite>) format from the following link:
+[Download WKT Images](<a class="reference external" href="https://u.pcloud.link/publink/show?code=AIGitalK">https://u.pcloud.link/publink/show?code=AIGitalK</a>)</p>
+<p><em>Note: You can download the five `.wkt` files individually or fetch the entire batch via the provided `.zip` file.</em></p>
+</section>
+<section id="installing-the-polytovtk-converter">
+<h2>Installing the <cite>polyToVTK</cite> Converter<a class="headerlink" href="#installing-the-polytovtk-converter" title="Link to this heading">¶</a></h2>
+<p>Once the images are downloaded, you must convert them from <cite>.wkt</cite> to <cite>.raw</cite> format. The <cite>polyToVTK</cite> tool is a C++ converter specifically designed to handle the requirements of these Voronoi simulations.</p>
+<p>The source code relies exclusively on native C++ resources and libraries (C++17 standard is required).</p>
+<p>Clone the repository and compile the tool using the following commands:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">git</span> <span class="pre">clone</span> <span class="pre">-b</span> <span class="pre">3d-extrusion</span> <span class="pre">--single-branch</span> <span class="pre">https://github.com/poro-labcc/polyToVTK.git</span>
+<span class="pre">cd</span> <span class="pre">polyToVTK</span>
+<span class="pre">make</span>
+<span class="pre">`</span></code></p>
+</section>
+<section id="image-conversion-script">
+<h2>Image Conversion Script<a class="headerlink" href="#image-conversion-script" title="Link to this heading">¶</a></h2>
+<p>To automate the conversion process across all models (M0 to M4) and meshes, save the following bash script as <cite>convert_meshes.sh</cite> in the directory containing your <cite>.wkt</cite> images.</p>
+<p>&lt;details&gt;
+&lt;summary&gt;&lt;b&gt;Click to expand: Conversion Script&lt;/b&gt;&lt;/summary&gt;</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>bash
+#!/bin/bash</p>
+<p># Exit immediately if a command exits with a non-zero status
+set -e</p>
+<p># ==============================================================================
+# Global Variables
+# ==============================================================================
+CURRENT_DIR=$(pwd)
+# If polyToVTK was installed in a different location, change this path accordingly:
+POLYTOVTK=”${CURRENT_DIR}/polyToVTK/polytovtk”
+WKT_DIR=”${CURRENT_DIR}/wkt_files”
+OUT_DIR=”${CURRENT_DIR}/simulation_files”</p>
+<p># ==============================================================================
+# Common Parameters
+# ==============================================================================
+VAR_COMMON=”-r 27500 52500 27500 52500 -t yzx -l 0 1 -p 0 0 1 1 1 1”</p>
+<p>BUF_MESH1=”-b 6 6 0 0 0 0”
+BUF_MESH2=”-b 12 12 0 0 0 0”</p>
+<p>VAR_3D_MESH1=”${BUF_MESH1} ${VAR_COMMON}”
+VAR_3D_MESH2=”${BUF_MESH2} ${VAR_COMMON}”</p>
+<p># ==============================================================================
+# Directory Organization
+# ==============================================================================
+mkdir -p “${WKT_DIR}” “${CURRENT_DIR}/svg_files” “${OUT_DIR}”</p>
+<p>mv <a href="#id5"><span class="problematic" id="id6">*</span></a>.wkt “${WKT_DIR}/” 2&gt;/dev/null || true
+mv <a href="#id7"><span class="problematic" id="id8">*</span></a>.svg “${CURRENT_DIR}/svg_files/” 2&gt;/dev/null || true</p>
+<dl>
+<dt>for m in m0 m1 m2 m3 m4; do</dt><dd><dl class="simple">
+<dt>for mesh in mesh1 mesh2; do</dt><dd><p>mkdir -p “${OUT_DIR}/${m}/${mesh}”</p>
+</dd>
+</dl>
+<p>done</p>
+</dd>
+</dl>
+<p>done</p>
+<p># ==============================================================================
+# WKT to RAW Conversions
+# ==============================================================================</p>
+<p># M0 - Micro pore scale
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_micro_mono.wkt” –raw “${OUT_DIR}/m0/mesh1/m0_mesh1_r5.raw” -s 5000 5000 7 $VAR_3D_MESH1
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_micro_mono.wkt” –raw “${OUT_DIR}/m0/mesh2/m0_mesh2_r2p5.raw” -s 10000 10000 14 $VAR_3D_MESH2</p>
+<p># M1 - Macro pore scale
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_macro_mono.wkt” –raw “${OUT_DIR}/m1/mesh1/m1_mesh1_r4p42.raw” -s 5646 5646 7 $VAR_3D_MESH1
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_macro_mono.wkt” –raw “${OUT_DIR}/m1/mesh2/m1_mesh2_r2p21.raw” -s 11292 11292 14 $VAR_3D_MESH2</p>
+<p># M2 - Porous grains
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_withPorousGrains.wkt” –raw “${OUT_DIR}/m2/mesh1/m2_mesh1_r5.raw” -s 5000 5000 7 $VAR_3D_MESH1
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_withPorousGrains.wkt” –raw “${OUT_DIR}/m2/mesh2/m2_mesh2_r2p5.raw” -s 10000 10000 14 $VAR_3D_MESH2</p>
+<p># M3 - Porous grains &amp; throats
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_withPorousGrainsWithPorousThroats.wkt” –raw “${OUT_DIR}/m3/mesh1/m3_mesh1_r4p86.raw” -s 5148 5148 7 $VAR_3D_MESH1
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_withPorousGrainsWithPorousThroats.wkt” –raw “${OUT_DIR}/m3/mesh2/m3_mesh2_r2p43.raw” -s 10296 10296 14 $VAR_3D_MESH2</p>
+<p># M4 - Voids &amp; porous throats
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_withVoidsWithPorousThroats.wkt” –raw “${OUT_DIR}/m4/mesh1/m4_mesh1_r4p57.raw” -s 5468 5468 7 $VAR_3D_MESH1
+$POLYTOVTK -i “${WKT_DIR}/mm_alpha_006_withVoidsWithPorousThroats.wkt” –raw “${OUT_DIR}/m4/mesh2/m4_mesh2_r2p28.raw” -s 10936 10936 14 $VAR_3D_MESH2
+<a href="#id9"><span class="problematic" id="id10">``</span></a>`
+&lt;/details&gt;</p>
+<p><em>(If you installed `polyToVTK` in a different directory, update the `POLYTOVTK` path variable in the script accordingly.)</em></p>
+<p>Make the script executable:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">convert_meshes.sh</span>
+<span class="pre">`</span></code>
+And run it:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">bash</span> <span class="pre">convert_meshes.sh</span>
+<span class="pre">`</span></code></p>
+<p>The script outputs both a .raw and an .mhd file for each processed image.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../mrt/mrt.html" class="btn btn-neutral float-left" title="Single-Phase Pore-Scale Model (lbpm_permeability_simulator)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="greyscale.html" class="btn btn-neutral float-right" title="Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

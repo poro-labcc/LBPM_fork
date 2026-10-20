@@ -1,0 +1,122 @@
+=============================================
+Image Preprocessing Tutorial for Multiscale Micromodel Simulations
+=============================================
+
+This guide provides instructions on how to download, preprocess, and configure the Voronoi geometry images used for the permeability simulator example.
+
+***********************************
+Environment Setup and Data Download
+***********************************
+
+First, it is highly recommended to create a dedicated working directory to organize all files related to the Voronoi geometry simulations.
+
+Download the original 80 x 80 mm images in Well-Known Text (`.wkt`) format from the following link:
+[Download WKT Images](https://u.pcloud.link/publink/show?code=AIGitalK)
+
+*Note: You can download the five `.wkt` files individually or fetch the entire batch via the provided `.zip` file.*
+
+************************************
+Installing the `polyToVTK` Converter
+************************************
+
+Once the images are downloaded, you must convert them from `.wkt` to `.raw` format. The `polyToVTK` tool is a C++ converter specifically designed to handle the requirements of these Voronoi simulations.
+
+The source code relies exclusively on native C++ resources and libraries (C++17 standard is required). 
+
+Clone the repository and compile the tool using the following commands:
+
+```bash
+git clone -b 3d-extrusion --single-branch https://github.com/poro-labcc/polyToVTK.git
+cd polyToVTK
+make
+```
+
+***************************
+Image Conversion Script
+***************************
+
+To automate the conversion process across all models (M0 to M4) and meshes, save the following bash script as `convert_meshes.sh` in the directory containing your `.wkt` images.
+
+<details>
+<summary><b>Click to expand: Conversion Script</b></summary>
+
+```bash
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# ==============================================================================
+# Global Variables
+# ==============================================================================
+CURRENT_DIR=$(pwd)
+# If polyToVTK was installed in a different location, change this path accordingly:
+POLYTOVTK="${CURRENT_DIR}/polyToVTK/polytovtk"
+WKT_DIR="${CURRENT_DIR}/wkt_files"
+OUT_DIR="${CURRENT_DIR}/simulation_files"
+
+# ==============================================================================
+# Common Parameters
+# ==============================================================================
+VAR_COMMON="-r 27500 52500 27500 52500 -t yzx -l 0 1 -p 0 0 1 1 1 1"
+
+BUF_MESH1="-b 6 6 0 0 0 0"
+BUF_MESH2="-b 12 12 0 0 0 0"
+
+VAR_3D_MESH1="${BUF_MESH1} ${VAR_COMMON}"
+VAR_3D_MESH2="${BUF_MESH2} ${VAR_COMMON}"
+
+# ==============================================================================
+# Directory Organization
+# ==============================================================================
+mkdir -p "${WKT_DIR}" "${CURRENT_DIR}/svg_files" "${OUT_DIR}"
+
+mv *.wkt "${WKT_DIR}/" 2>/dev/null || true
+mv *.svg "${CURRENT_DIR}/svg_files/" 2>/dev/null || true
+
+for m in m0 m1 m2 m3 m4; do
+    for mesh in mesh1 mesh2; do
+        mkdir -p "${OUT_DIR}/${m}/${mesh}"
+    done
+done
+
+# ==============================================================================
+# WKT to RAW Conversions
+# ==============================================================================
+
+# M0 - Micro pore scale
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_micro_mono.wkt" --raw "${OUT_DIR}/m0/mesh1/m0_mesh1_r5.raw" -s 5000 5000 7 $VAR_3D_MESH1
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_micro_mono.wkt" --raw "${OUT_DIR}/m0/mesh2/m0_mesh2_r2p5.raw" -s 10000 10000 14 $VAR_3D_MESH2
+
+# M1 - Macro pore scale
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_macro_mono.wkt" --raw "${OUT_DIR}/m1/mesh1/m1_mesh1_r4p42.raw" -s 5646 5646 7 $VAR_3D_MESH1
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_macro_mono.wkt" --raw "${OUT_DIR}/m1/mesh2/m1_mesh2_r2p21.raw" -s 11292 11292 14 $VAR_3D_MESH2
+
+# M2 - Porous grains
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_withPorousGrains.wkt" --raw "${OUT_DIR}/m2/mesh1/m2_mesh1_r5.raw" -s 5000 5000 7 $VAR_3D_MESH1
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_withPorousGrains.wkt" --raw "${OUT_DIR}/m2/mesh2/m2_mesh2_r2p5.raw" -s 10000 10000 14 $VAR_3D_MESH2
+
+# M3 - Porous grains & throats
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_withPorousGrainsWithPorousThroats.wkt" --raw "${OUT_DIR}/m3/mesh1/m3_mesh1_r4p86.raw" -s 5148 5148 7 $VAR_3D_MESH1
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_withPorousGrainsWithPorousThroats.wkt" --raw "${OUT_DIR}/m3/mesh2/m3_mesh2_r2p43.raw" -s 10296 10296 14 $VAR_3D_MESH2
+
+# M4 - Voids & porous throats
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_withVoidsWithPorousThroats.wkt" --raw "${OUT_DIR}/m4/mesh1/m4_mesh1_r4p57.raw" -s 5468 5468 7 $VAR_3D_MESH1
+$POLYTOVTK -i "${WKT_DIR}/mm_alpha_006_withVoidsWithPorousThroats.wkt" --raw "${OUT_DIR}/m4/mesh2/m4_mesh2_r2p28.raw" -s 10936 10936 14 $VAR_3D_MESH2
+```
+</details>
+
+*(If you installed `polyToVTK` in a different directory, update the `POLYTOVTK` path variable in the script accordingly.)*
+
+Make the script executable:
+
+```bash
+chmod +x convert_meshes.sh
+```
+And run it:
+
+```bash
+bash convert_meshes.sh
+```
+
+The script outputs both a .raw and an .mhd file for each processed image.

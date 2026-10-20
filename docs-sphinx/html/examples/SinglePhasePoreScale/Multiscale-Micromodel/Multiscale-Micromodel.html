@@ -23,7 +23,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Morphological pre-processors" href="../../morphology/morphOpen.html" />
+    <link rel="next" title="Image Preprocessing Tutorial for Multiscale Micromodel Simulations" href="generate-multiscale-micromodels.html" />
     <link rel="prev" title="3D Digital Rocks" href="../3D-DigitalRocks/3D-DigitalRocks-Cases.html" /> 
 </head>
 
@@ -60,6 +60,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#absolute-permeability-numerical-setup">Absolute Permeability - Numerical Setup</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="generate-multiscale-micromodels.html">Image Preprocessing Tutorial for Multiscale Micromodel Simulations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../morphology/morphOpen.html">Morphological pre-processors</a></li>
@@ -102,25 +103,24 @@
              
   <section id="multiscale-micromodels">
 <h1>Multiscale Micromodels<a class="headerlink" href="#multiscale-micromodels" title="Link to this heading">¶</a></h1>
-<p>In the field of porous media experimentation, recent advancements in micromodel manufacturing
-have enabled the creation of multiscale rock analogs. These analogs are characterized by the
-presence of micro and macro porosities. Thanks to its optical characteristics, micromodels
-facilitate a clear visualization of flow structures. These models offer two-dimensional
-approximations that effectively capture the behaviors and connectivity of pores present
-within the rock structure.</p>
-<p>The micromodels M1, M2, M3 and M4 are simulated and compared with the experimental results of <span id="id1">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>
-(<a class="reference external" href="https://doi.org/10.1039/D2LC00445C">https://doi.org/10.1039/D2LC00445C</a>). Each of these micromodels has a square dimensions of <span class="math notranslate nohighlight">\(25 \times 25~mm\)</span> and approximate
-depths of <span class="math notranslate nohighlight">\(31(0.5)~\mu m\)</span>, <span class="math notranslate nohighlight">\(34.8(0.9)~\mu m\)</span>, <span class="math notranslate nohighlight">\(33.6(0.5)~\mu m\)</span>, and <span class="math notranslate nohighlight">\(32.0(2.9)~\mu m\)</span> for models M1, M2, M3, and M4,
-respectively. <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figures 28</span></a> illustrate the micromodels structure. Additionally, the M0 micromodel is used
-to represent microporosity in the M2, M3, and M4 micromodels by overlapping the M1 and M0 micromodels in the specific
-micro-pore regions. {numref}`MX-P-Micro` illustrates the micro-porosity present in the micromodels M0, M2, and M3, using
-a zoomed-in images. Consequently, each micromodel is uniquely characterized by its pore structure described by:</p>
+<p>In the field of porous media experimentation, recent advances in micromodel fabrication have enabled the development of multiscale rock analogs
+for experimental studies of flow in porous media. These multiscale systems are characterized by the coexistence of two distinct pore-size ranges,
+corresponding to micro- and macroporosity. Owing to their optical accessibility, micromodels allow direct visualization of flow structures and
+provide two-dimensional representations that can effectively reproduce key features of pore geometry and connectivity observed in natural porous media.</p>
+<p>In the present benchmark analysis, four micromodels based on Voronoi tessellation (M1, M2, M3 and M4) are simulated and compared with the experimental
+data reported by <span id="id1"></span>
+and approximate depths of <span class="math notranslate nohighlight">\(31(0.5)~\mu m\)</span>, <span class="math notranslate nohighlight">\(34.8(0.9)~\mu m\)</span>, <span class="math notranslate nohighlight">\(33.6(0.5)~\mu m\)</span>, and <span class="math notranslate nohighlight">\(32.0(2.9)~\mu m\)</span> for models M1, M2, M3, and M4,
+respectively. <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figure 28</span></a> illustrates the micromodels structure.</p>
+<p>An additional micromodel M0 is used to represent the microporosity regions incorporated into M2, M3, and M4. These regions are constructed by combining the
+macroporosity structure of M1 with the microporosity structure of M0 at selected locations. <a class="reference internal" href="#mx-p-micro"><span class="std std-numref">Figure 29</span></a> illustrates the microporosity present
+in the micromodels using zoomed-in images of the experimental samples. Consequently, each micromodel is characterized by a distinct pore structure, as
+summarized below:</p>
 <ul class="simple">
-<li><p>Micromodel 0 (M0): micro pore scale with pore diameter ranging from <span class="math notranslate nohighlight">\(20\)</span> to <span class="math notranslate nohighlight">\(50\)</span> <span class="math notranslate nohighlight">\(\mu m\)</span>;</p></li>
-<li><p>Micromodel 1 (M1): macro pore scale with pore diameter ranging from <span class="math notranslate nohighlight">\(200\)</span> to <span class="math notranslate nohighlight">\(500\)</span> <span class="math notranslate nohighlight">\(\mu m\)</span>;</p></li>
-<li><p>Micromodel 2 (M2): dual pore scale version of M1 with porous grains of pore diameter ranging from <span class="math notranslate nohighlight">\(20\)</span> to <span class="math notranslate nohighlight">\(50\)</span> <span class="math notranslate nohighlight">\(\mu m\)</span>;</p></li>
-<li><p>Micromodel 3 (M3): dual pore scale version of M1 with porous grains and porous throats, both with pore diameter ranging from <span class="math notranslate nohighlight">\(20\)</span> to <span class="math notranslate nohighlight">\(50\)</span> <span class="math notranslate nohighlight">\(\mu m\)</span>;</p></li>
-<li><p>Micromodel 4 (M4): dual pore scale version of M1 with voids and porous throats of pore diameter ranging from <span class="math notranslate nohighlight">\(20\)</span> to <span class="math notranslate nohighlight">\(50\)</span> <span class="math notranslate nohighlight">\(\mu m\)</span>.</p></li>
+<li><p><strong>Micromodel 0 (M0):</strong> micro-pore scale with pore diameters ranging from approximately <span class="math notranslate nohighlight">\(20\)</span> to <span class="math notranslate nohighlight">\(50~\mu\mathrm{m}\)</span>.</p></li>
+<li><p><strong>Micromodel 1 (M1):</strong> macro-pore scale with pore diameters ranging from approximately <span class="math notranslate nohighlight">\(200\)</span> to <span class="math notranslate nohighlight">\(500~\mu\mathrm{m}\)</span>.</p></li>
+<li><p><strong>Micromodel 2 (M2):</strong> dual-pore-scale version of M1 in which selected solid grains are replaced by porous grains containing the microporosity of M0 in the region.</p></li>
+<li><p><strong>Micromodel 3 (M3):</strong> dual-pore-scale version of M1 with solid grains and porous throats, both replaced by the microporosity of the M0 sample in specific regions;</p></li>
+<li><p><strong>Micromodel 4 (M4):</strong> dual-pore-scale version of M1 in which selected solid grains are replaced by void regions, while selected throats are replaced by the microporous structure of M0.</p></li>
 </ul>
 <figure class="align-center" id="mx-pore-struc">
 <a class="reference internal image-reference" href="../../../_images/MX-Pore-Struc.png"><img alt="../../../_images/MX-Pore-Struc.png" src="../../../_images/MX-Pore-Struc.png" style="width: 80%;" />
@@ -139,11 +139,12 @@ c) zoomed-in image of the micro-porosity in the experimental micromodel M2; d) z
 micromodel M3. The experimental micromodel images c) and d) are saturated with two fluids.</span><a class="headerlink" href="#mx-p-micro" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
+<p>A tutorial to generate 3D micromodels is detailed in <a class="reference internal" href="generate-multiscale-micromodels.html"><span class="doc">Image Preprocessing Tutorial for Multiscale Micromodel Simulations</span></a></p>
 <section id="absolute-permeability-numerical-setup">
 <h2>Absolute Permeability - Numerical Setup<a class="headerlink" href="#absolute-permeability-numerical-setup" title="Link to this heading">¶</a></h2>
-<p>To simulate the micromodels depicted in <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figures 28</span></a>, the geometries are discretized into two grids as described in
-<a class="reference internal" href="#grid-micromodels"><span class="std std-numref">Tab. 3</span></a>. The first and last mesh points along the <span class="math notranslate nohighlight">\(y\)</span> and <span class="math notranslate nohighlight">\(z\)</span> axes are designated as solid, representing the walls
-of the micromodel. The fluid flows through the <span class="math notranslate nohighlight">\(z\)</span>-axis promoted by an external force.</p>
+<p>To simulate the micromodels depicted in <a class="reference internal" href="#mx-pore-struc"><span class="std std-numref">Figures 28</span></a>, the geometries are generated and discretized using the two grid resolutions
+described in <a class="reference internal" href="#grid-micromodels"><span class="std std-numref">Tab. 3</span></a>. The first and last grid points along the <span class="math notranslate nohighlight">\(y\)</span>- and <span class="math notranslate nohighlight">\(z\)</span>-axes are defined as solid nodes,
+representing the micromodel walls. The fluid flow is imposed along the <span class="math notranslate nohighlight">\(z\)</span>-axis by applying a pressure gradient through an external body force.</p>
 <table class="docutils align-center" id="grid-micromodels">
 <caption><span class="caption-number">Table 3 - </span><span class="caption-text">Mesh specifications for the micromodels. The voxel size, grid dimensions, and digital porosity (<span class="math notranslate nohighlight">\(\phi_{\mathrm{dig}}\)</span>)
 are expressed in micrometers, number of voxels, and percentage, respectively. Mesh 2 has twice the grid resolution of Mesh 1.</span><a class="headerlink" href="#grid-micromodels" title="Link to this table">¶</a></caption>
@@ -188,9 +189,9 @@ are expressed in micrometers, number of voxels, and percentage, respectively. Me
 </tr>
 </tbody>
 </table>
-<p>A configurations example for the micromodel simulations is provided in <code class="docutils literal notranslate"><span class="pre">.db</span></code> below, using the M1 model with a grid size of
-<span class="math notranslate nohighlight">\(5646 \times 5648 \times 9\)</span> as an example. The domain settings <code class="docutils literal notranslate"><span class="pre">InletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> and <code class="docutils literal notranslate"><span class="pre">OutletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> are used to
-connect the inlet and outlet of the periodic domain.</p>
+<p>A configuration example for the micromodel simulations is provided in the <code class="docutils literal notranslate"><span class="pre">.db</span></code> file below, using the M1 model with a grid size of
+<span class="math notranslate nohighlight">\(5646 \times 5648 \times 9\)</span> as an example. The domain settings <code class="docutils literal notranslate"><span class="pre">InletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> and <code class="docutils literal notranslate"><span class="pre">OutletLayers</span> <span class="pre">=</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">5</span></code> are used
+to connect the inlet and outlet regions of the periodic domain.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">MRT</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="n">tau</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
 <span class="w">   </span><span class="n">F</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0e-6</span>
@@ -220,7 +221,11 @@ connect the inlet and outlet of the periodic domain.</p>
 </div>
 <p><a class="reference internal" href="#mx-pore-res"><span class="std std-numref">Figure 30</span></a> illustrates the velocity magnitude field obtained for each micromodel.
 <a class="reference internal" href="#microodels-perm-0"><span class="std std-numref">Tabela 4</span></a> analyzes and compares the obtained permeability values for each
-grid and with the experimental results of <span id="id2">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>.</p>
+grid and with the experimental results of <span id="id2">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>. The numerically obtained permeability
+values for the micromodels M1, M2, and M3 show good agreement with the experimental values reported by
+<span id="id3">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>. In these cases, the grid convergence test exhibits a trend towards approximating
+the experimental values. However, for the M4 model, there is a divergence from the experimental values as
+the grid size increases.</p>
 <figure class="align-center" id="mx-pore-res">
 <a class="reference internal image-reference" href="../../../_images/MX-Pore_Res.png"><img alt="../../../_images/MX-Pore_Res.png" src="../../../_images/MX-Pore_Res.png" style="width: 80%;" />
 </a>
@@ -229,7 +234,7 @@ grid and with the experimental results of <span id="id2">Wolf <em>et al.</em> [<
 </figcaption>
 </figure>
 <table class="docutils align-center" id="microodels-perm-0">
-<caption><span class="caption-number">Table 4 - </span><span class="caption-text">Numerical and experimental comparisons of micromodel permeability. The numerical results obtained using the two meshes are compared with the experimental data reported by <span id="id3">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>. Permeability values are given in darcies (Da), and the discrepancies are expressed as percentages.</span><a class="headerlink" href="#microodels-perm-0" title="Link to this table">¶</a></caption>
+<caption><span class="caption-number">Table 4 - </span><span class="caption-text">Numerical and experimental comparisons of micromodel permeability. The numerical results obtained using the two meshes are compared with the experimental data reported by <span id="id4">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>. Permeability values are given in darcies (Da), and the discrepancies are expressed as percentages.</span><a class="headerlink" href="#microodels-perm-0" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 10.0%" />
 <col style="width: 15.0%" />
@@ -243,7 +248,7 @@ grid and with the experimental results of <span id="id2">Wolf <em>et al.</em> [<
 <th class="head"><p><strong>Mesh 1</strong></p></th>
 <th class="head"><p><strong>Mesh 2</strong></p></th>
 <th class="head"><p><strong>Mesh discrepancy</strong></p></th>
-<th class="head"><p><strong>Experimental</strong> <span id="id4">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span></p></th>
+<th class="head"><p><strong>Experimental</strong> <span id="id5">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span></p></th>
 <th class="head"><p><strong>Experimental discrepancy</strong></p></th>
 </tr>
 <tr class="row-even"><th class="head"></th>
@@ -292,10 +297,6 @@ grid and with the experimental results of <span id="id2">Wolf <em>et al.</em> [<
 </tr>
 </tbody>
 </table>
-<p>The numerically obtained permeability values for the micromodels M1, M2, and M3 show good agreement with the
-experimental values reported by <span id="id5">Wolf <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id3" title="Fabiano G Wolf, Diogo N Siebert, Marcelo NP Carreño, Alexandre T Lopes, Alexandre M Zabot, and Rodrigo Surmas. Dual-porosity micromodels for studying multiphase fluid flow in carbonate rocks. Lab on a Chip, 22(23):4680–4692, 2022.">8</a>]</span>. In these cases, the grid convergence test exhibits a
-trend towards approximating the experimental values. However, for the M4 model, there is a divergence from the
-experimental values as the grid size increases.</p>
 </section>
 </section>
 
@@ -304,7 +305,7 @@ experimental values as the grid size increases.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../3D-DigitalRocks/3D-DigitalRocks-Cases.html" class="btn btn-neutral float-left" title="3D Digital Rocks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../morphology/morphOpen.html" class="btn btn-neutral float-right" title="Morphological pre-processors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="generate-multiscale-micromodels.html" class="btn btn-neutral float-right" title="Image Preprocessing Tutorial for Multiscale Micromodel Simulations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

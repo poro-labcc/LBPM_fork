@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Preprocessing Tutorial for Multiscale Micromodel Simulations &mdash; LBPM 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sphinx_rtd_size.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/eqno.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/sidebar.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/background-table-transparent.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+        <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/css/sidebar.js?v=29393464"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Morphological pre-processors" href="../../morphology/morphOpen.html" />
+    <link rel="prev" title="Multiscale Micromodels" href="Multiscale-Micromodel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            LBPM
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../userGuide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../running.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../domain/domain.html">Input Domain</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Single-Phase Pore-Scale Model</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../bcc/bcc.html">Body-Centered Cubic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../3D-DigitalRocks/3D-DigitalRocks-Cases.html">3D Digital Rocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Multiscale-Micromodel.html">Multiscale Micromodels</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Image Preprocessing Tutorial for Multiscale Micromodel Simulations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#environment-setup-and-data-download">Environment Setup and Data Download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#installing-the-polytovtk-converter">Installing the <code class="docutils literal notranslate"><span class="pre">polyToVTK</span></code> Converter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#image-conversion-script">Image Conversion Script</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lbpm-simulation-configuration">LBPM Simulation Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../morphology/morphOpen.html">Morphological pre-processors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../color/fractionalFlow.html">Steady-state fractional flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../color/steadyState.html">Steady-state flow (color model)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../analysis/TwoPhase.html">Measuring Contact Angles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../membrane/cellModel.html">Membrane Charging Dynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../membrane/cellModel.html#example-output">Example Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../citations/citations.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LBPM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../running.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Single-Phase Pore-Scale Model</a></li>
+      <li class="breadcrumb-item active">Image Preprocessing Tutorial for Multiscale Micromodel Simulations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/SinglePhasePoreScale/Multiscale-Micromodel/generate-multiscale-micromodels.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="image-preprocessing-tutorial-for-multiscale-micromodel-simulations">
+<h1>Image Preprocessing Tutorial for Multiscale Micromodel Simulations<a class="headerlink" href="#image-preprocessing-tutorial-for-multiscale-micromodel-simulations" title="Link to this heading">¶</a></h1>
+<p>This guide provides instructions on how to download, preprocess, and configure the Voronoi geometry images used in <a class="reference internal" href="Multiscale-Micromodel.html"><span class="doc">Multiscale Micromodels</span></a>.</p>
+<section id="environment-setup-and-data-download">
+<h2>Environment Setup and Data Download<a class="headerlink" href="#environment-setup-and-data-download" title="Link to this heading">¶</a></h2>
+<p>First, it is highly recommended to create a dedicated working directory to organize all files related to the
+Voronoi geometry simulations.</p>
+<p>Download the original 80 x 80 mm images in Well-Known Text (<code class="docutils literal notranslate"><span class="pre">.wkt</span></code>) format from the
+following link: <a class="reference external" href="https://u.pcloud.link/publink/show?code=AIGitalK">Download WKT Images</a></p>
+<p>You can download the five <code class="docutils literal notranslate"><span class="pre">.wkt</span></code> files individually or download the entire set using the provided <code class="docutils literal notranslate"><span class="pre">.zip</span></code> file.</p>
+</section>
+<section id="installing-the-polytovtk-converter">
+<h2>Installing the <code class="docutils literal notranslate"><span class="pre">polyToVTK</span></code> Converter<a class="headerlink" href="#installing-the-polytovtk-converter" title="Link to this heading">¶</a></h2>
+<p>Once the images are downloaded, you must convert them from <code class="docutils literal notranslate"><span class="pre">.wkt</span></code> to <code class="docutils literal notranslate"><span class="pre">.raw</span></code> format. The <code class="docutils literal notranslate"><span class="pre">polyToVTK</span></code> tool is a
+C++ converter specifically designed to handle the requirements of these Voronoi simulations.</p>
+<p>The source code relies exclusively on native C++ resources and libraries (C++17 standard is required).</p>
+<p>Clone the repository and compile the tool using the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>3d-extrusion<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/poro-labcc/polyToVTK.git
+<span class="nb">cd</span><span class="w"> </span>polyToVTK
+make
+</pre></div>
+</div>
+</section>
+<section id="image-conversion-script">
+<h2>Image Conversion Script<a class="headerlink" href="#image-conversion-script" title="Link to this heading">¶</a></h2>
+<p>To automate the conversion process across all models (M0 to M4) and meshes, save the following bash script
+as <code class="docutils literal notranslate"><span class="pre">convert_meshes.sh</span></code> in the directory containing your <code class="docutils literal notranslate"><span class="pre">.wkt</span></code> images.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Exit immediately if a command exits with a non-zero status</span>
+<span class="nb">set</span><span class="w"> </span>-e
+
+<span class="c1"># ==============================================================</span>
+<span class="c1"># Global Variables</span>
+<span class="c1"># ==============================================================</span>
+<span class="nv">CURRENT_DIR</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+
+<span class="c1"># Update this path if polyToVTK is installed elsewhere</span>
+<span class="nv">POLYTOVTK</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CURRENT_DIR</span><span class="si">}</span><span class="s2">/polyToVTK/polytovtk&quot;</span>
+<span class="nv">WKT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CURRENT_DIR</span><span class="si">}</span><span class="s2">/wkt_files&quot;</span>
+<span class="nv">OUT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CURRENT_DIR</span><span class="si">}</span><span class="s2">/simulation_files&quot;</span>
+
+<span class="c1"># ==============================================================</span>
+<span class="c1"># Common Parameters</span>
+<span class="c1"># ==============================================================</span>
+<span class="nv">VAR_COMMON</span><span class="o">=</span><span class="s2">&quot;-r 27500 52500 27500 52500 -t yzx -l 0 1 -p 0 0 1 1 1 1&quot;</span>
+
+<span class="nv">BUF_MESH1</span><span class="o">=</span><span class="s2">&quot;-b 6 6 0 0 0 0&quot;</span>
+<span class="nv">BUF_MESH2</span><span class="o">=</span><span class="s2">&quot;-b 12 12 0 0 0 0&quot;</span>
+
+<span class="nv">VAR_3D_MESH1</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BUF_MESH1</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">VAR_COMMON</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">VAR_3D_MESH2</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BUF_MESH2</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">VAR_COMMON</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># ==============================================================</span>
+<span class="c1"># Directory Organization</span>
+<span class="c1"># ==============================================================</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CURRENT_DIR</span><span class="si">}</span><span class="s2">/svg_files&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+
+mv<span class="w"> </span>./*.wkt<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+mv<span class="w"> </span>./*.svg<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CURRENT_DIR</span><span class="si">}</span><span class="s2">/svg_files/&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="k">for</span><span class="w"> </span>m<span class="w"> </span><span class="k">in</span><span class="w"> </span>m0<span class="w"> </span>m1<span class="w"> </span>m2<span class="w"> </span>m3<span class="w"> </span>m4<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>mesh<span class="w"> </span><span class="k">in</span><span class="w"> </span>mesh1<span class="w"> </span>mesh2<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">        </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">m</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">mesh</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">done</span>
+<span class="k">done</span>
+
+<span class="c1"># ==============================================================</span>
+<span class="c1"># WKT to RAW Conversions</span>
+<span class="c1"># ==============================================================</span>
+
+<span class="c1"># M0 - Micro pore scale</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_micro_mono.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m0/mesh1/m0_mesh1_r5.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="nv">$VAR_3D_MESH1</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_micro_mono.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m0/mesh2/m0_mesh2_r2p5.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="nv">$VAR_3D_MESH2</span>
+
+<span class="c1"># M1 - Macro pore scale</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_macro_mono.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m1/mesh1/m1_mesh1_r4p42.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">5646</span><span class="w"> </span><span class="m">5646</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="nv">$VAR_3D_MESH1</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_macro_mono.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m1/mesh2/m1_mesh2_r2p21.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">11292</span><span class="w"> </span><span class="m">11292</span><span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="nv">$VAR_3D_MESH2</span>
+
+<span class="c1"># M2 - Porous grains</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_withPorousGrains.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m2/mesh1/m2_mesh1_r5.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="nv">$VAR_3D_MESH1</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_withPorousGrains.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m2/mesh2/m2_mesh2_r2p5.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="nv">$VAR_3D_MESH2</span>
+
+<span class="c1"># M3 - Porous grains and throats</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_withPorousGrainsWithPorousThroats.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m3/mesh1/m3_mesh1_r4p86.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">5148</span><span class="w"> </span><span class="m">5148</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="nv">$VAR_3D_MESH1</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_withPorousGrainsWithPorousThroats.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m3/mesh2/m3_mesh2_r2p43.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">10296</span><span class="w"> </span><span class="m">10296</span><span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="nv">$VAR_3D_MESH2</span>
+
+<span class="c1"># M4 - Voids and porous throats</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_withVoidsWithPorousThroats.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m4/mesh1/m4_mesh1_r4p57.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">5468</span><span class="w"> </span><span class="m">5468</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="nv">$VAR_3D_MESH1</span>
+<span class="nv">$POLYTOVTK</span><span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKT_DIR</span><span class="si">}</span><span class="s2">/mm_alpha_006_withVoidsWithPorousThroats.wkt&quot;</span><span class="w"> </span>--raw<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/m4/mesh2/m4_mesh2_r2p28.raw&quot;</span><span class="w"> </span>-s<span class="w"> </span><span class="m">10936</span><span class="w"> </span><span class="m">10936</span><span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="nv">$VAR_3D_MESH2</span>
+</pre></div>
+</div>
+<figure class="align-center" id="generated-images">
+<a class="reference internal image-reference" href="../../../_images/MX-Pore-Struc.png"><img alt="../../../_images/MX-Pore-Struc.png" src="../../../_images/MX-Pore-Struc.png" style="width: 80%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 31 - </span><span class="caption-text">Micromodels based on the Voronoi tessellation: M0 - micro pore scale; M1 - macro pore scale; M2 - dual pore scale version of M1 with porous grains;
+M3 - dual pore scale version of M1 with porous grains and porous throats; M4 - dual pore scale version of M1 with voids and porous throats.</span><a class="headerlink" href="#generated-images" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>If you installed <code class="docutils literal notranslate"><span class="pre">polyToVTK</span></code> in a different directory, update the <code class="docutils literal notranslate"><span class="pre">POLYTOVTK</span></code> path variable in the script accordingly.</p>
+<p>Make the script executable:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>chmod<span class="w"> </span>+x<span class="w"> </span>convert_meshes.sh
+</pre></div>
+</div>
+<p>And run it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./convert_meshes.sh
+</pre></div>
+</div>
+<p>The script generates both a <code class="docutils literal notranslate"><span class="pre">.raw</span></code> and an <code class="docutils literal notranslate"><span class="pre">.mhd</span></code> file for each
+processed image.</p>
+<section id="parameter-breakdown">
+<h3>Parameter Breakdown<a class="headerlink" href="#parameter-breakdown" title="Link to this heading">¶</a></h3>
+<p>The parameters utilized in the script perform the following physical boundary adjustments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">27500</span> <span class="pre">52500</span> <span class="pre">27500</span> <span class="pre">52500</span></code>: Crops a 25 x 25 mm section from the center of the image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">yzx</span></code>: Transposes the axes to align the flow axis with the LBPM Z-axis.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">0</span> <span class="pre">1</span></code>: Relabels the solid phase as <code class="docutils literal notranslate"><span class="pre">0</span></code> and the pore phase as <code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">1</span> <span class="pre">1</span> <span class="pre">1</span> <span class="pre">1</span></code>: Applies solid padding to replicate the micromodel confinement conditions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">12</span> <span class="pre">12</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">0</span> <span class="pre">0</span></code>: Applies a pore buffer to ensure connectivity for periodic simulations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">10296</span> <span class="pre">10296</span> <span class="pre">14</span></code>: Defines the spatial XYZ dimensions of the domain (calculated prior to transposition, padding, and buffering).</p></li>
+</ul>
+</section>
+</section>
+<section id="lbpm-simulation-configuration">
+<h2>LBPM Simulation Configuration<a class="headerlink" href="#lbpm-simulation-configuration" title="Link to this heading">¶</a></h2>
+<p>Below follow an example of <code class="docutils literal notranslate"><span class="pre">.db</span></code> file to run a absolute permearability simulation using the newly generated <code class="docutils literal notranslate"><span class="pre">.raw</span></code> files. For
+more details see <a class="reference internal" href="Multiscale-Micromodel.html"><span class="doc">Multiscale Micromodels</span></a>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain {
+    Filename = &quot;m1_mesh1_r4p42.raw&quot;    // Change for each simulation
+    ReadType = &quot;8bit&quot;
+    offset = 0, 0, 0
+    voxel_length = 4.42791             // Change for each simulation
+    N = 5648, 9, 5658                  // Change for each simulation
+    nproc = 2, 1, 2                    // Change for each simulation
+    n = 2824, 9, 2829                  // Change for each simulation
+    ReadValues = 0, 1
+    WriteValues = 0, 1
+    InletLayers = 0, 0, 0
+    OutletLayers = 0, 0, 0
+    BC = 0
+}
+Visualization {
+    format = &quot;vtk&quot;
+    write_silo = true
+    save_8bit_raw = false
+    save_phase_field = true
+    save_pressure = true
+    save_velocity = true
+}
+MRT {
+    tau = 0.9330127
+    F = 0.0, 0.0, 1e-06
+    timestepMax = 1000000
+    tolerance = 1e-06
+}
+</pre></div>
+</div>
+<p>Make sure to update the <code class="docutils literal notranslate"><span class="pre">Filename</span></code>, <code class="docutils literal notranslate"><span class="pre">voxel_length</span></code>, <code class="docutils literal notranslate"><span class="pre">N</span></code>, <code class="docutils literal notranslate"><span class="pre">nproc</span></code>, and <code class="docutils literal notranslate"><span class="pre">n</span></code> fields according to the specific mesh and
+hardware distribution youare simulating.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Multiscale-Micromodel.html" class="btn btn-neutral float-left" title="Multiscale Micromodels" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../morphology/morphOpen.html" class="btn btn-neutral float-right" title="Morphological pre-processors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
