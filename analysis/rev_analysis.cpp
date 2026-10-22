@@ -35,6 +35,16 @@ ScaLBL_REV::ScaLBL_REV(int RANK, int NP, const Utilities::MPI &COMM)
 ScaLBL_REV::~ScaLBL_REV() = default;
 
 void ScaLBL_REV::ReadParams(string filename) {
+
+    db = std::make_shared<Database>(filename);
+    if(db->keyExists("REV")){
+        run_rev = true;
+    }
+    else{
+        return;
+    } 
+    auto mrt_db = db->keyExists("MRT") ? db->getDatabase("MRT") : nullptr;
+
     size_step = 0.1;
     cc_interval = 10;
     gamma = 0.1;
@@ -45,13 +55,6 @@ void ScaLBL_REV::ReadParams(string filename) {
     tau = 1.0;
     Fx = Fy = 0.0;
     Fz = 1.0e-5;
-
-    db = std::make_shared<Database>(filename);
-    auto mrt_db = db->keyExists("MRT") ? db->getDatabase("MRT") : nullptr;
-    run_rev = mrt_db ? mrt_db->getWithDefault<bool>("REV", false)
-                     : db->keyExists("REV");
-    if (!run_rev)
-        return;
 
     auto rev_db = db->getDatabase("REV");
     geometrical = rev_db->keyExists("Geomtrical")
