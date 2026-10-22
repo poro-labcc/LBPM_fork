@@ -253,7 +253,7 @@ struct det_convergence_metrics {
 };
 
 struct stat_convergence_metrics {
-    double CC, mean, max, min;
+    double CV, mean, max, min;
 };
 
 struct VoxelDist {
@@ -328,7 +328,7 @@ stat_convergence_metrics stat_compute_convergence(const std::vector<double>& dat
     }
     std_dev = std::sqrt(std_dev / valid_count);
     
-    if (res.mean != 0) res.CC = std_dev / res.mean;
+    if (res.mean != 0) res.CV = std_dev / res.mean;
 
     return res;
 }
@@ -591,8 +591,9 @@ void ScaLBL_REV::DetRevAnalysisImpl(const ModelData &model) {
         }
 
         if (geometrical) {
-            current_surf = current_surf / ((end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1));
-            double current_poro = count / ((end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1));
+            double vol = (end_x - start_x + 1) * (end_y - start_y + 1) * (end_z - start_z + 1);
+            current_surf = (current_surf / vol) / h;
+            double current_poro = count / vol;
 
             sub_x_size[iter_step] = x_size;
             poro[iter_step] = current_poro;
@@ -763,6 +764,7 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
 
             if (geometrical) {
                 current_surf /= vol;
+                current_surf /= h;
                 stat_poro[l] = current_poro;
                 stat_surf[l] = current_surf;
             }
@@ -772,16 +774,16 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
             stat_convergence_metrics k_stats = stat_compute_convergence(stat_perm, stat_samples);
             stat_convergence_metrics t_stats = stat_compute_convergence(stat_tort, stat_samples);
             hydraulic_log << x_size * h << " " << x_size << " "
-                          << k_stats.CC << " " << k_stats.mean << " " << k_stats.max << " " << k_stats.min << " "
-                          << t_stats.CC << " " << t_stats.mean + 1 << " " << t_stats.max + 1 << " " << t_stats.min + 1 << "\n";
+                          << k_stats.CV << " " << k_stats.mean << " " << k_stats.max << " " << k_stats.min << " "
+                          << t_stats.CV << " " << t_stats.mean + 1 << " " << t_stats.max + 1 << " " << t_stats.min + 1 << "\n";
         }
 
         if (geometrical) {
             stat_convergence_metrics p_stats = stat_compute_convergence(stat_poro, stat_samples);
             stat_convergence_metrics s_stats = stat_compute_convergence(stat_surf, stat_samples);
             geometric_log << x_size * h << " " << x_size << " "
-                          << p_stats.CC << " " << p_stats.mean << " " << p_stats.max << " " << p_stats.min << " "
-                          << s_stats.CC << " " << s_stats.mean / h << " " << s_stats.max / h << " " << s_stats.min / h << "\n";
+                          << p_stats.CV << " " << p_stats.mean << " " << p_stats.max << " " << p_stats.min << " "
+                          << s_stats.CV << " " << s_stats.mean  << " " << s_stats.max  << " " << s_stats.min  << "\n";
         }
 
         double min_step = std::max(1.0, average_pore_size);
