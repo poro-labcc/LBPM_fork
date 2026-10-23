@@ -27,14 +27,14 @@
 
 ScaLBL_REV::ScaLBL_REV(int RANK, int NP, const Utilities::MPI &COMM)
     : average_pore_size(0), rev_x_poro(-1), rev_x_perm(-1), rev_x_tort(-1),
-      rev_x_surf(-1), size_step(0.1), cc_interval(10), stat_samples(50), gamma(0.1),
+      rev_x_surf(-1), size_step(0.06), cc_interval(10), stat_samples(50), gamma(0.1),
       tau(1.0), Fx(0), Fy(0), Fz(1.0e-5),
       Nx(0), Ny(0), Nz(0), N(0), Np(0), rank(RANK), nprocx(0), nprocy(0),
       nprocz(0), nprocs(NP), Lx(0), Ly(0), Lz(0), comm(COMM) {}
 
 ScaLBL_REV::~ScaLBL_REV() = default;
 
-void ScaLBL_REV::ReadParams(string filename) {
+void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
 
     db = std::make_shared<Database>(filename);
     if(db->keyExists("REV")){
@@ -50,19 +50,17 @@ void ScaLBL_REV::ReadParams(string filename) {
     gamma = 0.1;
     stat_samples = 50;
     geometrical = true;
-    hydraulic = true;
+    hydraulic = hydraulic_default;
     standalone_ready = false;
     tau = 1.0;
     Fx = Fy = 0.0;
     Fz = 1.0e-5;
 
     auto rev_db = db->getDatabase("REV");
-    geometrical = rev_db->keyExists("Geomtrical")
-        ? rev_db->getScalar<bool>("Geomtrical")
-        : rev_db->getWithDefault<bool>("Geometrical", true);
+    geometrical = rev_db->getWithDefault<bool>("Geometrical", true);
     hydraulic = rev_db->keyExists("Hydraulic")
         ? rev_db->getScalar<bool>("Hydraulic")
-        : true;
+        : hydraulic_default;
     if (rev_db->keyExists("SizeStep"))
         size_step = rev_db->getScalar<double>("SizeStep");
     if (rev_db->keyExists("CCInterval"))
@@ -76,7 +74,6 @@ void ScaLBL_REV::ReadParams(string filename) {
     INSIST(cc_interval > 0, "REV.CCInterval must be positive");
     INSIST(stat_samples > 0, "REV.StatSamples must be positive");
     auto simulation_params = mrt_db;
-    std::string simulation_model = "MRT";
     if (rev_db->keyExists("SimulationParams")) {
         auto simulation_filename =
             rev_db->getScalar<std::string>("SimulationParams");
@@ -93,22 +90,15 @@ void ScaLBL_REV::ReadParams(string filename) {
         }
 
         auto simulation_db = std::make_shared<Database>(simulation_filename);
-        if (simulation_db->keyExists("MRT")) {
-            simulation_model = "MRT";
-        } else {
-            INSIST(simulation_db->keyExists("BGK"),
-                   "REV.SimulationParams must reference a database with "
-                   "an MRT or BGK section");
-            simulation_model = "BGK";
-        }
-        simulation_params = simulation_db->getDatabase(simulation_model);
+        INSIST(simulation_db->keyExists("MRT"),
+               "REV.SimulationParams must reference a database with an MRT section");
+        simulation_params = simulation_db->getDatabase("MRT");
     }
     if (simulation_params) {
         tau = simulation_params->getWithDefault<double>("tau", 1.0);
         if (simulation_params->keyExists("F")) {
             auto force = simulation_params->getVector<double>("F");
-            INSIST(force.size() == 3,
-                   simulation_model + ".F must have three components");
+            INSIST(force.size() == 3, "MRT.F must have three components");
             Fx = force[0];
             Fy = force[1];
             Fz = force[2];

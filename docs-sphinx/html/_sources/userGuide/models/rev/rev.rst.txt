@@ -2,15 +2,15 @@
 Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)
 ###############################################################################
 
-The degree of heterogeneity observed in digital rocks is an important factor in characterizing porous media. Advances 
-in the resolution and sample size achievable with X-ray microtomography have made it increasingly feasible to digitally 
-investigate larger volumes that capture the intrinsic heterogeneities of porous structures. These developments enable the 
-identification of representative elementary volumes (REVs), beyond which the influence of local heterogeneities becomes 
+The degree of heterogeneity observed in digital rocks is an important factor in characterizing porous media. Advances
+in the resolution and sample size achievable with X-ray microtomography have made it increasingly feasible to digitally
+investigate larger volumes that capture the intrinsic heterogeneities of porous structures. These developments enable the
+identification of representative elementary volumes (REVs), beyond which the influence of local heterogeneities becomes
 negligible and specific effective properties of the porous medium can be reliably characterized.
 
-The ``lbpm_rev_analysis`` routine provides an automated REV analysis for a range of 
-geometrical and hydrodynamic properties, as summarized in :numref:`Table %s <rev-properties>`. By combining deterministic and statistical approaches, 
-the routine enables a comprehensive characterization of these properties, providing valuable insights for assessing the 
+The ``lbpm_rev_analysis`` routine provides an automated REV analysis for a range of
+geometrical and hydrodynamic properties, as summarized in :numref:`Table %s <rev-properties>`. By combining deterministic and statistical approaches,
+the routine enables a comprehensive characterization of these properties, providing valuable insights for assessing the
 representativeness of microtomography images and estimating effective sample volumes for subsequent numerical analyses.
 
 .. _rev-properties:
@@ -20,29 +20,27 @@ representativeness of microtomography images and estimating effective sample vol
    :header-rows: 1
    :align: center
 
-   * - 
+   * -
      - Property 1
      - Property 2
-     - Property 3
    * - Geometrical
      - Porosity (:math:`\phi`)
-     - Tortuosity (:math:`\tau`)
      - Superficial Area (:math:`A_{s}`)
-   * - Hydrodynamic 
+   * - Hydrodynamic
      - Absolute Permeability (:math:`K_{z}`)
      - Hydraulic Tortuosity (:math:`\tau_{h}`)
-     -
 
 ****************************
 Methodology
 ****************************
 
-The implemented REV routine combines deterministic and statistical approaches into a **hybrid methodology**, as illustrated 
-in the workflow diagram presented in :numref:`rev-workflow`. The deterministic stage provides an initial estimate of the REV 
-size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which 
-evaluates the spatial variability of the property over randomly distributed subvolumes. Both deterministic and statistical 
-analyses employ a default convergence threshold of :math:`\gamma = 0.1`  for their respective criteria. The final REV is accepted only when the 
-statistical convergence conditions are satisfied. For a detailed explanation of the steps illustrated in :numref:`rev-workflow`, 
+The implemented REV routine combines deterministic and statistical approaches into a **hybrid methodology**, as illustrated
+in the workflow diagram presented in :numref:`rev-workflow`. The deterministic stage provides an initial estimate of the REV
+size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
+evaluates the spatial variability of the property over randomly distributed subvolumes. The deterministic
+analysis uses a default convergence threshold of :math:`\gamma = 0.1`. The statistical stage reports
+coefficients of variation for comparison with the desired tolerance when assessing a final REV.
+For a detailed explanation of the steps illustrated in :numref:`rev-workflow`,
 expand the toggle sections below for the deterministic and statistical analyses.
 
 .. list-table::
@@ -147,18 +145,21 @@ workflow diagram, consists of the following steps:
    this metric reduces the likelihood of false convergence associated
    with local fluctuations. The default value is :math:`m=10`.
 
-#. **Assess convergence and update the subvolume size:** The deterministic
-   REV is identified when both convergence criteria satisfy the prescribed
-   tolerance. Otherwise, the subvolume edge length is increased by 6%,
-   according to
+#. **Assess convergence and update the subvolume size:** The first subvolume
+   size for which both convergence criteria satisfy the prescribed tolerance
+   is recorded as the deterministic REV for each property. Sizes continue to
+   increase up to the maximum admissible domain size. The proportional growth
+   is controlled by ``SizeStep``; for example, ``SizeStep = 0.06`` gives the
+   nominal update
 
    .. math::
       :label: rev-edge-growth
 
       \ell_{i+1}=1.06\ell_i,
 
-   and the procedure is repeated until convergence is achieved or
-   the maximum admissible subvolume size is reached.
+   The implementation also applies a minimum increment based on the average
+   pore diameter and rounds the edge length upward to whole voxels, so the
+   actual increase can be larger. The default ``SizeStep`` is ``0.1`` (10%).
 
 .. raw:: html
 
@@ -183,9 +184,9 @@ computational domain. For a given edge length, the property is measured
 in a set of randomly selected subvolumes, and the dispersion of the
 resulting measurements is assessed.
 
-If the dispersion exceeds the prescribed tolerance, the subvolume size
-is increased and the procedure is repeated until the measurements become
-sufficiently consistent.
+The current implementation repeats this sampling for increasing subvolume
+sizes and reports the dispersion at each size. These results can be compared
+with the prescribed tolerance to identify sufficiently consistent measurements.
 
 Compared with the deterministic approach, statistical analysis is
 computationally more expensive because multiple subvolumes must be
@@ -225,19 +226,16 @@ diagram, follows these steps:
    Normalization by the mean provides a dimensionless measure of relative
    dispersion.
 
-   The number of sampled subvolumes is determined adaptively by monitoring
-   the variation of the CV as additional subvolumes are included.
-   Sampling continues until the estimated dispersion stabilizes, ensuring
-   that the statistical measure is sufficiently representative of the
-   selected subvolume size.
+   The number of sampled subvolumes is fixed by ``StatSamples`` and defaults
+   to 50 at each size. The current routine does not adapt this count based on
+   the stability of the estimated CV.
 
-9. **Determine the statistical REV:** Once the CV has stabilized, its
-   value is compared with the prescribed convergence tolerance.
-   If the criterion is satisfied, the current edge length is identified
-   as the statistical REV. Otherwise, the subvolume edge length is
-   increased by 6%, and the statistical evaluation is repeated.
-   If the admissible domain size is exceeded before convergence,
-   no statistical REV is identified.
+9. **Assess the statistical REV:** Compare the reported CV values with the
+   desired convergence tolerance to assess representativeness at each edge
+   length. The current routine records these values without automatically
+   selecting a statistical REV or stopping when CV falls below ``gamma``.
+   Subvolume sizes increase using ``SizeStep`` and the minimum increment
+   described above until the admissible domain-size limit is reached.
 
 .. raw:: html
 
@@ -251,39 +249,30 @@ diagram, follows these steps:
 Run REV Analysis
 ************************************
 
-A typical command to launch the LBPM single-phase simulator is as follows. The REV analysis can be run 
-in two different routines: on the ``lbpm_rev_analysis`` and inside of ``lbpm_permeability_simulator``.
+REV analysis can be performed either alongside a single-phase permeability simulation
+using ``lbpm_rev_permeability_simulator``, or independently using ``lbpm_rev_analysis``.
 
--------------------------------
-lbpm_permeability_simulator
--------------------------------
+Currently, neither routine supports parallel execution across multiple MPI processes.
+Therefore, both routines must be executed using a single MPI process. To ensure
+compatibility, the ``Domain`` configuration must be set to ``nproc = 1, 1, 1`` in the corresponding
+configuration block.
 
-Inside of ``lbpm_permeability_simulator``, the proceddure follow the typical command to launch the LBPM 
-single-phase simulator is as follows. However, inside ``input.db`` you have activate REV inside of MRT 
-class by set ``REV = True``. With REV analysis activated the REV class of parameters need to be set, where 
-we have:
+--------------------------------
+lbpm_rev_permeability_simulator
+--------------------------------
 
-.. code-block:: c
+The ``lbpm_rev_permeability_simulator`` executable runs the single-phase flow
+simulation, computes the velocity field, and then performs deterministic and
+statistical REV analyses. A typical command for a single-process run is:
 
-   REV {
-      Geomtrical = True
-      Hydraulic = True
-      gamma = 0.1
-      SizeStep = 0.06
-      CCInterval = 10
-      StatSamples = 50
-   }
+.. code-block:: bash
 
-where ``Geomtrical`` and ``Hidraulic`` equal Ture means that REV analysis for each list of geometrical and hydraulic
-properties will be done and ``False`` they will note be performed. The gamma 
+   mpirun -np 1 lbpm_rev_permeability_simulator input.db
 
-
-By default, when ``REV = True`` inside of ``lbpm_permeability_simulator`` the 
-``Geomtrical`` and ``Hidraulic`` will be equal True beeing not necessary activate
-
-------------------------------
-Model parameters
-------------------------------
+The standard ``lbpm_permeability_simulator`` executable does not invoke the REV
+routines. Use the REV-enabled executable above for the combined workflow. REV analysis
+is activated by the presence of a ``REV`` block in ``input.db``, alongside the usual
+``Domain`` and ``MRT`` blocks. For example:
 
 .. code-block:: text
 
@@ -296,13 +285,163 @@ Model parameters
       StatSamples = 50
    }
 
-``Geometrical`` and ``Hydraulic`` are boolean settings read into the REV class.
-Both default to ``True`` when omitted and accept ``True`` or ``False``.
+--------------------------------
+lbpm_rev_analysis
+--------------------------------
+
+The routine ``lbpm_rev_analysis`` performs a REV
+analyses directly from an input geometry without the necessity of run ``lbpm_permeability_simulator``
+to obtain the velocity field for hydraulic analysis.
+
+.. code-block:: bash
+
+   mpirun -np 1 lbpm_rev_analysis input.db
+
+For geometrical analysis alone, the geometry is sufficient. ``Hydraulic``
+defaults to ``False`` in this routine, so porosity and specific surface area
+can be evaluated without loading velocity fields. This default can also be
+set explicitly:
+
+.. code-block:: text
+
+   REV {
+      Geometrical = True
+      Hydraulic = False
+   }
+
+An ``MRT`` block is not required for this configuration. Set ``Hydraulic = True`` explicitly to enable
+hydraulic analysis when previously saved flow results are available. However, this analysis requires
+velocity fields obtained from a prior single-phase flow simulation. For example, the following configuration
+block enables both property groups:
+
+.. code-block:: text
+
+   REV {
+      Geometrical = True
+      Hydraulic = True
+      SimulationParams = "/path/to/simulation/input.db"
+      VelocityPath = "/path/to/simulation/results"
+      VelocityTimestep = "vis3000"
+   }
+
+When ``Hydraulic = True``, all three settings, ``SimulationParams``,
+``VelocityPath``, and ``VelocityTimestep``, must be explicitly supplied and
+nonempty. If any are missing or blank, ``lbpm_rev_analysis`` prints a message
+listing them and exits with a nonzero status before loading the saved files or
+geometry. These settings are not required for geometrical analysis alone.
+
+Note that, in addition to the velocity fields saved in the ``vis*`` folder, it is also necessary to provide
+the path to the ``input.db`` file used in the previous single-phase flow simulation. This file is required to
+retrieve the pressure drop and fluid viscosity used to calculate the absolute permeability.
+
+------------------------------
+Model parameters
+------------------------------
+
+For a detailed description of the REV analysis parameters, expand the section 
+below using the toggle button.
+
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: REV Parameters</strong></summary>
+
+``Geometrical`` and ``Hydraulic`` select the property groups evaluated in both
+analysis stages. Setting ``Geometrical = True`` enables porosity and specific
+surface area analysis, while ``Hydraulic = True`` enables permeability and
+hydraulic tortuosity analysis. Setting either parameter to ``False`` skips its
+corresponding group. ``Geometrical`` defaults to ``True`` in both routines.
+``Hydraulic`` defaults to ``False`` in ``lbpm_rev_analysis`` and to ``True`` in
+``lbpm_rev_permeability_simulator``. An explicit setting overrides the default.
+Setting both parameters to ``False`` skips both REV analyses.
+
+``gamma`` is the dimensionless convergence tolerance, with a default value of
+``0.1``. A deterministic REV is identified for a property when both its relative
+error (RE) and convergence criterion (CC) are valid and smaller than ``gamma``.
+For example, ``gamma = 0.1`` requires both metrics to be below 10%. A smaller
+value imposes a stricter convergence requirement and may lead to a larger REV
+estimate or prevent convergence within the available domain.
+
+``SizeStep`` controls the proportional increase in subvolume edge length in
+both analysis stages. The example value ``0.06`` specifies a 6% increase in edge 
+length between successive subvolume sizes, corresponding to an approximate 19% 
+increase in volume. The implementation also enforces a minimum increment equal
+to the larger of one voxel and the average pore diameter, and rounds the
+resulting edge length upward to an integer number of voxels. Consequently, the
+actual increase can exceed 6%, especially for small subvolumes. If omitted,
+``SizeStep`` defaults to ``0.06``. It must be positive.
+
+``CCInterval`` is the number of recent subvolume-size measurements used to
+calculate CC in the deterministic analysis. With ``CCInterval = 10``, CC
+measures the relative dispersion of up to the ten most recent measurements;
+the available measurements are used before the window is full. Increasing
+this value assesses convergence over a longer history of subvolume sizes.
+It must be a positive integer and defaults to ``10``.
+
+``StatSamples`` is the number of randomly positioned subvolumes evaluated at
+each size during the statistical analysis. With ``StatSamples = 50``, each
+property is sampled in 50 subvolumes to calculate its mean, minimum, maximum,
+and coefficient of variation (CV). Increasing this value provides more spatial
+samples at a higher computational cost. It must be a positive integer and
+defaults to ``50``.
+
+``SimulationParams`` identifies the input database used for the flow simulation.
+The referenced database must contain an ``MRT`` block, from which the routine
+reads the relaxation time ``tau`` and body-force vector ``F``.
+A relative path is resolved against the
+directory containing the analysis input database. The
+referenced file supplies only these flow parameters; keep the geometry and
+``REV`` settings in the analysis database. ``SimulationParams`` is required
+when hydraulic analysis is enabled in ``lbpm_rev_analysis``.
+
+``VelocityPath`` is the directory containing the saved LBPM output. Relative
+paths are resolved from the current working directory. ``VelocityTimestep``
+selects a timestep directory within this path and must be supplied as a quoted
+string. Both settings are required when hydraulic analysis is enabled in
+``lbpm_rev_analysis``. Use ``VelocityPath = "."`` to select the current working
+directory explicitly.
+
+The selected timestep must contain ``LBM.summary`` and a ``domain`` mesh with
+the scalar volume fields ``Velocity_x``, ``Velocity_y``, and ``Velocity_z``.
+The saved output must contain a single MPI domain whose dimensions match the
+analysis geometry. Use the same geometry and voxel length as the original
+simulation. For an MRT simulation, enable ``write_silo = True`` in its
+``Visualization`` block to save the required velocity fields in LBPM output.
+
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>
 
 --------------------------------------
-Assessing Steady State Permeability
+Assessing Output Data
 --------------------------------------
 
+Results are written to the current working directory. Enabled geometrical
+analysis produces ``det_rev_geometric.csv`` and ``stat_rev_geometric.csv``;
+enabled hydraulic analysis produces ``det_rev_hydraulic.csv`` and
+``stat_rev_hydraulic.csv``. The routine also writes
+``pore_size_distribution.csv`` when an analysis group is enabled.
+
+.. note::
+
+   In the current implementation, the statistical routine uses a fixed
+   ``StatSamples`` count at each size and writes the resulting CV values to
+   ``stat_rev_geometric.csv`` and/or ``stat_rev_hydraulic.csv`` for the enabled
+   groups. Compare these values with the desired tolerance to assess
+   statistical representativeness. Automatic comparison of CV with ``gamma``
+   and adaptive sampling are not implemented.
+
+The six property-selection, convergence, and sampling parameters are optional.
+The three saved-flow settings are required for standalone hydraulic analysis.
+An empty ``REV`` block activates
+geometrical analysis in ``lbpm_rev_analysis`` and both property groups in
+``lbpm_rev_permeability_simulator``, with ``gamma = 0.1``, ``SizeStep = 0.1``,
+``CCInterval = 10``, and ``StatSamples = 50``. Omitting the entire block disables
+REV analysis.
 
 
 ****************************

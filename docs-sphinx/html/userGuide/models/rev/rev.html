@@ -112,45 +112,18 @@ investigate larger volumes that capture the intrinsic heterogeneities of porous 
 identification of representative elementary volumes (REVs), beyond which the influence of local heterogeneities becomes
 negligible and specific effective properties of the porous medium can be reliably characterized.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> routine provides an automated REV analysis for a range of
-geometrical and hydrodynamic properties, as summarized in <a class="reference internal" href="#rev-properties"><span class="std std-numref">Table 1</span></a>. By combining deterministic and statistical approaches,
+geometrical and hydrodynamic properties, as summarized in <code class="xref std std-numref docutils literal notranslate"><span class="pre">Table</span> <span class="pre">%s</span></code>. By combining deterministic and statistical approaches,
 the routine enables a comprehensive characterization of these properties, providing valuable insights for assessing the
 representativeness of microtomography images and estimating effective sample volumes for subsequent numerical analyses.</p>
-<span id="rev-properties"></span><table class="docutils align-center" id="id4">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">Properties available for REV analysis.</span><a class="headerlink" href="#id4" title="Link to this table">¶</a></caption>
-<colgroup>
-<col style="width: 25.0%" />
-<col style="width: 25.0%" />
-<col style="width: 25.0%" />
-<col style="width: 25.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"></th>
-<th class="head"><p>Property 1</p></th>
-<th class="head"><p>Property 2</p></th>
-<th class="head"><p>Property 3</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Geometrical</p></td>
-<td><p>Porosity (<span class="math notranslate nohighlight">\(\phi\)</span>)</p></td>
-<td><p>Tortuosity (<span class="math notranslate nohighlight">\(\tau\)</span>)</p></td>
-<td><p>Superficial Area (<span class="math notranslate nohighlight">\(A_{s}\)</span>)</p></td>
-</tr>
-<tr class="row-odd"><td><p>Hydrodynamic</p></td>
-<td><p>Absolute Permeability (<span class="math notranslate nohighlight">\(K_{z}\)</span>)</p></td>
-<td><p>Hydraulic Tortuosity (<span class="math notranslate nohighlight">\(\tau_{h}\)</span>)</p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <section id="methodology">
-<h2>Methodology<a class="headerlink" href="#methodology" title="Link to this heading">¶</a></h2>
+<span id="rev-properties"></span><h2>Methodology<a class="headerlink" href="#methodology" title="Link to this heading">¶</a></h2>
 <p>The implemented REV routine combines deterministic and statistical approaches into a <strong>hybrid methodology</strong>, as illustrated
 in the workflow diagram presented in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>. The deterministic stage provides an initial estimate of the REV
 size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
-evaluates the spatial variability of the property over randomly distributed subvolumes. Both deterministic and statistical
-analyses employ a default convergence threshold of <span class="math notranslate nohighlight">\(\gamma = 0.1\)</span>  for their respective criteria. The final REV is accepted only when the
-statistical convergence conditions are satisfied. For a detailed explanation of the steps illustrated in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>,
+evaluates the spatial variability of the property over randomly distributed subvolumes. The deterministic
+analysis uses a default convergence threshold of <span class="math notranslate nohighlight">\(\gamma = 0.1\)</span>. The statistical stage reports
+coefficients of variation for comparison with the desired tolerance when assessing a final REV.
+For a detailed explanation of the steps illustrated in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>,
 expand the toggle sections below for the deterministic and statistical analyses.</p>
 <table class="borderless docutils align-center">
 <colgroup>
@@ -158,20 +131,20 @@ expand the toggle sections below for the deterministic and statistical analyses.
 <col style="width: 50.0%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><figure class="align-center" id="id5">
+<tr class="row-odd"><td><figure class="align-center" id="id4">
 <span id="rev-workflow"></span><a class="reference internal image-reference" href="../../../_images/rev-workflow.svg"><img alt="../../../_images/rev-workflow.svg" src="../../../_images/rev-workflow.svg" style="width: 70%;" />
 </a>
 <figcaption>
 <p><span class="caption-number">Fig. 5 </span><span class="caption-text">Workflow of the hybrid REV analysis, combining deterministic
-(steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#id5" title="Link to this image">¶</a></p>
+(steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#id4" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
-<td><figure class="align-center" id="id6">
+<td><figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../../../_images/REVHybridAnimation.gif"><img alt="../../../_images/REVHybridAnimation.gif" src="../../../_images/REVHybridAnimation.gif" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">GIF Animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">GIF Animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#id5" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -238,14 +211,17 @@ By evaluating the dispersion of the most recent measurements,
 this metric reduces the likelihood of false convergence associated
 with local fluctuations. The default value is <span class="math notranslate nohighlight">\(m=10\)</span>.</p>
 </li>
-<li><p><strong>Assess convergence and update the subvolume size:</strong> The deterministic
-REV is identified when both convergence criteria satisfy the prescribed
-tolerance. Otherwise, the subvolume edge length is increased by 6%,
-according to</p>
+<li><p><strong>Assess convergence and update the subvolume size:</strong> The first subvolume
+size for which both convergence criteria satisfy the prescribed tolerance
+is recorded as the deterministic REV for each property. Sizes continue to
+increase up to the maximum admissible domain size. The proportional growth
+is controlled by <code class="docutils literal notranslate"><span class="pre">SizeStep</span></code>; for example, <code class="docutils literal notranslate"><span class="pre">SizeStep</span> <span class="pre">=</span> <span class="pre">0.06</span></code> gives the
+nominal update</p>
 <div class="math notranslate nohighlight" id="equation-rev-edge-growth">
 <span class="eqno">(113)<a class="headerlink" href="#equation-rev-edge-growth" title="Link to this equation">¶</a></span>\[\ell_{i+1}=1.06\ell_i,\]</div>
-<p>and the procedure is repeated until convergence is achieved or
-the maximum admissible subvolume size is reached.</p>
+<p>The implementation also applies a minimum increment based on the average
+pore diameter and rounds the edge length upward to whole voxels, so the
+actual increase can be larger. The default <code class="docutils literal notranslate"><span class="pre">SizeStep</span></code> is <code class="docutils literal notranslate"><span class="pre">0.1</span></code> (10%).</p>
 </li>
 </ol>
 </details><br></section>
@@ -257,9 +233,9 @@ property by sampling multiple subvolumes distributed throughout the
 computational domain. For a given edge length, the property is measured
 in a set of randomly selected subvolumes, and the dispersion of the
 resulting measurements is assessed.</p>
-<p>If the dispersion exceeds the prescribed tolerance, the subvolume size
-is increased and the procedure is repeated until the measurements become
-sufficiently consistent.</p>
+<p>The current implementation repeats this sampling for increasing subvolume
+sizes and reports the dispersion at each size. These results can be compared
+with the prescribed tolerance to identify sufficiently consistent measurements.</p>
 <p>Compared with the deterministic approach, statistical analysis is
 computationally more expensive because multiple subvolumes must be
 evaluated at each edge length. Nevertheless, it provides a more robust
@@ -289,49 +265,39 @@ is quantified using the coefficient of variation (CV), following
 measurements and <span class="math notranslate nohighlight">\(\overline{\eta}\)</span> is their arithmetic mean.
 Normalization by the mean provides a dimensionless measure of relative
 dispersion.</p>
-<p>The number of sampled subvolumes is determined adaptively by monitoring
-the variation of the CV as additional subvolumes are included.
-Sampling continues until the estimated dispersion stabilizes, ensuring
-that the statistical measure is sufficiently representative of the
-selected subvolume size.</p>
+<p>The number of sampled subvolumes is fixed by <code class="docutils literal notranslate"><span class="pre">StatSamples</span></code> and defaults
+to 50 at each size. The current routine does not adapt this count based on
+the stability of the estimated CV.</p>
 </li>
-<li><p><strong>Determine the statistical REV:</strong> Once the CV has stabilized, its
-value is compared with the prescribed convergence tolerance.
-If the criterion is satisfied, the current edge length is identified
-as the statistical REV. Otherwise, the subvolume edge length is
-increased by 6%, and the statistical evaluation is repeated.
-If the admissible domain size is exceeded before convergence,
-no statistical REV is identified.</p></li>
+<li><p><strong>Assess the statistical REV:</strong> Compare the reported CV values with the
+desired convergence tolerance to assess representativeness at each edge
+length. The current routine records these values without automatically
+selecting a statistical REV or stopping when CV falls below <code class="docutils literal notranslate"><span class="pre">gamma</span></code>.
+Subvolume sizes increase using <code class="docutils literal notranslate"><span class="pre">SizeStep</span></code> and the minimum increment
+described above until the admissible domain-size limit is reached.</p></li>
 </ol>
 </details><br></section>
 </section>
 <section id="run-rev-analysis">
 <h2>Run REV Analysis<a class="headerlink" href="#run-rev-analysis" title="Link to this heading">¶</a></h2>
-<p>A typical command to launch the LBPM single-phase simulator is as follows. The REV analysis can be run
-in two different routines: on the <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> and inside of <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>.</p>
-<section id="lbpm-permeability-simulator">
-<h3>lbpm_permeability_simulator<a class="headerlink" href="#lbpm-permeability-simulator" title="Link to this heading">¶</a></h3>
-<p>Inside of <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>, the proceddure follow the typical command to launch the LBPM
-single-phase simulator is as follows. However, inside <code class="docutils literal notranslate"><span class="pre">input.db</span></code> you have activate REV inside of MRT
-class by set <code class="docutils literal notranslate"><span class="pre">REV</span> <span class="pre">=</span> <span class="pre">True</span></code>. With REV analysis activated the REV class of parameters need to be set, where
-we have:</p>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">REV</span><span class="w"> </span><span class="p">{</span>
-<span class="w">   </span><span class="n">Geomtrical</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">True</span>
-<span class="w">   </span><span class="n">Hydraulic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">True</span>
-<span class="w">   </span><span class="n">gamma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span>
-<span class="w">   </span><span class="n">SizeStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.06</span>
-<span class="w">   </span><span class="n">CCInterval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
-<span class="w">   </span><span class="n">StatSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span>
-<span class="p">}</span>
+<p>REV analysis can be performed either alongside a single-phase permeability simulation
+using <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code>, or independently using <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code>.</p>
+<p>Currently, neither routine supports parallel execution across multiple MPI processes.
+Therefore, both routines must be executed using a single MPI process. To ensure
+compatibility, the <code class="docutils literal notranslate"><span class="pre">Domain</span></code> configuration must be set to <code class="docutils literal notranslate"><span class="pre">nproc</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1</span></code> in the corresponding
+configuration block.</p>
+<section id="lbpm-rev-permeability-simulator">
+<h3>lbpm_rev_permeability_simulator<a class="headerlink" href="#lbpm-rev-permeability-simulator" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code> executable runs the single-phase flow
+simulation, computes the velocity field, and then performs deterministic and
+statistical REV analyses. A typical command for a single-process run is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">1</span><span class="w"> </span>lbpm_rev_permeability_simulator<span class="w"> </span>input.db
 </pre></div>
 </div>
-<p>where <code class="docutils literal notranslate"><span class="pre">Geomtrical</span></code> and <code class="docutils literal notranslate"><span class="pre">Hidraulic</span></code> equal Ture means that REV analysis for each list of geometrical and hydraulic
-properties will be done and <code class="docutils literal notranslate"><span class="pre">False</span></code> they will note be performed. The gamma</p>
-<p>By default, when <code class="docutils literal notranslate"><span class="pre">REV</span> <span class="pre">=</span> <span class="pre">True</span></code> inside of <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code> the
-<code class="docutils literal notranslate"><span class="pre">Geomtrical</span></code> and <code class="docutils literal notranslate"><span class="pre">Hidraulic</span></code> will be equal True beeing not necessary activate</p>
-</section>
-<section id="model-parameters">
-<h3>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h3>
+<p>The standard <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code> executable does not invoke the REV
+routines. Use the REV-enabled executable above for the combined workflow. REV analysis
+is activated by the presence of a <code class="docutils literal notranslate"><span class="pre">REV</span></code> block in <code class="docutils literal notranslate"><span class="pre">input.db</span></code>, alongside the usual
+<code class="docutils literal notranslate"><span class="pre">Domain</span></code> and <code class="docutils literal notranslate"><span class="pre">MRT</span></code> blocks. For example:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REV {
    Geometrical = True
    Hydraulic = True
@@ -342,11 +308,130 @@ properties will be done and <code class="docutils literal notranslate"><span cla
 }
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">Geometrical</span></code> and <code class="docutils literal notranslate"><span class="pre">Hydraulic</span></code> are boolean settings read into the REV class.
-Both default to <code class="docutils literal notranslate"><span class="pre">True</span></code> when omitted and accept <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </section>
-<section id="assessing-steady-state-permeability">
-<h3>Assessing Steady State Permeability<a class="headerlink" href="#assessing-steady-state-permeability" title="Link to this heading">¶</a></h3>
+<section id="lbpm-rev-analysis">
+<h3>lbpm_rev_analysis<a class="headerlink" href="#lbpm-rev-analysis" title="Link to this heading">¶</a></h3>
+<p>The routine <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> performs a REV
+analyses directly from an input geometry without the necessity of run <code class="docutils literal notranslate"><span class="pre">lbpm_permeability_simulator</span></code>
+to obtain the velocity field for hydraulic analysis.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpirun<span class="w"> </span>-np<span class="w"> </span><span class="m">1</span><span class="w"> </span>lbpm_rev_analysis<span class="w"> </span>input.db
+</pre></div>
+</div>
+<p>For geometrical analysis alone, the geometry is sufficient. <code class="docutils literal notranslate"><span class="pre">Hydraulic</span></code>
+defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> in this routine, so porosity and specific surface area
+can be evaluated without loading velocity fields. This default can also be
+set explicitly:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REV {
+   Geometrical = True
+   Hydraulic = False
+}
+</pre></div>
+</div>
+<p>An <code class="docutils literal notranslate"><span class="pre">MRT</span></code> block is not required for this configuration. Set <code class="docutils literal notranslate"><span class="pre">Hydraulic</span> <span class="pre">=</span> <span class="pre">True</span></code> explicitly to enable
+hydraulic analysis when previously saved flow results are available. However, this analysis requires
+velocity fields obtained from a prior single-phase flow simulation. For example, the following configuration
+block enables both property groups:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REV {
+   Geometrical = True
+   Hydraulic = True
+   SimulationParams = &quot;/path/to/simulation/input.db&quot;
+   VelocityPath = &quot;/path/to/simulation/results&quot;
+   VelocityTimestep = &quot;vis3000&quot;
+}
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">Hydraulic</span> <span class="pre">=</span> <span class="pre">True</span></code>, all three settings, <code class="docutils literal notranslate"><span class="pre">SimulationParams</span></code>,
+<code class="docutils literal notranslate"><span class="pre">VelocityPath</span></code>, and <code class="docutils literal notranslate"><span class="pre">VelocityTimestep</span></code>, must be explicitly supplied and
+nonempty. If any are missing or blank, <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> prints a message
+listing them and exits with a nonzero status before loading the saved files or
+geometry. These settings are not required for geometrical analysis alone.</p>
+<p>Note that, in addition to the velocity fields saved in the <code class="docutils literal notranslate"><span class="pre">vis*</span></code> folder, it is also necessary to provide
+the path to the <code class="docutils literal notranslate"><span class="pre">input.db</span></code> file used in the previous single-phase flow simulation. This file is required to
+retrieve the pressure drop and fluid viscosity used to calculate the absolute permeability.</p>
+</section>
+<section id="model-parameters">
+<h3>Model parameters<a class="headerlink" href="#model-parameters" title="Link to this heading">¶</a></h3>
+<p>For a detailed description of the REV analysis parameters, expand the section
+below using the toggle button.</p>
+<details>
+<summary><strong>Click here to open: REV Parameters</strong></summary><p><code class="docutils literal notranslate"><span class="pre">Geometrical</span></code> and <code class="docutils literal notranslate"><span class="pre">Hydraulic</span></code> select the property groups evaluated in both
+analysis stages. Setting <code class="docutils literal notranslate"><span class="pre">Geometrical</span> <span class="pre">=</span> <span class="pre">True</span></code> enables porosity and specific
+surface area analysis, while <code class="docutils literal notranslate"><span class="pre">Hydraulic</span> <span class="pre">=</span> <span class="pre">True</span></code> enables permeability and
+hydraulic tortuosity analysis. Setting either parameter to <code class="docutils literal notranslate"><span class="pre">False</span></code> skips its
+corresponding group. <code class="docutils literal notranslate"><span class="pre">Geometrical</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> in both routines.
+<code class="docutils literal notranslate"><span class="pre">Hydraulic</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> in <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> and to <code class="docutils literal notranslate"><span class="pre">True</span></code> in
+<code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code>. An explicit setting overrides the default.
+Setting both parameters to <code class="docutils literal notranslate"><span class="pre">False</span></code> skips both REV analyses.</p>
+<p><code class="docutils literal notranslate"><span class="pre">gamma</span></code> is the dimensionless convergence tolerance, with a default value of
+<code class="docutils literal notranslate"><span class="pre">0.1</span></code>. A deterministic REV is identified for a property when both its relative
+error (RE) and convergence criterion (CC) are valid and smaller than <code class="docutils literal notranslate"><span class="pre">gamma</span></code>.
+For example, <code class="docutils literal notranslate"><span class="pre">gamma</span> <span class="pre">=</span> <span class="pre">0.1</span></code> requires both metrics to be below 10%. A smaller
+value imposes a stricter convergence requirement and may lead to a larger REV
+estimate or prevent convergence within the available domain.</p>
+<p><code class="docutils literal notranslate"><span class="pre">SizeStep</span></code> controls the proportional increase in subvolume edge length in
+both analysis stages. The example value <code class="docutils literal notranslate"><span class="pre">0.06</span></code> specifies a 6% increase in edge
+length between successive subvolume sizes, corresponding to an approximate 19%
+increase in volume. The implementation also enforces a minimum increment equal
+to the larger of one voxel and the average pore diameter, and rounds the
+resulting edge length upward to an integer number of voxels. Consequently, the
+actual increase can exceed 6%, especially for small subvolumes. If omitted,
+<code class="docutils literal notranslate"><span class="pre">SizeStep</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">0.06</span></code>. It must be positive.</p>
+<p><code class="docutils literal notranslate"><span class="pre">CCInterval</span></code> is the number of recent subvolume-size measurements used to
+calculate CC in the deterministic analysis. With <code class="docutils literal notranslate"><span class="pre">CCInterval</span> <span class="pre">=</span> <span class="pre">10</span></code>, CC
+measures the relative dispersion of up to the ten most recent measurements;
+the available measurements are used before the window is full. Increasing
+this value assesses convergence over a longer history of subvolume sizes.
+It must be a positive integer and defaults to <code class="docutils literal notranslate"><span class="pre">10</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">StatSamples</span></code> is the number of randomly positioned subvolumes evaluated at
+each size during the statistical analysis. With <code class="docutils literal notranslate"><span class="pre">StatSamples</span> <span class="pre">=</span> <span class="pre">50</span></code>, each
+property is sampled in 50 subvolumes to calculate its mean, minimum, maximum,
+and coefficient of variation (CV). Increasing this value provides more spatial
+samples at a higher computational cost. It must be a positive integer and
+defaults to <code class="docutils literal notranslate"><span class="pre">50</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">SimulationParams</span></code> identifies the input database used for the flow simulation.
+The referenced database must contain an <code class="docutils literal notranslate"><span class="pre">MRT</span></code> block, from which the routine
+reads the relaxation time <code class="docutils literal notranslate"><span class="pre">tau</span></code> and body-force vector <code class="docutils literal notranslate"><span class="pre">F</span></code>.
+A relative path is resolved against the
+directory containing the analysis input database. The
+referenced file supplies only these flow parameters; keep the geometry and
+<code class="docutils literal notranslate"><span class="pre">REV</span></code> settings in the analysis database. <code class="docutils literal notranslate"><span class="pre">SimulationParams</span></code> is required
+when hydraulic analysis is enabled in <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">VelocityPath</span></code> is the directory containing the saved LBPM output. Relative
+paths are resolved from the current working directory. <code class="docutils literal notranslate"><span class="pre">VelocityTimestep</span></code>
+selects a timestep directory within this path and must be supplied as a quoted
+string. Both settings are required when hydraulic analysis is enabled in
+<code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code>. Use <code class="docutils literal notranslate"><span class="pre">VelocityPath</span> <span class="pre">=</span> <span class="pre">&quot;.&quot;</span></code> to select the current working
+directory explicitly.</p>
+<p>The selected timestep must contain <code class="docutils literal notranslate"><span class="pre">LBM.summary</span></code> and a <code class="docutils literal notranslate"><span class="pre">domain</span></code> mesh with
+the scalar volume fields <code class="docutils literal notranslate"><span class="pre">Velocity_x</span></code>, <code class="docutils literal notranslate"><span class="pre">Velocity_y</span></code>, and <code class="docutils literal notranslate"><span class="pre">Velocity_z</span></code>.
+The saved output must contain a single MPI domain whose dimensions match the
+analysis geometry. Use the same geometry and voxel length as the original
+simulation. For an MRT simulation, enable <code class="docutils literal notranslate"><span class="pre">write_silo</span> <span class="pre">=</span> <span class="pre">True</span></code> in its
+<code class="docutils literal notranslate"><span class="pre">Visualization</span></code> block to save the required velocity fields in LBPM output.</p>
+</details><br></section>
+<section id="assessing-output-data">
+<h3>Assessing Output Data<a class="headerlink" href="#assessing-output-data" title="Link to this heading">¶</a></h3>
+<p>Results are written to the current working directory. Enabled geometrical
+analysis produces <code class="docutils literal notranslate"><span class="pre">det_rev_geometric.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">stat_rev_geometric.csv</span></code>;
+enabled hydraulic analysis produces <code class="docutils literal notranslate"><span class="pre">det_rev_hydraulic.csv</span></code> and
+<code class="docutils literal notranslate"><span class="pre">stat_rev_hydraulic.csv</span></code>. The routine also writes
+<code class="docutils literal notranslate"><span class="pre">pore_size_distribution.csv</span></code> when an analysis group is enabled.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the current implementation, the statistical routine uses a fixed
+<code class="docutils literal notranslate"><span class="pre">StatSamples</span></code> count at each size and writes the resulting CV values to
+<code class="docutils literal notranslate"><span class="pre">stat_rev_geometric.csv</span></code> and/or <code class="docutils literal notranslate"><span class="pre">stat_rev_hydraulic.csv</span></code> for the enabled
+groups. Compare these values with the desired tolerance to assess
+statistical representativeness. Automatic comparison of CV with <code class="docutils literal notranslate"><span class="pre">gamma</span></code>
+and adaptive sampling are not implemented.</p>
+</div>
+<p>The six property-selection, convergence, and sampling parameters are optional.
+The three saved-flow settings are required for standalone hydraulic analysis.
+An empty <code class="docutils literal notranslate"><span class="pre">REV</span></code> block activates
+geometrical analysis in <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> and both property groups in
+<code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code>, with <code class="docutils literal notranslate"><span class="pre">gamma</span> <span class="pre">=</span> <span class="pre">0.1</span></code>, <code class="docutils literal notranslate"><span class="pre">SizeStep</span> <span class="pre">=</span> <span class="pre">0.1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CCInterval</span> <span class="pre">=</span> <span class="pre">10</span></code>, and <code class="docutils literal notranslate"><span class="pre">StatSamples</span> <span class="pre">=</span> <span class="pre">50</span></code>. Omitting the entire block disables
+REV analysis.</p>
 </section>
 </section>
 <section id="benchmark-cases">

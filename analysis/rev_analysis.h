@@ -43,7 +43,8 @@ public:
     ~ScaLBL_REV();
 
     // Standalone analysis: read settings, load the domain, then run analysis.
-    void ReadParams(string filename);
+    // The standalone executable supplies false; explicit REV settings override it.
+    void ReadParams(string filename, bool hydraulic_default = true);
     void SetDomain();
     void PoreSize();
     void DetRevAnalysis();

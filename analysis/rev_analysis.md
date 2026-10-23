@@ -16,7 +16,7 @@ run a flow solver. The API sequence is:
 
 ```cpp
 ScaLBL_REV rev(rank, nprocs, comm);
-rev.ReadParams(filename);
+rev.ReadParams(filename, false);
 rev.SetDomain();
 rev.DetRevAnalysis();
 rev.StatRevAnalysis();
@@ -25,7 +25,9 @@ rev.StatRevAnalysis();
 Keep the usual `Domain` settings, including the geometry filename, dimensions,
 labels, voxel length, and process grid. Set `Domain.nproc = 1, 1, 1`.
 
-For geometric analysis, use this REV section:
+The standalone executable defaults to `Hydraulic = false`, so geometry-only
+analysis requires no saved velocity output. Explicit settings in `REV` override
+this default. For geometric analysis, use this REV section:
 
 ```text
 REV {
@@ -38,15 +40,16 @@ REV {
 }
 ```
 
-The existing `Geomtrical` spelling is also accepted. If both spellings are
-present, `Geomtrical` takes precedence for compatibility. If an `MRT` section is
-present, `MRT.REV` controls whether REV analysis runs. Without an `MRT` section,
-the presence of the `REV` section enables analysis.
+Use `Geometrical` for the geometrical setting. The presence of the `REV` section
+enables analysis, independently of any `MRT.REV` setting.
 
 ## Saved velocity fields
 
 For hydraulic analysis, set `Hydraulic = true` and supply output from an earlier
-simulation:
+simulation. The standalone executable requires explicit, nonempty values for
+`SimulationParams`, `VelocityPath`, and `VelocityTimestep`. If any are missing or
+blank, it lists the missing settings and exits with a nonzero status before
+reading saved inputs or geometry. Geometry-only analysis does not require them.
 
 ```text
 REV {
@@ -58,25 +61,27 @@ REV {
 }
 ```
 
-`SimulationParams` points to the database used to run the simulation. REV reads
-`tau` and `F` from its `MRT` section, or its `BGK` section if `MRT` is absent.
-You do not need to repeat these values in the analysis database. Relative
-`SimulationParams` paths are resolved against the directory containing the
-analysis database; absolute paths are also accepted. For example,
+`SimulationParams` points to the database used to run the simulation. The
+referenced database must contain an `MRT` section, from which REV reads `tau`
+and `F`. A `BGK` section is not accepted as a substitute. You do not need to
+repeat these values in the analysis database. Relative `SimulationParams`
+paths are resolved against the directory containing the analysis database;
+absolute paths are also accepted. For example,
 `SimulationParams = "../simulation/params.db"` selects a sibling simulation
 directory.
 
 The referenced file supplies the flow parameters only: keep `Domain` and the
 REV settings in the analysis database. Its `MRT.REV` value does not enable or
-disable the analysis. Without `SimulationParams`, the analysis continues to
-read `tau` and `F` from its own `MRT` section, with the usual solver defaults
-for omitted values. When `SimulationParams` is present, the referenced flow
-parameters take precedence over the analysis database's `MRT` values.
+disable the analysis. The referenced flow parameters take precedence over the
+analysis database's `MRT` values. Missing `tau` or `F` entries in that referenced
+`MRT` section use the usual solver defaults; the standalone executable requires
+the `SimulationParams` path itself whenever hydraulic analysis is enabled.
 
-`VelocityPath` is the output directory containing `LBM.visit` and timestep
-directories. It defaults to the current working directory. `VelocityTimestep`
-is a directory name, quoted as a string. If omitted, the last entry in the
-output's timestep list is used.
+`VelocityPath` is the output directory containing timestep directories.
+Relative paths are resolved from the current working directory; use `"."` to
+select it explicitly. `VelocityTimestep` is a directory name, quoted as a
+string. Both settings must be supplied for standalone hydraulic analysis; the
+executable does not select a default directory or timestep.
 
 The selected timestep must contain `LBM.summary` and a `domain` mesh with scalar
 cell fields named `Velocity_x`, `Velocity_y`, and `Velocity_z`. LBPM's existing
@@ -99,7 +104,8 @@ rev.DetRevAnalysis(model);
 rev.StatRevAnalysis(model);
 ```
 
-Call `rev.ReadParams(filename)` first. The model must expose `Nx`, `Ny`, `Nz`,
+Call `rev.ReadParams(filename)` first; this keeps the hydraulic default enabled
+for the combined simulation workflow. The model must expose `Nx`, `Ny`, `Nz`,
 `Dm->voxel_length`, `Distance`, `Velocity_x`, `Velocity_y`, `Velocity_z`, `tau`,
 `Fx`, `Fy`, and `Fz`. The arrays use LBPM's `DoubleArray` type and include the
 usual one-cell halos. MRT and BGK models meet this interface.
