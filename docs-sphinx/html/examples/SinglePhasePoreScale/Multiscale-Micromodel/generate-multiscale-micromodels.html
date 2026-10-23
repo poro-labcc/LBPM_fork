@@ -245,6 +245,12 @@ more details see <a class="reference internal" href="Multiscale-Micromodel.html"
     OutletLayers = 0, 0, 0
     BC = 0
 }
+MRT {
+    tau = 0.9330127
+    F = 0.0, 0.0, 1e-06
+    timestepMax = 1000000
+    tolerance = 1e-06
+}
 Visualization {
     format = &quot;vtk&quot;
     write_silo = true
@@ -252,12 +258,6 @@ Visualization {
     save_phase_field = true
     save_pressure = true
     save_velocity = true
-}
-MRT {
-    tau = 0.9330127
-    F = 0.0, 0.0, 1e-06
-    timestepMax = 1000000
-    tolerance = 1e-06
 }
 </pre></div>
 </div>

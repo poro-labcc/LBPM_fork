@@ -169,6 +169,12 @@ more details see :doc:`../../../examples/SinglePhasePoreScale/Multiscale-Micromo
        OutletLayers = 0, 0, 0
        BC = 0
    }
+   MRT {
+       tau = 0.9330127
+       F = 0.0, 0.0, 1e-06
+       timestepMax = 1000000
+       tolerance = 1e-06
+   }
    Visualization {
        format = "vtk"
        write_silo = true
@@ -176,12 +182,6 @@ more details see :doc:`../../../examples/SinglePhasePoreScale/Multiscale-Micromo
        save_phase_field = true
        save_pressure = true
        save_velocity = true
-   }
-   MRT {
-       tau = 0.9330127
-       F = 0.0, 0.0, 1e-06
-       timestepMax = 1000000
-       tolerance = 1e-06
    }
 
 Make sure to update the ``Filename``, ``voxel_length``, ``N``, ``nproc``, and ``n`` fields according to the specific mesh and 
