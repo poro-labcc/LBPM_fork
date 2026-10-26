@@ -70,6 +70,7 @@ public:
     double gamma;
     bool geometrical = true;
     bool hydraulic = true;
+    bool seed_anchor = true;
 
     DoubleArray Distance, Velocity_x, Velocity_y, Velocity_z;
     double tau, Fx, Fy, Fz;

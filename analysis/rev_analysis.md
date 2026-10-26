@@ -37,11 +37,19 @@ REV {
     CCInterval = 10
     gamma = 0.1
     StatSamples = 50
+    Seed_Anchor = true
 }
 ```
 
 Use `Geometrical` for the geometrical setting. The presence of the `REV` section
 enables analysis, independently of any `MRT.REV` setting.
+
+`Seed_Anchor` controls random subvolume placement in the statistical analysis
+and defaults to `true` in both REV executables. With `Seed_Anchor = true`, the
+random generator uses the fixed seed `0`, making sampling reproducible for the
+same input and configuration. With `Seed_Anchor = false`, it uses a seed from
+`std::random_device`, so sampled locations can vary between runs. This setting
+does not affect the deterministic analysis.
 
 ## Saved velocity fields
 
@@ -55,6 +63,7 @@ reading saved inputs or geometry. Geometry-only analysis does not require them.
 REV {
     Geometrical = true
     Hydraulic = true
+    Seed_Anchor = true
     SimulationParams = "/path/to/simulation/params.db"
     VelocityPath = "/path/to/simulation/results"
     VelocityTimestep = "vis3000"

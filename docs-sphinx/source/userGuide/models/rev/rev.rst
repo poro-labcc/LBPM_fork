@@ -16,7 +16,7 @@ representativeness of microtomography images and estimating effective sample vol
 .. _rev-properties:
 
 .. list-table:: Properties available for REV analysis.
-   :widths: 25 25 25 25
+   :widths: 25 25 25
    :header-rows: 1
    :align: center
 
@@ -283,6 +283,7 @@ is activated by the presence of a ``REV`` block in ``input.db``, alongside the u
       SizeStep = 0.06
       CCInterval = 10
       StatSamples = 50
+      Seed_Anchor = True
    }
 
 --------------------------------
@@ -307,6 +308,7 @@ set explicitly:
    REV {
       Geometrical = True
       Hydraulic = False
+      Seed_Anchor = True
    }
 
 An ``MRT`` block is not required for this configuration. Set ``Hydraulic = True`` explicitly to enable
@@ -319,6 +321,7 @@ block enables both property groups:
    REV {
       Geometrical = True
       Hydraulic = True
+      Seed_Anchor = True
       SimulationParams = "/path/to/simulation/input.db"
       VelocityPath = "/path/to/simulation/results"
       VelocityTimestep = "vis3000"
@@ -385,6 +388,14 @@ and coefficient of variation (CV). Increasing this value provides more spatial
 samples at a higher computational cost. It must be a positive integer and
 defaults to ``50``.
 
+``Seed_Anchor`` controls the random generator used to position subvolumes in
+the statistical analysis. It defaults to ``True`` in both routines, which
+initializes ``std::mt19937`` with the fixed seed ``0`` and makes sampling
+reproducible for the same input and configuration. Set ``Seed_Anchor = False``
+to initialize the generator with a seed from ``std::random_device``, allowing
+the sampled locations to vary between runs. This parameter does not affect
+the deterministic analysis.
+
 ``SimulationParams`` identifies the input database used for the flow simulation.
 The referenced database must contain an ``MRT`` block, from which the routine
 reads the relaxation time ``tau`` and body-force vector ``F``.
@@ -416,33 +427,360 @@ simulation. For an MRT simulation, enable ``write_silo = True`` in its
 
    <br>
 
-The six property-selection, convergence, and sampling parameters are optional.
+The seven property-selection, convergence, and sampling parameters are optional.
 The three saved-flow settings are required for standalone hydraulic analysis.
 An empty ``REV`` block activates
 geometrical analysis in ``lbpm_rev_analysis`` and both property groups in
 ``lbpm_rev_permeability_simulator``, with ``gamma = 0.1``, ``SizeStep = 0.1``,
-``CCInterval = 10``, and ``StatSamples = 50``. Omitting the entire block disables
-REV analysis.
+``CCInterval = 10``, ``StatSamples = 50``, and ``Seed_Anchor = True``. Omitting
+the entire block disables REV analysis.
 
---------------------------------------
+****************************
 Assessing Output Data
---------------------------------------
+****************************
+
+As an examples for the output data analysis, we perform a REV analyses for Berea sample 
+(also analyzed in :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`)
+using both routines ``lbpm_rev_permeability_simulator`` and ``lbpm_rev_analysis``. In the present
+case we will set ``Seed_Anchor = True`` to keep reproducibillity of the present results. For the
+present analysis we employ a geometrical and hydraulic REV analysis:
+
+--------------------------------
+lbpm_rev_permeability_simulator
+--------------------------------
+
+Running the REV analysis inside of the routine ``lbpm_rev_permeability_simulator``
+
+.. code-block:: text
+
+   MRT {
+   tau = 0.9
+   F = 0.0, 0.0, 1.0e-4
+   timestepMax = 200000
+   tolerance = 0.00001
+   }
+   Domain {
+      Filename = "Berea.raw"
+      ReadType = "8bit"      // data type
+      N = 400, 400, 400     // size of original image
+      nproc = 1, 1, 1        // process grid
+      n = 400, 400, 400      // sub-domain size
+      offset = 0, 0, 0 // offset to read sub-domain
+      InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+      OutletLayers = 0, 0, 10 // specify 10 layers along the z-outlet
+      voxel_length = 5.345    // voxel length (in microns)
+      ReadValues = 0, 1   // labels within the original image
+      WriteValues = 1, 0  // associated labels to be used by LBPM
+      BC = 0                 // boundary condition type (0 for periodic)
+   }
+   REV {
+      Geomtrical = True
+      Hydraulic = True
+      gamma = 0.1
+      SizeStep = 0.06
+      CCInterval = 10
+      StatSamples = 50
+   }
+   Visualization {
+      write_silo = true     // write SILO databases with assigned variables
+      save_velocity = true    // save velocity field within SILO database
+   }
 
 Results are written to the current working directory. Enabled geometrical
 analysis produces ``det_rev_geometric.csv`` and ``stat_rev_geometric.csv``;
 enabled hydraulic analysis produces ``det_rev_hydraulic.csv`` and
 ``stat_rev_hydraulic.csv``. The routine also writes
-``pore_size_distribution.csv`` when an analysis group is enabled.
+``pore_size_distribution.csv`` when an analysis group is enabled. For a 
+detailed description of the output data printed in ``det_rev_geometric.csv``, ``stat_rev_geometric.csv``,
+``det_rev_hydraulic.csv`` and ``stat_rev_hydraulic.csv``, expand the section 
+below using the toggle button.
+
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: .csv Output Data</strong></summary>
+
+All four REV files are plain-text tables with a header row. Despite the
+``.csv`` extension, fields are separated by spaces, so use a whitespace
+delimiter when importing them. Results are appended to existing files, and
+the header is written only when a file is empty. Separate runs therefore
+accumulate in the same table without a run or timestep identifier.
+
+The suffixes ``_vx`` and ``_um`` indicate lengths in voxels and micrometres,
+respectively. With :math:`h` equal to ``Domain.voxel_length`` in micrometres,
+``x_size_um = x_size_vx * h``. These columns report the reference size in the
+:math:`x` direction; the other subvolume dimensions follow the domain aspect
+ratio, subject to integer rounding.
+
+.. rubric:: Deterministic geometrical output: ``det_rev_geometric.csv``
+
+Each row describes one centered subvolume at a successive size. The columns
+appear in the following order:
+
+.. list-table::
+   :widths: auto
+   :align: center
+
+   * - ``iter_step``
+     - ``x_size_um``
+     - ``x_size_vx``
+     - ``porosity``
+     - ``rev_poro_um``
+     - ``rev_poro_vx``
+     - ``RE_poro``
+     - ``CC_poro``
+     - ``surface``
+     - ``rev_surf_um``
+     - ``rev_surf_vx``
+     - ``RE_surf``
+     - ``CC_surf``
+
+.. list-table:: Columns in the deterministic geometrical output.
+   :header-rows: 1
+   :widths: 35 65
+   :align: center
+
+   * - Column(s)
+     - Meaning
+   * - ``iter_step``
+     - Subvolume-size iteration, starting at zero for each analysis run.
+   * - ``x_size_um``, ``x_size_vx``
+     - Current reference subvolume size in micrometres and voxels.
+   * - ``porosity``
+     - Pore-voxel count divided by the total voxel count in the subvolume;
+       a dimensionless fraction, not a percentage.
+   * - ``rev_poro_um``, ``rev_poro_vx``
+     - First subvolume size accepted as the deterministic porosity REV,
+       in micrometres and voxels.
+   * - ``RE_poro``, ``CC_poro``
+     - Relative change between successive porosity measurements and
+       dispersion over the recent size history, as defined below.
+   * - ``surface``
+     - Specific pore-solid interfacial area per total subvolume volume,
+       in inverse micrometres. The implementation estimates it by counting
+       voxel faces separating opposite signs of the distance field inside
+       the subvolume; it is not the total interface area.
+   * - ``rev_surf_um``, ``rev_surf_vx``
+     - First subvolume size accepted as the deterministic specific-surface
+       REV, in micrometres and voxels.
+   * - ``RE_surf``, ``CC_surf``
+     - Relative change and recent-history dispersion for specific surface
+       area.
+
+.. rubric:: Deterministic hydraulic output: ``det_rev_hydraulic.csv``
+
+This file uses the same centered subvolumes and iteration numbering as the
+deterministic geometrical file when both groups are enabled:
+
+.. list-table::
+   :widths: auto
+   :align: center
+
+   * - ``iter_step``
+     - ``x_size_um``
+     - ``x_size_vx``
+     - ``permeability``
+     - ``rev_perm_um``
+     - ``rev_perm_vx``
+     - ``RE_perm``
+     - ``CC_perm``
+     - ``tortuosity``
+     - ``rev_tort_um``
+     - ``rev_tort_vx``
+     - ``RE_tort``
+     - ``CC_tort``
+
+.. list-table:: Columns in the deterministic hydraulic output.
+   :header-rows: 1
+   :widths: 35 65
+   :align: center
+
+   * - Column(s)
+     - Meaning
+   * - ``iter_step``
+     - Subvolume-size iteration, starting at zero.
+   * - ``x_size_um``, ``x_size_vx``
+     - Current reference subvolume size in micrometres and voxels.
+   * - ``permeability``
+     - Permeability estimated from the existing velocity field within the
+       subvolume, in millidarcy (mD). The pore-averaged velocity is projected
+       onto the applied body-force direction and weighted by porosity;
+       a separate flow simulation is not run for each subvolume.
+   * - ``rev_perm_um``, ``rev_perm_vx``
+     - First subvolume size accepted as the deterministic permeability REV,
+       in micrometres and voxels.
+   * - ``RE_perm``, ``CC_perm``
+     - Relative change and recent-history dispersion for permeability.
+   * - ``tortuosity``
+     - Dimensionless hydraulic tortuosity, calculated as the sum of pore
+       velocity magnitudes divided by the sum of pore :math:`z` velocities.
+   * - ``rev_tort_um``, ``rev_tort_vx``
+     - First subvolume size accepted as the deterministic tortuosity REV,
+       in micrometres and voxels.
+   * - ``RE_tort``, ``CC_tort``
+     - Relative change and recent-history dispersion calculated from
+       ``tortuosity - 1``, rather than the displayed tortuosity.
+
+.. attention::
+
+   For interpreting the values actually written to the deterministic tables,
+   let :math:`q_i` denote the property measured at size iteration :math:`i`.
+   The implemented relative-change calculation is
+
+   .. math::
+
+      RE_i = 2\left|\frac{q_i-q_{i-1}}{q_i+q_{i-1}}\right|.
+
+   ``CC`` is the population standard deviation divided by the arithmetic mean
+   of the most recent ``CCInterval`` measurements, using the available history
+   before that window is full and excluding invalid values. For tortuosity,
+   :math:`q_i = \tau_{h,i}-1` in both calculations. The coefficients are
+   dimensionless fractions: ``0.05`` corresponds to 5%.
+
+A property's ``rev_*`` columns are set when both ``RE`` and ``CC`` first
+satisfy :math:`0 \le RE < \gamma` and :math:`0 \le CC < \gamma`. The
+accepted size is retained in subsequent rows even if the coefficients
+later increase. The analysis continues through the full domain, so the
+last row's ``x_size_*`` need not equal the identified REV size.
+
+Before a property converges, ``rev_*_vx`` is ``-1`` and ``rev_*_um`` is
+``-h`` because the voxel sentinel is multiplied by the voxel length.
+If these values persist to the last row, no deterministic REV was found
+for that property. Unavailable ``RE`` or ``CC`` values are written as
+``-1``; both are unavailable on the first row. A zero normalization
+denominator also leaves the corresponding coefficient at ``-1``.
+
+.. rubric:: Statistical geometrical output: ``stat_rev_geometric.csv``
+
+Each row summarizes ``StatSamples`` randomly positioned subvolumes at one
+reference size. It contains aggregate statistics, not individual sample
+measurements or locations. The columns are:
+
+.. list-table::
+   :widths: auto
+   :align: center
+
+   * - ``x_size_um``
+     - ``x_size_vx``
+     - ``stat_poro``
+     - ``stat_poro_mean``
+     - ``stat_poro_max``
+     - ``stat_poro_min``
+     - ``stat_surf``
+     - ``stat_surf_mean``
+     - ``stat_surf_max``
+     - ``stat_surf_min``
+
+.. list-table:: Columns in the statistical geometrical output.
+   :header-rows: 1
+   :widths: 35 65
+   :align: center
+
+   * - Column(s)
+     - Meaning
+   * - ``x_size_um``, ``x_size_vx``
+     - Reference size shared by the sampled subvolumes, in micrometres and
+       voxels.
+   * - ``stat_poro``
+     - Dimensionless coefficient of variation (CV) of sampled porosities.
+   * - ``stat_poro_mean``, ``stat_poro_max``, ``stat_poro_min``
+     - Arithmetic mean, maximum, and minimum porosity across the samples,
+       all expressed as dimensionless fractions.
+   * - ``stat_surf``
+     - Dimensionless CV of sampled specific surface areas.
+   * - ``stat_surf_mean``, ``stat_surf_max``, ``stat_surf_min``
+     - Arithmetic mean, maximum, and minimum specific surface area, in
+       inverse micrometres, using the same voxel-face estimate as the
+       deterministic analysis.
+
+.. rubric:: Statistical hydraulic output: ``stat_rev_hydraulic.csv``
+
+This file summarizes the same random subvolumes as the statistical
+geometrical file when both groups are enabled:
+
+.. list-table::
+   :widths: auto
+   :align: center
+
+   * - ``x_size_um``
+     - ``x_size_vx``
+     - ``stat_perm``
+     - ``stat_perm_mean``
+     - ``stat_perm_max``
+     - ``stat_perm_min``
+     - ``stat_tort``
+     - ``stat_tort_mean``
+     - ``stat_tort_max``
+     - ``stat_tort_min``
+
+.. list-table:: Columns in the statistical hydraulic output.
+   :header-rows: 1
+   :widths: 35 65
+   :align: center
+
+   * - Column(s)
+     - Meaning
+   * - ``x_size_um``, ``x_size_vx``
+     - Reference size shared by the sampled subvolumes, in micrometres and
+       voxels.
+   * - ``stat_perm``
+     - Dimensionless CV of sampled permeabilities.
+   * - ``stat_perm_mean``, ``stat_perm_max``, ``stat_perm_min``
+     - Arithmetic mean, maximum, and minimum permeability, in mD.
+   * - ``stat_tort``
+     - Dimensionless CV calculated from sampled ``tortuosity - 1`` values.
+       It is not the CV of the displayed tortuosity values.
+   * - ``stat_tort_mean``, ``stat_tort_max``, ``stat_tort_min``
+     - Arithmetic mean, maximum, and minimum hydraulic tortuosity. The
+       routine adds one back after computing the statistics, so these
+       dimensionless columns report tortuosity itself.
+
+.. attention::
+
+   For each statistical property, CV is the population standard deviation
+   divided by the mean over valid samples; internal values equal to ``-1``
+   are excluded. The population standard deviation uses the number of valid
+   samples as its divisor. A CV of ``0.05`` means 5% relative dispersion.
+   ``-1`` means that CV is unavailable, either because no samples are valid
+   or because the mean used for normalization is zero. Neither the number of
+   valid samples nor the standard deviation is written separately.
+
+   The statistical size sequence begins at the smallest deterministic REV
+   found among the enabled properties. If none was found, it begins at twice
+   the average pore diameter. Sizes then increase while remaining smaller
+   than the full domain's :math:`x` extent. Consequently, the statistical
+   and deterministic files can contain different size sequences and row
+   counts; compare them using ``x_size_vx`` or ``x_size_um``. If the initial
+   statistical size already reaches the domain limit, the file has no data
+   rows for that run.
 
 .. note::
 
-   In the current implementation, the statistical routine uses a fixed
-   ``StatSamples`` count at each size and writes the resulting CV values to
-   ``stat_rev_geometric.csv`` and/or ``stat_rev_hydraulic.csv`` for the enabled
-   groups. Compare these values with the desired tolerance to assess
-   statistical representativeness. Automatic comparison of CV with ``gamma``
-   and adaptive sampling are not implemented.
+   The current tortuosity calculation always uses the :math:`z` velocity
+   component, even if the body force points in another direction. A zero
+   summed :math:`z` velocity gives an invalid internal tortuosity value,
+   which is printed as ``0`` in the deterministic file and excluded from
+   statistical calculations. If all tortuosity samples at a size are
+   invalid, ``stat_tort`` is ``-1`` and the reported mean, maximum, and
+   minimum are initialization artifacts (``1``, ``0``, and approximately
+   ``1e100``); these are not physical tortuosity statistics.
 
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>
+
+The results obtained by the Berea sample are illustrated in the Figure XX, for the
+data porosity, superficial area, absolute permeability, and hydraulic tortuosity.
+The python code use generate the below plot is shared in the toogle button below the
+plot.
+
+.. figure:: ../../../_static/images/rev_combined.svg
+   :width: 100%
+   :align: center
 
 
 ****************************

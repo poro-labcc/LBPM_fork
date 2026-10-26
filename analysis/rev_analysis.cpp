@@ -61,6 +61,7 @@ void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
     hydraulic = rev_db->keyExists("Hydraulic")
         ? rev_db->getScalar<bool>("Hydraulic")
         : hydraulic_default;
+    seed_anchor = rev_db->getWithDefault<bool>("Seed_Anchor", true);
     if (rev_db->keyExists("SizeStep"))
         size_step = rev_db->getScalar<double>("SizeStep");
     if (rev_db->keyExists("CCInterval"))
@@ -638,6 +639,10 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
         return;
 
     std::mt19937 rng(0);
+    if (!seed_anchor) {
+        std::random_device rd;
+        rng.seed(rd());
+    }
 
     int Nx = model.Nx, Ny = model.Ny, Nz = model.Nz;
     

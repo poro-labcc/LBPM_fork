@@ -62,6 +62,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#methodology">Methodology</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#run-rev-analysis">Run REV Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#assessing-output-data">Assessing Output Data</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#benchmark-cases">Benchmark Cases</a></li>
 </ul>
 </li>
@@ -112,11 +113,35 @@ investigate larger volumes that capture the intrinsic heterogeneities of porous 
 identification of representative elementary volumes (REVs), beyond which the influence of local heterogeneities becomes
 negligible and specific effective properties of the porous medium can be reliably characterized.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> routine provides an automated REV analysis for a range of
-geometrical and hydrodynamic properties, as summarized in <code class="xref std std-numref docutils literal notranslate"><span class="pre">Table</span> <span class="pre">%s</span></code>. By combining deterministic and statistical approaches,
+geometrical and hydrodynamic properties, as summarized in <a class="reference internal" href="#rev-properties"><span class="std std-numref">Table 1</span></a>. By combining deterministic and statistical approaches,
 the routine enables a comprehensive characterization of these properties, providing valuable insights for assessing the
 representativeness of microtomography images and estimating effective sample volumes for subsequent numerical analyses.</p>
+<span id="rev-properties"></span><table class="docutils align-center" id="id5">
+<caption><span class="caption-number">Table 1 </span><span class="caption-text">Properties available for REV analysis.</span><a class="headerlink" href="#id5" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>Property 1</p></th>
+<th class="head"><p>Property 2</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Geometrical</p></td>
+<td><p>Porosity (<span class="math notranslate nohighlight">\(\phi\)</span>)</p></td>
+<td><p>Superficial Area (<span class="math notranslate nohighlight">\(A_{s}\)</span>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hydrodynamic</p></td>
+<td><p>Absolute Permeability (<span class="math notranslate nohighlight">\(K_{z}\)</span>)</p></td>
+<td><p>Hydraulic Tortuosity (<span class="math notranslate nohighlight">\(\tau_{h}\)</span>)</p></td>
+</tr>
+</tbody>
+</table>
 <section id="methodology">
-<span id="rev-properties"></span><h2>Methodology<a class="headerlink" href="#methodology" title="Link to this heading">¶</a></h2>
+<h2>Methodology<a class="headerlink" href="#methodology" title="Link to this heading">¶</a></h2>
 <p>The implemented REV routine combines deterministic and statistical approaches into a <strong>hybrid methodology</strong>, as illustrated
 in the workflow diagram presented in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5</span></a>. The deterministic stage provides an initial estimate of the REV
 size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
@@ -131,20 +156,20 @@ expand the toggle sections below for the deterministic and statistical analyses.
 <col style="width: 50.0%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><figure class="align-center" id="id4">
+<tr class="row-odd"><td><figure class="align-center" id="id6">
 <span id="rev-workflow"></span><a class="reference internal image-reference" href="../../../_images/rev-workflow.svg"><img alt="../../../_images/rev-workflow.svg" src="../../../_images/rev-workflow.svg" style="width: 70%;" />
 </a>
 <figcaption>
 <p><span class="caption-number">Fig. 5 </span><span class="caption-text">Workflow of the hybrid REV analysis, combining deterministic
-(steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#id4" title="Link to this image">¶</a></p>
+(steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
-<td><figure class="align-center" id="id5">
+<td><figure class="align-center" id="id7">
 <a class="reference internal image-reference" href="../../../_images/REVHybridAnimation.gif"><img alt="../../../_images/REVHybridAnimation.gif" src="../../../_images/REVHybridAnimation.gif" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">GIF Animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#id5" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">GIF Animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#id7" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -182,7 +207,7 @@ is evaluated within the centered subvolume.</p></li>
 calculated to quantify the variation of the measured property with
 increasing subvolume size.</p>
 <p>The first metric is the relative error (RE), defined following
-<span id="id1"></span> as</p>
+<span id="id1">Li <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id12" title="Lisa Jinhui Li, Li Min Zhang, Y. Wang, and Delwyn D. Fredlund. Permeability tensor and representative elementary volume of saturated cracked soil. Canadian Geotechnical Journal, 46(8):928–942, 2009.">4</a>]</span> as</p>
 <div class="math notranslate nohighlight" id="equation-rev-relative-error">
 <span class="eqno">(111)<a class="headerlink" href="#equation-rev-relative-error" title="Link to this equation">¶</a></span>\[RE_i =
 \left|
@@ -196,7 +221,7 @@ subvolume, and <span class="math notranslate nohighlight">\(V_i\)</span> denotes
 This metric quantifies the local variation of the property as the
 evaluated subvolume increases in size.</p>
 <p>The second metric is the convergence criterion (CC), introduced by
-<span id="id2"></span>:</p>
+<span id="id2">Marafini <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id13" title="Ester Marafini, Michele La Rocca, Aldo Fiori, Ilenia Battiato, and Pietro Prestininzi. Suitability of 2d modelling to evaluate flow properties in 3d porous media. Transport in Porous Media, 2020. URL: https://doi.org/10.1007/s11242-020-01447-4, doi:10.1007/s11242-020-01447-4.">5</a>]</span>:</p>
 <div class="math notranslate nohighlight" id="equation-rev-convergence-criterion">
 <span class="eqno">(112)<a class="headerlink" href="#equation-rev-convergence-criterion" title="Link to this equation">¶</a></span>\[CC_i =
 \frac{
@@ -258,7 +283,7 @@ computational domain, and the property of interest is evaluated
 independently in each subvolume.</p></li>
 <li><p><strong>Evaluate statistical convergence:</strong> The dispersion of the measurements
 is quantified using the coefficient of variation (CV), following
-<span id="id3"></span>:</p>
+<span id="id3">Zhang <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id14" title="Dongxiao Zhang, Ruisong Zhang, Shiyi Chen, and Wendy E. Soll. Pore scale study of flow in porous media: scale dependency, rev, and statistical rev. Geophysical Research Letters, 27(8):1195-1198, apr 2000. doi:10.1029/1999GL011101.">6</a>]</span>:</p>
 <div class="math notranslate nohighlight" id="equation-rev-coefficient-variation">
 <span class="eqno">(114)<a class="headerlink" href="#equation-rev-coefficient-variation" title="Link to this equation">¶</a></span>\[CV = \frac{\sigma(\eta)}{\overline{\eta}} &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma(\eta)\)</span> is the standard deviation of the property
@@ -305,6 +330,7 @@ is activated by the presence of a <code class="docutils literal notranslate"><sp
    SizeStep = 0.06
    CCInterval = 10
    StatSamples = 50
+   Seed_Anchor = True
 }
 </pre></div>
 </div>
@@ -324,6 +350,7 @@ set explicitly:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REV {
    Geometrical = True
    Hydraulic = False
+   Seed_Anchor = True
 }
 </pre></div>
 </div>
@@ -334,6 +361,7 @@ block enables both property groups:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REV {
    Geometrical = True
    Hydraulic = True
+   Seed_Anchor = True
    SimulationParams = &quot;/path/to/simulation/input.db&quot;
    VelocityPath = &quot;/path/to/simulation/results&quot;
    VelocityTimestep = &quot;vis3000&quot;
@@ -388,6 +416,13 @@ property is sampled in 50 subvolumes to calculate its mean, minimum, maximum,
 and coefficient of variation (CV). Increasing this value provides more spatial
 samples at a higher computational cost. It must be a positive integer and
 defaults to <code class="docutils literal notranslate"><span class="pre">50</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Seed_Anchor</span></code> controls the random generator used to position subvolumes in
+the statistical analysis. It defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code> in both routines, which
+initializes <code class="docutils literal notranslate"><span class="pre">std::mt19937</span></code> with the fixed seed <code class="docutils literal notranslate"><span class="pre">0</span></code> and makes sampling
+reproducible for the same input and configuration. Set <code class="docutils literal notranslate"><span class="pre">Seed_Anchor</span> <span class="pre">=</span> <span class="pre">False</span></code>
+to initialize the generator with a seed from <code class="docutils literal notranslate"><span class="pre">std::random_device</span></code>, allowing
+the sampled locations to vary between runs. This parameter does not affect
+the deterministic analysis.</p>
 <p><code class="docutils literal notranslate"><span class="pre">SimulationParams</span></code> identifies the input database used for the flow simulation.
 The referenced database must contain an <code class="docutils literal notranslate"><span class="pre">MRT</span></code> block, from which the routine
 reads the relaxation time <code class="docutils literal notranslate"><span class="pre">tau</span></code> and body-force vector <code class="docutils literal notranslate"><span class="pre">F</span></code>.
@@ -408,30 +443,375 @@ The saved output must contain a single MPI domain whose dimensions match the
 analysis geometry. Use the same geometry and voxel length as the original
 simulation. For an MRT simulation, enable <code class="docutils literal notranslate"><span class="pre">write_silo</span> <span class="pre">=</span> <span class="pre">True</span></code> in its
 <code class="docutils literal notranslate"><span class="pre">Visualization</span></code> block to save the required velocity fields in LBPM output.</p>
-</details><br></section>
-<section id="assessing-output-data">
-<h3>Assessing Output Data<a class="headerlink" href="#assessing-output-data" title="Link to this heading">¶</a></h3>
-<p>Results are written to the current working directory. Enabled geometrical
-analysis produces <code class="docutils literal notranslate"><span class="pre">det_rev_geometric.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">stat_rev_geometric.csv</span></code>;
-enabled hydraulic analysis produces <code class="docutils literal notranslate"><span class="pre">det_rev_hydraulic.csv</span></code> and
-<code class="docutils literal notranslate"><span class="pre">stat_rev_hydraulic.csv</span></code>. The routine also writes
-<code class="docutils literal notranslate"><span class="pre">pore_size_distribution.csv</span></code> when an analysis group is enabled.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In the current implementation, the statistical routine uses a fixed
-<code class="docutils literal notranslate"><span class="pre">StatSamples</span></code> count at each size and writes the resulting CV values to
-<code class="docutils literal notranslate"><span class="pre">stat_rev_geometric.csv</span></code> and/or <code class="docutils literal notranslate"><span class="pre">stat_rev_hydraulic.csv</span></code> for the enabled
-groups. Compare these values with the desired tolerance to assess
-statistical representativeness. Automatic comparison of CV with <code class="docutils literal notranslate"><span class="pre">gamma</span></code>
-and adaptive sampling are not implemented.</p>
-</div>
-<p>The six property-selection, convergence, and sampling parameters are optional.
+</details><br><p>The seven property-selection, convergence, and sampling parameters are optional.
 The three saved-flow settings are required for standalone hydraulic analysis.
 An empty <code class="docutils literal notranslate"><span class="pre">REV</span></code> block activates
 geometrical analysis in <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> and both property groups in
 <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code>, with <code class="docutils literal notranslate"><span class="pre">gamma</span> <span class="pre">=</span> <span class="pre">0.1</span></code>, <code class="docutils literal notranslate"><span class="pre">SizeStep</span> <span class="pre">=</span> <span class="pre">0.1</span></code>,
-<code class="docutils literal notranslate"><span class="pre">CCInterval</span> <span class="pre">=</span> <span class="pre">10</span></code>, and <code class="docutils literal notranslate"><span class="pre">StatSamples</span> <span class="pre">=</span> <span class="pre">50</span></code>. Omitting the entire block disables
-REV analysis.</p>
+<code class="docutils literal notranslate"><span class="pre">CCInterval</span> <span class="pre">=</span> <span class="pre">10</span></code>, <code class="docutils literal notranslate"><span class="pre">StatSamples</span> <span class="pre">=</span> <span class="pre">50</span></code>, and <code class="docutils literal notranslate"><span class="pre">Seed_Anchor</span> <span class="pre">=</span> <span class="pre">True</span></code>. Omitting
+the entire block disables REV analysis.</p>
+</section>
+</section>
+<section id="assessing-output-data">
+<h2>Assessing Output Data<a class="headerlink" href="#assessing-output-data" title="Link to this heading">¶</a></h2>
+<p>As an examples for the output data analysis, we perform a REV analyses for Berea sample
+(also analyzed in <a class="reference internal" href="../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases.html"><span class="doc">3D Digital Rocks</span></a>)
+using both routines <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code> and <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code>. In the present
+case we will set <code class="docutils literal notranslate"><span class="pre">Seed_Anchor</span> <span class="pre">=</span> <span class="pre">True</span></code> to keep reproducibillity of the present results. For the
+present analysis we employ a geometrical and hydraulic REV analysis:</p>
+<section id="id4">
+<h3>lbpm_rev_permeability_simulator<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<p>Running the REV analysis inside of the routine <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>MRT {
+tau = 0.9
+F = 0.0, 0.0, 1.0e-4
+timestepMax = 200000
+tolerance = 0.00001
+}
+Domain {
+   Filename = &quot;Berea.raw&quot;
+   ReadType = &quot;8bit&quot;      // data type
+   N = 400, 400, 400     // size of original image
+   nproc = 1, 1, 1        // process grid
+   n = 400, 400, 400      // sub-domain size
+   offset = 0, 0, 0 // offset to read sub-domain
+   InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+   OutletLayers = 0, 0, 10 // specify 10 layers along the z-outlet
+   voxel_length = 5.345    // voxel length (in microns)
+   ReadValues = 0, 1   // labels within the original image
+   WriteValues = 1, 0  // associated labels to be used by LBPM
+   BC = 0                 // boundary condition type (0 for periodic)
+}
+REV {
+   Geomtrical = True
+   Hydraulic = True
+   gamma = 0.1
+   SizeStep = 0.06
+   CCInterval = 10
+   StatSamples = 50
+}
+Visualization {
+   write_silo = true     // write SILO databases with assigned variables
+   save_velocity = true    // save velocity field within SILO database
+}
+</pre></div>
+</div>
+<p>Results are written to the current working directory. Enabled geometrical
+analysis produces <code class="docutils literal notranslate"><span class="pre">det_rev_geometric.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">stat_rev_geometric.csv</span></code>;
+enabled hydraulic analysis produces <code class="docutils literal notranslate"><span class="pre">det_rev_hydraulic.csv</span></code> and
+<code class="docutils literal notranslate"><span class="pre">stat_rev_hydraulic.csv</span></code>. The routine also writes
+<code class="docutils literal notranslate"><span class="pre">pore_size_distribution.csv</span></code> when an analysis group is enabled. For a
+detailed description of the output data printed in <code class="docutils literal notranslate"><span class="pre">det_rev_geometric.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_rev_geometric.csv</span></code>,
+<code class="docutils literal notranslate"><span class="pre">det_rev_hydraulic.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">stat_rev_hydraulic.csv</span></code>, expand the section
+below using the toggle button.</p>
+<details>
+<summary><strong>Click here to open: .csv Output Data</strong></summary><p>All four REV files are plain-text tables with a header row. Despite the
+<code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension, fields are separated by spaces, so use a whitespace
+delimiter when importing them. Results are appended to existing files, and
+the header is written only when a file is empty. Separate runs therefore
+accumulate in the same table without a run or timestep identifier.</p>
+<p>The suffixes <code class="docutils literal notranslate"><span class="pre">_vx</span></code> and <code class="docutils literal notranslate"><span class="pre">_um</span></code> indicate lengths in voxels and micrometres,
+respectively. With <span class="math notranslate nohighlight">\(h\)</span> equal to <code class="docutils literal notranslate"><span class="pre">Domain.voxel_length</span></code> in micrometres,
+<code class="docutils literal notranslate"><span class="pre">x_size_um</span> <span class="pre">=</span> <span class="pre">x_size_vx</span> <span class="pre">*</span> <span class="pre">h</span></code>. These columns report the reference size in the
+<span class="math notranslate nohighlight">\(x\)</span> direction; the other subvolume dimensions follow the domain aspect
+ratio, subject to integer rounding.</p>
+<p class="rubric">Deterministic geometrical output: <code class="docutils literal notranslate"><span class="pre">det_rev_geometric.csv</span></code></p>
+<p>Each row describes one centered subvolume at a successive size. The columns
+appear in the following order:</p>
+<table class="docutils align-center">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">iter_step</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">porosity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_poro_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_poro_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RE_poro</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CC_poro</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">surface</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_surf_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_surf_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RE_surf</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CC_surf</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-center" id="id8">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Columns in the deterministic geometrical output.</span><a class="headerlink" href="#id8" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column(s)</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">iter_step</span></code></p></td>
+<td><p>Subvolume-size iteration, starting at zero for each analysis run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code>, <code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p>Current reference subvolume size in micrometres and voxels.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">porosity</span></code></p></td>
+<td><p>Pore-voxel count divided by the total voxel count in the subvolume;
+a dimensionless fraction, not a percentage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rev_poro_um</span></code>, <code class="docutils literal notranslate"><span class="pre">rev_poro_vx</span></code></p></td>
+<td><p>First subvolume size accepted as the deterministic porosity REV,
+in micrometres and voxels.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RE_poro</span></code>, <code class="docutils literal notranslate"><span class="pre">CC_poro</span></code></p></td>
+<td><p>Relative change between successive porosity measurements and
+dispersion over the recent size history, as defined below.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">surface</span></code></p></td>
+<td><p>Specific pore-solid interfacial area per total subvolume volume,
+in inverse micrometres. The implementation estimates it by counting
+voxel faces separating opposite signs of the distance field inside
+the subvolume; it is not the total interface area.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rev_surf_um</span></code>, <code class="docutils literal notranslate"><span class="pre">rev_surf_vx</span></code></p></td>
+<td><p>First subvolume size accepted as the deterministic specific-surface
+REV, in micrometres and voxels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RE_surf</span></code>, <code class="docutils literal notranslate"><span class="pre">CC_surf</span></code></p></td>
+<td><p>Relative change and recent-history dispersion for specific surface
+area.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Deterministic hydraulic output: <code class="docutils literal notranslate"><span class="pre">det_rev_hydraulic.csv</span></code></p>
+<p>This file uses the same centered subvolumes and iteration numbering as the
+deterministic geometrical file when both groups are enabled:</p>
+<table class="docutils align-center">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">iter_step</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">permeability</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_perm_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_perm_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RE_perm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CC_perm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tortuosity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_tort_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rev_tort_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RE_tort</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CC_tort</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-center" id="id9">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">Columns in the deterministic hydraulic output.</span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column(s)</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">iter_step</span></code></p></td>
+<td><p>Subvolume-size iteration, starting at zero.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code>, <code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p>Current reference subvolume size in micrometres and voxels.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">permeability</span></code></p></td>
+<td><p>Permeability estimated from the existing velocity field within the
+subvolume, in millidarcy (mD). The pore-averaged velocity is projected
+onto the applied body-force direction and weighted by porosity;
+a separate flow simulation is not run for each subvolume.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rev_perm_um</span></code>, <code class="docutils literal notranslate"><span class="pre">rev_perm_vx</span></code></p></td>
+<td><p>First subvolume size accepted as the deterministic permeability REV,
+in micrometres and voxels.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RE_perm</span></code>, <code class="docutils literal notranslate"><span class="pre">CC_perm</span></code></p></td>
+<td><p>Relative change and recent-history dispersion for permeability.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tortuosity</span></code></p></td>
+<td><p>Dimensionless hydraulic tortuosity, calculated as the sum of pore
+velocity magnitudes divided by the sum of pore <span class="math notranslate nohighlight">\(z\)</span> velocities.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rev_tort_um</span></code>, <code class="docutils literal notranslate"><span class="pre">rev_tort_vx</span></code></p></td>
+<td><p>First subvolume size accepted as the deterministic tortuosity REV,
+in micrometres and voxels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RE_tort</span></code>, <code class="docutils literal notranslate"><span class="pre">CC_tort</span></code></p></td>
+<td><p>Relative change and recent-history dispersion calculated from
+<code class="docutils literal notranslate"><span class="pre">tortuosity</span> <span class="pre">-</span> <span class="pre">1</span></code>, rather than the displayed tortuosity.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>For interpreting the values actually written to the deterministic tables,
+let <span class="math notranslate nohighlight">\(q_i\)</span> denote the property measured at size iteration <span class="math notranslate nohighlight">\(i\)</span>.
+The implemented relative-change calculation is</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-1">
+<span class="eqno">(115)<a class="headerlink" href="#equation-userguide-models-rev-rev-1" title="Link to this equation">¶</a></span>\[RE_i = 2\left|\frac{q_i-q_{i-1}}{q_i+q_{i-1}}\right|.\]</div>
+<p><code class="docutils literal notranslate"><span class="pre">CC</span></code> is the population standard deviation divided by the arithmetic mean
+of the most recent <code class="docutils literal notranslate"><span class="pre">CCInterval</span></code> measurements, using the available history
+before that window is full and excluding invalid values. For tortuosity,
+<span class="math notranslate nohighlight">\(q_i = \tau_{h,i}-1\)</span> in both calculations. The coefficients are
+dimensionless fractions: <code class="docutils literal notranslate"><span class="pre">0.05</span></code> corresponds to 5%.</p>
+</div>
+<p>A property’s <code class="docutils literal notranslate"><span class="pre">rev_*</span></code> columns are set when both <code class="docutils literal notranslate"><span class="pre">RE</span></code> and <code class="docutils literal notranslate"><span class="pre">CC</span></code> first
+satisfy <span class="math notranslate nohighlight">\(0 \le RE &lt; \gamma\)</span> and <span class="math notranslate nohighlight">\(0 \le CC &lt; \gamma\)</span>. The
+accepted size is retained in subsequent rows even if the coefficients
+later increase. The analysis continues through the full domain, so the
+last row’s <code class="docutils literal notranslate"><span class="pre">x_size_*</span></code> need not equal the identified REV size.</p>
+<p>Before a property converges, <code class="docutils literal notranslate"><span class="pre">rev_*_vx</span></code> is <code class="docutils literal notranslate"><span class="pre">-1</span></code> and <code class="docutils literal notranslate"><span class="pre">rev_*_um</span></code> is
+<code class="docutils literal notranslate"><span class="pre">-h</span></code> because the voxel sentinel is multiplied by the voxel length.
+If these values persist to the last row, no deterministic REV was found
+for that property. Unavailable <code class="docutils literal notranslate"><span class="pre">RE</span></code> or <code class="docutils literal notranslate"><span class="pre">CC</span></code> values are written as
+<code class="docutils literal notranslate"><span class="pre">-1</span></code>; both are unavailable on the first row. A zero normalization
+denominator also leaves the corresponding coefficient at <code class="docutils literal notranslate"><span class="pre">-1</span></code>.</p>
+<p class="rubric">Statistical geometrical output: <code class="docutils literal notranslate"><span class="pre">stat_rev_geometric.csv</span></code></p>
+<p>Each row summarizes <code class="docutils literal notranslate"><span class="pre">StatSamples</span></code> randomly positioned subvolumes at one
+reference size. It contains aggregate statistics, not individual sample
+measurements or locations. The columns are:</p>
+<table class="docutils align-center">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_poro</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_poro_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_poro_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_poro_min</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_surf</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_surf_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_surf_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_surf_min</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-center" id="id10">
+<caption><span class="caption-number">Table 4 </span><span class="caption-text">Columns in the statistical geometrical output.</span><a class="headerlink" href="#id10" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column(s)</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code>, <code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p>Reference size shared by the sampled subvolumes, in micrometres and
+voxels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stat_poro</span></code></p></td>
+<td><p>Dimensionless coefficient of variation (CV) of sampled porosities.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stat_poro_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_poro_max</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_poro_min</span></code></p></td>
+<td><p>Arithmetic mean, maximum, and minimum porosity across the samples,
+all expressed as dimensionless fractions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stat_surf</span></code></p></td>
+<td><p>Dimensionless CV of sampled specific surface areas.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stat_surf_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_surf_max</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_surf_min</span></code></p></td>
+<td><p>Arithmetic mean, maximum, and minimum specific surface area, in
+inverse micrometres, using the same voxel-face estimate as the
+deterministic analysis.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Statistical hydraulic output: <code class="docutils literal notranslate"><span class="pre">stat_rev_hydraulic.csv</span></code></p>
+<p>This file summarizes the same random subvolumes as the statistical
+geometrical file when both groups are enabled:</p>
+<table class="docutils align-center">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_perm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_perm_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_perm_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_perm_min</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_tort</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_tort_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_tort_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">stat_tort_min</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-center" id="id11">
+<caption><span class="caption-number">Table 5 </span><span class="caption-text">Columns in the statistical hydraulic output.</span><a class="headerlink" href="#id11" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Column(s)</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">x_size_um</span></code>, <code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code></p></td>
+<td><p>Reference size shared by the sampled subvolumes, in micrometres and
+voxels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stat_perm</span></code></p></td>
+<td><p>Dimensionless CV of sampled permeabilities.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stat_perm_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_perm_max</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_perm_min</span></code></p></td>
+<td><p>Arithmetic mean, maximum, and minimum permeability, in mD.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stat_tort</span></code></p></td>
+<td><p>Dimensionless CV calculated from sampled <code class="docutils literal notranslate"><span class="pre">tortuosity</span> <span class="pre">-</span> <span class="pre">1</span></code> values.
+It is not the CV of the displayed tortuosity values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stat_tort_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_tort_max</span></code>, <code class="docutils literal notranslate"><span class="pre">stat_tort_min</span></code></p></td>
+<td><p>Arithmetic mean, maximum, and minimum hydraulic tortuosity. The
+routine adds one back after computing the statistics, so these
+dimensionless columns report tortuosity itself.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>For each statistical property, CV is the population standard deviation
+divided by the mean over valid samples; internal values equal to <code class="docutils literal notranslate"><span class="pre">-1</span></code>
+are excluded. The population standard deviation uses the number of valid
+samples as its divisor. A CV of <code class="docutils literal notranslate"><span class="pre">0.05</span></code> means 5% relative dispersion.
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means that CV is unavailable, either because no samples are valid
+or because the mean used for normalization is zero. Neither the number of
+valid samples nor the standard deviation is written separately.</p>
+<p>The statistical size sequence begins at the smallest deterministic REV
+found among the enabled properties. If none was found, it begins at twice
+the average pore diameter. Sizes then increase while remaining smaller
+than the full domain’s <span class="math notranslate nohighlight">\(x\)</span> extent. Consequently, the statistical
+and deterministic files can contain different size sequences and row
+counts; compare them using <code class="docutils literal notranslate"><span class="pre">x_size_vx</span></code> or <code class="docutils literal notranslate"><span class="pre">x_size_um</span></code>. If the initial
+statistical size already reaches the domain limit, the file has no data
+rows for that run.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The current tortuosity calculation always uses the <span class="math notranslate nohighlight">\(z\)</span> velocity
+component, even if the body force points in another direction. A zero
+summed <span class="math notranslate nohighlight">\(z\)</span> velocity gives an invalid internal tortuosity value,
+which is printed as <code class="docutils literal notranslate"><span class="pre">0</span></code> in the deterministic file and excluded from
+statistical calculations. If all tortuosity samples at a size are
+invalid, <code class="docutils literal notranslate"><span class="pre">stat_tort</span></code> is <code class="docutils literal notranslate"><span class="pre">-1</span></code> and the reported mean, maximum, and
+minimum are initialization artifacts (<code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">0</span></code>, and approximately
+<code class="docutils literal notranslate"><span class="pre">1e100</span></code>); these are not physical tortuosity statistics.</p>
+</div>
+</details><br><p>The results obtained by the Berea sample are illustrated in the Figure XX, for the
+data porosity, superficial area, absolute permeability, and hydraulic tortuosity.
+The python code use generate the below plot is shared in the toogle button below the
+plot.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../../../_images/rev_combined.svg"><img alt="../../../_images/rev_combined.svg" src="../../../_images/rev_combined.svg" style="width: 100%;" />
+</a>
+</figure>
 </section>
 </section>
 <section id="benchmark-cases">
