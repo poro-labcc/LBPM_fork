@@ -255,7 +255,9 @@ struct VoxelDist {
     double dist;
 };
 
-det_convergence_metrics det_compute_convergence(const std::vector<double>& data, int iter_step, int cc_interval) {
+det_convergence_metrics det_compute_convergence(const std::vector<double>& data,
+                                               const std::vector<double>& volumes,
+                                               int iter_step, int cc_interval) {
     det_convergence_metrics m = {-1, -1};
     
     if (iter_step < 1) 
@@ -289,8 +291,9 @@ det_convergence_metrics det_compute_convergence(const std::vector<double>& data,
 
     if (data[iter_step] != -1 && data[iter_step - 1] != -1) {
         double sum_prev_curr = data[iter_step] + data[iter_step - 1];
-        if (sum_prev_curr != 0) {
-            m.RE = 2.0 * fabs((data[iter_step] - data[iter_step - 1]) / sum_prev_curr);
+        if (sum_prev_curr != 0 && volumes[iter_step] > 0) {
+            m.RE = fabs((data[iter_step] - data[iter_step - 1]) / sum_prev_curr *
+                        (volumes[iter_step - 1] / volumes[iter_step]));
         }
     }
 
@@ -451,7 +454,7 @@ void ScaLBL_REV::DetRevAnalysisImpl(const ModelData &model) {
     rev_x_surf = -1;
 
     int vector_size_x = 1000;
-    std::vector<double> sub_x_size(vector_size_x);
+    std::vector<double> sub_volume(vector_size_x);
     std::vector<double> perm(vector_size_x);
     std::vector<double> poro(vector_size_x);
     std::vector<double> tort(vector_size_x);
@@ -500,6 +503,10 @@ void ScaLBL_REV::DetRevAnalysisImpl(const ModelData &model) {
         end_y = std::min(Ny-2, end_y);
         start_z = std::max(1, start_z);
         end_z = std::min(Nz-2, end_z);
+
+        // The common voxel volume cancels in V_(i-1) / V_i.
+        sub_volume[iter_step] = static_cast<double>(end_x - start_x + 1) *
+                               (end_y - start_y + 1) * (end_z - start_z + 1);
 
         double current_surf = 0;
         double count = 0.0;
@@ -563,18 +570,17 @@ void ScaLBL_REV::DetRevAnalysisImpl(const ModelData &model) {
             double current_perm = 1013 * h * h * mu * current_poro * flow_rate / force_mag;
             double current_tort = (vaz != 0) ? (v_tort / (vaz * count) - 1.0) : -1;
 
-            sub_x_size[iter_step] = x_size;
             perm[iter_step] = current_perm;
             tort[iter_step] = current_tort;
 
             //Permeability deterministic approach
-            det_convergence_metrics perm_m = det_compute_convergence(perm, iter_step, cc_interval);
+            det_convergence_metrics perm_m = det_compute_convergence(perm, sub_volume, iter_step, cc_interval);
             if (perm_m.RE >= 0 && perm_m.RE < gamma && perm_m.CC >= 0 && perm_m.CC < gamma && rev_x_perm == -1) {
                 rev_x_perm = x_size;
             }
 
             //Tortuosity deterministic approach
-            det_convergence_metrics tort_m = det_compute_convergence(tort, iter_step, cc_interval);
+            det_convergence_metrics tort_m = det_compute_convergence(tort, sub_volume, iter_step, cc_interval);
             if (tort_m.RE >= 0 && tort_m.RE < gamma && tort_m.CC >= 0 && tort_m.CC < gamma && rev_x_tort == -1) {
                 rev_x_tort = x_size;
             }
@@ -589,18 +595,17 @@ void ScaLBL_REV::DetRevAnalysisImpl(const ModelData &model) {
             current_surf = (current_surf / vol) / h;
             double current_poro = count / vol;
 
-            sub_x_size[iter_step] = x_size;
             poro[iter_step] = current_poro;
             surf[iter_step] = current_surf;
 
             //Porosity deterministic approach
-            det_convergence_metrics poro_m = det_compute_convergence(poro, iter_step, cc_interval);
+            det_convergence_metrics poro_m = det_compute_convergence(poro, sub_volume, iter_step, cc_interval);
             if (poro_m.RE >= 0 && poro_m.RE < gamma && poro_m.CC >= 0 && poro_m.CC < gamma && rev_x_poro == -1) {
                 rev_x_poro = x_size;
             }
 
             //Surface Deterministic approach
-            det_convergence_metrics surf_m = det_compute_convergence(surf, iter_step, cc_interval);
+            det_convergence_metrics surf_m = det_compute_convergence(surf, sub_volume, iter_step, cc_interval);
             if (surf_m.RE >= 0 && surf_m.RE < gamma && surf_m.CC >= 0 && surf_m.CC < gamma && rev_x_surf == -1) {
                 rev_x_surf = x_size;
             }

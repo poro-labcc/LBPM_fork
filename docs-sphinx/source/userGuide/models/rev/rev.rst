@@ -114,14 +114,14 @@ workflow diagram, consists of the following steps:
 
       RE_i =
       \left|
-      \frac{\eta_{i+1}-\eta_{i-1}}
-      {\eta_{i+1}+\eta_{i-1}}
-      \frac{V_{i-1}}{V_{i+1}}
+      \frac{q_i-q_{i-1}}
+      {q_i+q_{i-1}}
+      \frac{V_{i-1}}{V_i}
       \right| < \gamma,
 
    where :math:`RE_i` is the relative error at iteration :math:`i`,
-   :math:`\eta_i` represents the measured property in the :math:`i`-th
-   subvolume, and :math:`V_i` denotes its corresponding volume.
+   :math:`q_i` represents the measured property in the :math:`i`-th
+   subvolume, and :math:`V_i` denotes the volume of that sampled subvolume.
    This metric quantifies the local variation of the property as the
    evaluated subvolume increases in size.
 
@@ -629,7 +629,16 @@ deterministic geometrical file when both groups are enabled:
 
    .. math::
 
-      RE_i = 2\left|\frac{q_i-q_{i-1}}{q_i+q_{i-1}}\right|.
+      RE_i =
+      \left|
+      \frac{q_i-q_{i-1}}{q_i+q_{i-1}}
+      \frac{V_{i-1}}{V_i}
+      \right|.
+
+   Here, :math:`V_i` is the actual sampled volume, calculated from the
+   inclusive voxel bounds after clipping to the domain. The implementation
+   uses the ratio of sampled voxel counts because the common voxel volume
+   cancels in :math:`V_{i-1}/V_i`.
 
    ``CC`` is the population standard deviation divided by the arithmetic mean
    of the most recent ``CCInterval`` measurements, using the available history
