@@ -48,11 +48,10 @@ expand the toggle sections below for the deterministic and statistical analyses.
    :class: borderless
    :align: center
 
-   * - .. _rev-workflow:
-
-       .. figure:: ../../../_static/images/rev-workflow.svg
+   * - .. figure:: ../../../_static/images/rev-workflow.svg
           :width: 70%
           :align: center
+          :name: rev-workflow
 
           Workflow of the hybrid REV analysis, combining deterministic
           (steps 1–5) and statistical (steps 6–9) convergence assessments.
@@ -60,6 +59,7 @@ expand the toggle sections below for the deterministic and statistical analyses.
      - .. figure:: ../../../_static/images/REVHybridAnimation.gif
           :width: 100%
           :align: center
+          :name: rev-GIF
 
           GIF Animation illustrating the hybrid REV analysis for porosity.
 
@@ -106,8 +106,7 @@ workflow diagram, consists of the following steps:
    calculated to quantify the variation of the measured property with
    increasing subvolume size.
 
-   The first metric is the relative error (RE), defined following
-   :cite:t:`li2009permeability` as
+   The first metric is the relative error (RE), defined as
 
    .. math::
       :label: rev-relative-error
@@ -782,7 +781,7 @@ geometrical file when both groups are enabled:
 
    <br>
 
-The results obtained by the Berea sample are illustrated in the Figure XX, for the
+The results obtained by the Berea sample are illustrated in the :numref:`rev-plots`, for the
 data porosity, superficial area, absolute permeability, and hydraulic tortuosity.
 The python code use generate the below plot is shared in the toogle button below the
 plot.
@@ -790,10 +789,277 @@ plot.
 .. figure:: ../../../_static/images/rev_combined.svg
    :width: 100%
    :align: center
+   :name: rev-plots
 
+   Evolution of the properties as the subvolumes for the Berea rock. Connected 
+   points represent the range of the deterministic analysis; isolated points represent 
+   the averages of the statistical measurements; vertical bars represent the standard 
+   deviation of the statistical measurements; dashed lines represent the REV found by 
+   the approach; and the black line represents the upper limit for the REV size.
+
+.. raw:: html
+
+   <details>
+   <summary><strong>Click here to open: Plot Code</strong></summary>
+
+.. code-block:: python
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   # -------------------- Configuration --------------------
+   rev_threshold = 0.10
+   TAMANHO_BASE = 25
+   # Options: "statistical" or "deterministic"
+   rev_method = "statistical"
+   # rev_method = "deterministic"
+   colors = {"poro": "#0077b6","kabs": "#d62728","tort": "#2ca02c","surf": "#9467bd"}
+
+   # -------------------- Read CSV files --------------------
+   det_geo = np.genfromtxt("det_rev_geometric.csv", names=True)
+   det_hyd = np.genfromtxt("det_rev_hydraulic.csv", names=True)
+   stat_geo = np.genfromtxt("stat_rev_geometric.csv", names=True)
+   stat_hyd = np.genfromtxt("stat_rev_hydraulic.csv", names=True)
+   # -------------------- Deterministic data --------------------
+   tamanho_um = det_geo["x_size_um"]
+   tamanho_vx = det_geo["x_size_vx"]
+   porovec = det_geo["porosity"]
+   kabsvec = det_hyd["permeability"]
+   tortvec = det_hyd["tortuosity"]
+   surfvec = det_geo["surface"]
+   # -------------------- Statistical data --------------------
+   tamanho_stat_um = stat_geo["x_size_um"]
+   poroavg = stat_geo["stat_poro_mean"]
+   kabsavg = stat_hyd["stat_perm_mean"]
+   tortavg = stat_hyd["stat_tort_mean"]
+   surfavg = stat_geo["stat_surf_mean"]
+   # Statistical coefficients of variation
+   cv_poro = stat_geo["stat_poro"]
+   cv_kabs = stat_hyd["stat_perm"]
+   cv_tort = stat_hyd["stat_tort"]
+   cv_surf = stat_geo["stat_surf"]
+   # Convert CV to standard deviation
+   porostd = cv_poro * poroavg
+   kabsstd = cv_kabs * kabsavg
+   tortstd = cv_tort * tortavg
+   surfstd = cv_surf * surfavg
+   # -------------------- Final reference values --------------------
+   poro_final = porovec[-1]
+   kabs_final = kabsvec[-1]
+   tort_final = tortvec[-1]
+   surf_final = surfvec[-1]
+   # -------------------- Normalization --------------------
+   poro_norm = porovec / poro_final
+   kabs_norm = kabsvec / kabs_final
+   tort_norm = tortvec / tort_final
+   surf_norm = surfvec / surf_final
+
+   poroavg_norm = poroavg / poro_final
+   kabsavg_norm = kabsavg / kabs_final
+   tortavg_norm = tortavg / tort_final
+   surfavg_norm = surfavg / surf_final
+
+   porostd_norm = porostd / abs(poro_final)
+   kabsstd_norm = kabsstd / abs(kabs_final)
+   tortstd_norm = tortstd / abs(tort_final)
+   surfstd_norm = surfstd / abs(surf_final)
+
+   # -------------------- REV determination --------------------
+   def first_rev_size(sizes, cv, threshold):
+      valid = np.where( np.isfinite(cv) & (cv >= 0) & (cv < threshold) )[0]
+      return sizes[valid[0]] if valid.size else None
+
+   def reported_rev_size(data, column):
+      values = data[column]
+      valid = values[np.isfinite(values) & (values > 0)]
+      return valid[-1] if valid.size else None
+
+   if rev_method == "statistical":
+      rev_poro = first_rev_size( tamanho_stat_um, cv_poro, rev_threshold )
+      rev_kabs = first_rev_size( tamanho_stat_um, cv_kabs, rev_threshold )
+      rev_tort = first_rev_size( tamanho_stat_um, cv_tort, rev_threshold )
+      rev_surf = first_rev_size( tamanho_stat_um, cv_surf, rev_threshold )
+
+   elif rev_method == "deterministic":
+      rev_poro = reported_rev_size( det_geo, "rev_poro_um" )
+      rev_kabs = reported_rev_size( det_hyd, "rev_perm_um" )
+      rev_tort = reported_rev_size( det_hyd, "rev_tort_um" )
+      rev_surf = reported_rev_size( det_geo, "rev_surf_um" )
+   else:
+      raise ValueError("Unknown REV method.")
+
+   print(f"Porosity REV: {rev_poro} um")
+   print(f"Permeability REV: {rev_kabs} um")
+   print(f"Tortuosity REV: {rev_tort} um")
+   print(f"Surface area REV: {rev_surf} um")
+
+   # -------------------- Plot configuration --------------------
+   plt.style.use("seaborn-v0_8-whitegrid")
+   plt.rcParams.update({
+      "font.size": TAMANHO_BASE,
+      "axes.titlesize": TAMANHO_BASE,
+      "axes.labelsize": TAMANHO_BASE,
+      "xtick.labelsize": TAMANHO_BASE - 4,
+      "ytick.labelsize": TAMANHO_BASE - 4,
+      "legend.fontsize": TAMANHO_BASE - 6,
+      "mathtext.fontset": "cm"
+   })
+
+   # -------------------- Plotting function --------------------
+   def plot_rev_properties(ax, properties, title):
+      # First valid statistical subvolume size
+      transition_size = np.min(tamanho_stat_um[np.isfinite(tamanho_stat_um)])
+      # Deterministic results stop before statistical results begin
+      mask_det = tamanho_um < transition_size
+      for prop in properties:
+         # -------------------- Deterministic curves --------------------
+         x_det = tamanho_um[mask_det]
+         y_det = prop["det"][mask_det]
+         
+         # Find first statistical point
+         idx_stat = np.where(np.isfinite(prop["avg"]))[0]
+         
+         if idx_stat.size > 0:
+               i = idx_stat[0]
+         
+               x_combined = np.append(x_det, tamanho_stat_um[i])
+               y_combined = np.append(y_det, prop["avg"][i])
+         else:
+               x_combined = x_det
+               y_combined = y_det
+         
+         ax.plot(x_combined,y_combined,marker=prop["marker"],linestyle="-",color=prop["color"],label=prop["label"],fillstyle='none')
+         # -------------------- Statistical error bars --------------------
+         ax.errorbar(tamanho_stat_um,prop["avg"],yerr=prop["std"],fmt=prop["marker"],linestyle="none",color=prop["color"],capsize=4,alpha=0.75,fillstyle='none')
+         # -------------------- REV vertical lines --------------------
+         if prop["rev"] is not None:
+               ax.axvline(prop["rev"],linestyle="--",color=prop["color"],linewidth=2)
+      # -------------------- Reference horizontal line --------------------
+      ax.axhline(y=1.0,color="black",linestyle=":",linewidth=2)
+      # -------------------- Additional reference lengths --------------------
+      lmax_media = tamanho_um[-1] * (16 + 6*np.sqrt(3))/37
+      # lmax_obrig = tamanho_um[-1] * (4 + np.sqrt(2))/7
+      ax.axvline(lmax_media, color="k", linewidth=1.5)
+      # ax.axvline(lmax_obrig, color="k", linewidth=1.5)
+      # -------------------- Axis labels --------------------
+      ax.set_title(title, pad=20)
+      ax.set_xlabel(r"Aresta do subvolume [$\mu$m]")
+      ax.set_ylabel("Propriedade normalizada [-]")
+      ax.set_xlim(tamanho_um[0], tamanho_um[-1])
+      # -------------------- Top axis: voxel units --------------------
+      ax2 = ax.twiny()
+      ax2.set_xlim(ax.get_xlim())
+      voxel_ticks = np.linspace(tamanho_vx[0], tamanho_vx[-1], 6)
+      um_ticks = np.interp(voxel_ticks, tamanho_vx, tamanho_um)
+      ax2.set_xticks(um_ticks)
+      ax2.set_xticklabels([f"{v:.0f}" for v in voxel_ticks])
+      ax2.set_xlabel("Aresta do subvolume [voxels]")
+      # -------------------- Legend --------------------
+      ax.legend(loc="upper right",frameon=True,facecolor="white",edgecolor="black")
+   # -------------------- Geometric properties --------------------
+   geometric_properties = [
+      {"det": poro_norm,"avg": poroavg_norm,"std": porostd_norm,"rev": rev_poro,"color": colors["poro"],"marker": "o","label": rf"$\phi$ (final: {poro_final:.3f})"},
+      {"det": surf_norm,"avg": surfavg_norm,"std": surfstd_norm,"rev": rev_surf,"color": colors["surf"],"marker": "D","label": rf"$S_v$ (final: {surf_final:.4f})"}
+   ]
+
+   # -------------------- Hydraulic properties --------------------
+   hydraulic_properties = [
+      {"det":kabs_norm,"avg":kabsavg_norm,"std":kabsstd_norm,"rev":rev_kabs,"color":colors["kabs"],"marker":"s","label":rf"$k$ (final:{kabs_final:.2f} mD)"},
+      {"det":tort_norm,"avg":tortavg_norm,"std":tortstd_norm,"rev":rev_tort,"color":colors["tort"],"marker":"^","label":rf"$\tau$(final:{tort_final:.3f})"}
+   ]
+   # ===================Create side-by-side plots================
+   fig, axes = plt.subplots(1, 2,figsize=(22, 8),sharex=True,sharey=True)
+   plot_rev_properties(axes[0],geometric_properties,title="(a) Geometric properties")   # Left: geometric REV
+   plot_rev_properties(axes[1],hydraulic_properties,title="(b) Hydraulic properties")   # Right: hydraulic REV
+   axes[1].set_ylabel("") # Remove duplicate Y-axis label
+   plt.tight_layout(w_pad=3) # Layout
+   plt.savefig("/home/ricardolmb/Desktop/REV-Code/LBPM_fork/docs-sphinx/source/_static/images/rev_combined.svg", bbox_inches="tight")
+
+.. raw:: html
+
+   </details>
+
+.. raw:: html
+
+   <br>
+
+--------------------------------
+lbpm_rev_analysis
+--------------------------------
+
+The same analysis done inside ``lbpm_rev_permeability_simulator`` can be performed inside 
+``lbpm_rev_analysis`` if velocity was already obtained. Running the ``input.db`` file given
+bellow the same results presented in :numref:`rev-plots`.
+
+.. code-block:: text
+
+   Domain {
+      Filename = "Berea.raw"
+      ReadType = "8bit"      // data type
+      N = 400, 400, 400     // size of original image
+      nproc = 1, 1, 1        // process grid
+      n = 400, 400, 400      // sub-domain size
+      offset = 0, 0, 0 // offset to read sub-domain
+      InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+      OutletLayers = 0, 0, 10 // specify 10 layers along the z-outlet
+      voxel_length = 5.345    // voxel length (in microns)
+      ReadValues = 0, 1   // labels within the original image
+      WriteValues = 1, 0  // associated labels to be used by LBPM
+      BC = 0                 // boundary condition type (0 for periodic)
+   }
+   REV {
+      Geomtrical = True
+      Hydraulic = True
+      gamma = 0.1
+      SizeStep = 0.06
+      CCInterval = 10
+      StatSamples = 50
+      Seed_Anchor = True
+      SimulationParams = "input.db"
+      VelocityPath = "./"
+      VelocityTimestep = "vis35000"
+   }
+
+Inside of ``lbpm_rev_analysis`` can be ran also only geometrical analysis in absence of
+velocity field. Running the ``input.db`` file given bellow the same results presented 
+in :numref:`rev-plots` (a) are obtained.
+
+.. code-block:: text
+
+   Domain {
+      Filename = "Berea.raw"
+      ReadType = "8bit"      // data type
+      N = 400, 400, 400     // size of original image
+      nproc = 1, 1, 1        // process grid
+      n = 400, 400, 400      // sub-domain size
+      offset = 0, 0, 0 // offset to read sub-domain
+      InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+      OutletLayers = 0, 0, 10 // specify 10 layers along the z-outlet
+      voxel_length = 5.345    // voxel length (in microns)
+      ReadValues = 0, 1   // labels within the original image
+      WriteValues = 1, 0  // associated labels to be used by LBPM
+      BC = 0                 // boundary condition type (0 for periodic)
+   }
+   REV {
+      Geomtrical = True
+      Hydraulic = False
+      gamma = 0.1
+      SizeStep = 0.06
+      CCInterval = 10
+      StatSamples = 50
+      Seed_Anchor = True
+   }
 
 ****************************
 Benchmark Cases
 ****************************
 
+.. list-table::
+   :header-rows: 1
+   :widths: 40
+   :align: center
 
+   * - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`
+
+   * - .. image:: ../../../_static/images/REVHybridAnimation.gif
+          :width: 200px
+          :align: center

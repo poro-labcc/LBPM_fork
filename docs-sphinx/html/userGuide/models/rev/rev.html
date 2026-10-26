@@ -156,20 +156,20 @@ expand the toggle sections below for the deterministic and statistical analyses.
 <col style="width: 50.0%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><figure class="align-center" id="id6">
-<span id="rev-workflow"></span><a class="reference internal image-reference" href="../../../_images/rev-workflow.svg"><img alt="../../../_images/rev-workflow.svg" src="../../../_images/rev-workflow.svg" style="width: 70%;" />
+<tr class="row-odd"><td><figure class="align-center" id="rev-workflow">
+<a class="reference internal image-reference" href="../../../_images/rev-workflow.svg"><img alt="../../../_images/rev-workflow.svg" src="../../../_images/rev-workflow.svg" style="width: 70%;" />
 </a>
 <figcaption>
 <p><span class="caption-number">Fig. 5 </span><span class="caption-text">Workflow of the hybrid REV analysis, combining deterministic
-(steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#id6" title="Link to this image">¶</a></p>
+(steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#rev-workflow" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
-<td><figure class="align-center" id="id7">
+<td><figure class="align-center" id="rev-gif">
 <a class="reference internal image-reference" href="../../../_images/REVHybridAnimation.gif"><img alt="../../../_images/REVHybridAnimation.gif" src="../../../_images/REVHybridAnimation.gif" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 6 </span><span class="caption-text">GIF Animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#id7" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 </span><span class="caption-text">GIF Animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#rev-gif" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -206,22 +206,21 @@ is evaluated within the centered subvolume.</p></li>
 <li><p><strong>Compute the convergence criteria:</strong> Two complementary metrics are
 calculated to quantify the variation of the measured property with
 increasing subvolume size.</p>
-<p>The first metric is the relative error (RE), defined following
-<span id="id1">Li <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id12" title="Lisa Jinhui Li, Li Min Zhang, Y. Wang, and Delwyn D. Fredlund. Permeability tensor and representative elementary volume of saturated cracked soil. Canadian Geotechnical Journal, 46(8):928–942, 2009.">4</a>]</span> as</p>
+<p>The first metric is the relative error (RE), defined as</p>
 <div class="math notranslate nohighlight" id="equation-rev-relative-error">
 <span class="eqno">(111)<a class="headerlink" href="#equation-rev-relative-error" title="Link to this equation">¶</a></span>\[RE_i =
 \left|
-\frac{\eta_{i+1}-\eta_{i-1}}
-{\eta_{i+1}+\eta_{i-1}}
-\frac{V_{i-1}}{V_{i+1}}
+\frac{q_i-q_{i-1}}
+{q_i+q_{i-1}}
+\frac{V_{i-1}}{V_i}
 \right| &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(RE_i\)</span> is the relative error at iteration <span class="math notranslate nohighlight">\(i\)</span>,
-<span class="math notranslate nohighlight">\(\eta_i\)</span> represents the measured property in the <span class="math notranslate nohighlight">\(i\)</span>-th
-subvolume, and <span class="math notranslate nohighlight">\(V_i\)</span> denotes its corresponding volume.
+<span class="math notranslate nohighlight">\(q_i\)</span> represents the measured property in the <span class="math notranslate nohighlight">\(i\)</span>-th
+subvolume, and <span class="math notranslate nohighlight">\(V_i\)</span> denotes the volume of that sampled subvolume.
 This metric quantifies the local variation of the property as the
 evaluated subvolume increases in size.</p>
 <p>The second metric is the convergence criterion (CC), introduced by
-<span id="id2">Marafini <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id13" title="Ester Marafini, Michele La Rocca, Aldo Fiori, Ilenia Battiato, and Pietro Prestininzi. Suitability of 2d modelling to evaluate flow properties in 3d porous media. Transport in Porous Media, 2020. URL: https://doi.org/10.1007/s11242-020-01447-4, doi:10.1007/s11242-020-01447-4.">5</a>]</span>:</p>
+<span id="id1">Marafini <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id13" title="Ester Marafini, Michele La Rocca, Aldo Fiori, Ilenia Battiato, and Pietro Prestininzi. Suitability of 2d modelling to evaluate flow properties in 3d porous media. Transport in Porous Media, 2020. URL: https://doi.org/10.1007/s11242-020-01447-4, doi:10.1007/s11242-020-01447-4.">4</a>]</span>:</p>
 <div class="math notranslate nohighlight" id="equation-rev-convergence-criterion">
 <span class="eqno">(112)<a class="headerlink" href="#equation-rev-convergence-criterion" title="Link to this equation">¶</a></span>\[CC_i =
 \frac{
@@ -283,7 +282,7 @@ computational domain, and the property of interest is evaluated
 independently in each subvolume.</p></li>
 <li><p><strong>Evaluate statistical convergence:</strong> The dispersion of the measurements
 is quantified using the coefficient of variation (CV), following
-<span id="id3">Zhang <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id14" title="Dongxiao Zhang, Ruisong Zhang, Shiyi Chen, and Wendy E. Soll. Pore scale study of flow in porous media: scale dependency, rev, and statistical rev. Geophysical Research Letters, 27(8):1195-1198, apr 2000. doi:10.1029/1999GL011101.">6</a>]</span>:</p>
+<span id="id2">Zhang <em>et al.</em> [<a class="reference internal" href="../../../citations/citations.html#id14" title="Dongxiao Zhang, Ruisong Zhang, Shiyi Chen, and Wendy E. Soll. Pore scale study of flow in porous media: scale dependency, rev, and statistical rev. Geophysical Research Letters, 27(8):1195-1198, apr 2000. doi:10.1029/1999GL011101.">5</a>]</span>:</p>
 <div class="math notranslate nohighlight" id="equation-rev-coefficient-variation">
 <span class="eqno">(114)<a class="headerlink" href="#equation-rev-coefficient-variation" title="Link to this equation">¶</a></span>\[CV = \frac{\sigma(\eta)}{\overline{\eta}} &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma(\eta)\)</span> is the standard deviation of the property
@@ -459,8 +458,8 @@ the entire block disables REV analysis.</p>
 using both routines <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code> and <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code>. In the present
 case we will set <code class="docutils literal notranslate"><span class="pre">Seed_Anchor</span> <span class="pre">=</span> <span class="pre">True</span></code> to keep reproducibillity of the present results. For the
 present analysis we employ a geometrical and hydraulic REV analysis:</p>
-<section id="id4">
-<h3>lbpm_rev_permeability_simulator<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="id3">
+<h3>lbpm_rev_permeability_simulator<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <p>Running the REV analysis inside of the routine <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>MRT {
 tau = 0.9
@@ -536,8 +535,8 @@ appear in the following order:</p>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-center" id="id8">
-<caption><span class="caption-number">Table 2 </span><span class="caption-text">Columns in the deterministic geometrical output.</span><a class="headerlink" href="#id8" title="Link to this table">¶</a></caption>
+<table class="docutils align-center" id="id6">
+<caption><span class="caption-number">Table 2 </span><span class="caption-text">Columns in the deterministic geometrical output.</span><a class="headerlink" href="#id6" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -603,8 +602,8 @@ deterministic geometrical file when both groups are enabled:</p>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-center" id="id9">
-<caption><span class="caption-number">Table 3 </span><span class="caption-text">Columns in the deterministic hydraulic output.</span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
+<table class="docutils align-center" id="id7">
+<caption><span class="caption-number">Table 3 </span><span class="caption-text">Columns in the deterministic hydraulic output.</span><a class="headerlink" href="#id7" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -654,7 +653,15 @@ in micrometres and voxels.</p></td>
 let <span class="math notranslate nohighlight">\(q_i\)</span> denote the property measured at size iteration <span class="math notranslate nohighlight">\(i\)</span>.
 The implemented relative-change calculation is</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-1">
-<span class="eqno">(115)<a class="headerlink" href="#equation-userguide-models-rev-rev-1" title="Link to this equation">¶</a></span>\[RE_i = 2\left|\frac{q_i-q_{i-1}}{q_i+q_{i-1}}\right|.\]</div>
+<span class="eqno">(115)<a class="headerlink" href="#equation-userguide-models-rev-rev-1" title="Link to this equation">¶</a></span>\[RE_i =
+\left|
+\frac{q_i-q_{i-1}}{q_i+q_{i-1}}
+\frac{V_{i-1}}{V_i}
+\right|.\]</div>
+<p>Here, <span class="math notranslate nohighlight">\(V_i\)</span> is the actual sampled volume, calculated from the
+inclusive voxel bounds after clipping to the domain. The implementation
+uses the ratio of sampled voxel counts because the common voxel volume
+cancels in <span class="math notranslate nohighlight">\(V_{i-1}/V_i\)</span>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">CC</span></code> is the population standard deviation divided by the arithmetic mean
 of the most recent <code class="docutils literal notranslate"><span class="pre">CCInterval</span></code> measurements, using the available history
 before that window is full and excluding invalid values. For tortuosity,
@@ -691,8 +698,8 @@ measurements or locations. The columns are:</p>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-center" id="id10">
-<caption><span class="caption-number">Table 4 </span><span class="caption-text">Columns in the statistical geometrical output.</span><a class="headerlink" href="#id10" title="Link to this table">¶</a></caption>
+<table class="docutils align-center" id="id8">
+<caption><span class="caption-number">Table 4 </span><span class="caption-text">Columns in the statistical geometrical output.</span><a class="headerlink" href="#id8" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -742,8 +749,8 @@ geometrical file when both groups are enabled:</p>
 </tr>
 </tbody>
 </table>
-<table class="docutils align-center" id="id11">
-<caption><span class="caption-number">Table 5 </span><span class="caption-text">Columns in the statistical hydraulic output.</span><a class="headerlink" href="#id11" title="Link to this table">¶</a></caption>
+<table class="docutils align-center" id="id9">
+<caption><span class="caption-number">Table 5 </span><span class="caption-text">Columns in the statistical hydraulic output.</span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -804,18 +811,275 @@ invalid, <code class="docutils literal notranslate"><span class="pre">stat_tort<
 minimum are initialization artifacts (<code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">0</span></code>, and approximately
 <code class="docutils literal notranslate"><span class="pre">1e100</span></code>); these are not physical tortuosity statistics.</p>
 </div>
-</details><br><p>The results obtained by the Berea sample are illustrated in the Figure XX, for the
+</details><br><p>The results obtained by the Berea sample are illustrated in the <a class="reference internal" href="#rev-plots"><span class="std std-numref">Fig. 7</span></a>, for the
 data porosity, superficial area, absolute permeability, and hydraulic tortuosity.
 The python code use generate the below plot is shared in the toogle button below the
 plot.</p>
-<figure class="align-center">
+<figure class="align-center" id="rev-plots">
 <a class="reference internal image-reference" href="../../../_images/rev_combined.svg"><img alt="../../../_images/rev_combined.svg" src="../../../_images/rev_combined.svg" style="width: 100%;" />
 </a>
+<figcaption>
+<p><span class="caption-number">Fig. 7 </span><span class="caption-text">Evolution of the properties as the subvolumes for the Berea rock. Connected
+points represent the range of the deterministic analysis; isolated points represent
+the averages of the statistical measurements; vertical bars represent the standard
+deviation of the statistical measurements; dashed lines represent the REV found by
+the approach; and the black line represents the upper limit for the REV size.</span><a class="headerlink" href="#rev-plots" title="Link to this image">¶</a></p>
+</figcaption>
 </figure>
+<details>
+<summary><strong>Click here to open: Plot Code</strong></summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="c1"># -------------------- Configuration --------------------</span>
+<span class="n">rev_threshold</span> <span class="o">=</span> <span class="mf">0.10</span>
+<span class="n">TAMANHO_BASE</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="c1"># Options: &quot;statistical&quot; or &quot;deterministic&quot;</span>
+<span class="n">rev_method</span> <span class="o">=</span> <span class="s2">&quot;statistical&quot;</span>
+<span class="c1"># rev_method = &quot;deterministic&quot;</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;poro&quot;</span><span class="p">:</span> <span class="s2">&quot;#0077b6&quot;</span><span class="p">,</span><span class="s2">&quot;kabs&quot;</span><span class="p">:</span> <span class="s2">&quot;#d62728&quot;</span><span class="p">,</span><span class="s2">&quot;tort&quot;</span><span class="p">:</span> <span class="s2">&quot;#2ca02c&quot;</span><span class="p">,</span><span class="s2">&quot;surf&quot;</span><span class="p">:</span> <span class="s2">&quot;#9467bd&quot;</span><span class="p">}</span>
+
+<span class="c1"># -------------------- Read CSV files --------------------</span>
+<span class="n">det_geo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="s2">&quot;det_rev_geometric.csv&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">det_hyd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="s2">&quot;det_rev_hydraulic.csv&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">stat_geo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="s2">&quot;stat_rev_geometric.csv&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">stat_hyd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="s2">&quot;stat_rev_hydraulic.csv&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># -------------------- Deterministic data --------------------</span>
+<span class="n">tamanho_um</span> <span class="o">=</span> <span class="n">det_geo</span><span class="p">[</span><span class="s2">&quot;x_size_um&quot;</span><span class="p">]</span>
+<span class="n">tamanho_vx</span> <span class="o">=</span> <span class="n">det_geo</span><span class="p">[</span><span class="s2">&quot;x_size_vx&quot;</span><span class="p">]</span>
+<span class="n">porovec</span> <span class="o">=</span> <span class="n">det_geo</span><span class="p">[</span><span class="s2">&quot;porosity&quot;</span><span class="p">]</span>
+<span class="n">kabsvec</span> <span class="o">=</span> <span class="n">det_hyd</span><span class="p">[</span><span class="s2">&quot;permeability&quot;</span><span class="p">]</span>
+<span class="n">tortvec</span> <span class="o">=</span> <span class="n">det_hyd</span><span class="p">[</span><span class="s2">&quot;tortuosity&quot;</span><span class="p">]</span>
+<span class="n">surfvec</span> <span class="o">=</span> <span class="n">det_geo</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span>
+<span class="c1"># -------------------- Statistical data --------------------</span>
+<span class="n">tamanho_stat_um</span> <span class="o">=</span> <span class="n">stat_geo</span><span class="p">[</span><span class="s2">&quot;x_size_um&quot;</span><span class="p">]</span>
+<span class="n">poroavg</span> <span class="o">=</span> <span class="n">stat_geo</span><span class="p">[</span><span class="s2">&quot;stat_poro_mean&quot;</span><span class="p">]</span>
+<span class="n">kabsavg</span> <span class="o">=</span> <span class="n">stat_hyd</span><span class="p">[</span><span class="s2">&quot;stat_perm_mean&quot;</span><span class="p">]</span>
+<span class="n">tortavg</span> <span class="o">=</span> <span class="n">stat_hyd</span><span class="p">[</span><span class="s2">&quot;stat_tort_mean&quot;</span><span class="p">]</span>
+<span class="n">surfavg</span> <span class="o">=</span> <span class="n">stat_geo</span><span class="p">[</span><span class="s2">&quot;stat_surf_mean&quot;</span><span class="p">]</span>
+<span class="c1"># Statistical coefficients of variation</span>
+<span class="n">cv_poro</span> <span class="o">=</span> <span class="n">stat_geo</span><span class="p">[</span><span class="s2">&quot;stat_poro&quot;</span><span class="p">]</span>
+<span class="n">cv_kabs</span> <span class="o">=</span> <span class="n">stat_hyd</span><span class="p">[</span><span class="s2">&quot;stat_perm&quot;</span><span class="p">]</span>
+<span class="n">cv_tort</span> <span class="o">=</span> <span class="n">stat_hyd</span><span class="p">[</span><span class="s2">&quot;stat_tort&quot;</span><span class="p">]</span>
+<span class="n">cv_surf</span> <span class="o">=</span> <span class="n">stat_geo</span><span class="p">[</span><span class="s2">&quot;stat_surf&quot;</span><span class="p">]</span>
+<span class="c1"># Convert CV to standard deviation</span>
+<span class="n">porostd</span> <span class="o">=</span> <span class="n">cv_poro</span> <span class="o">*</span> <span class="n">poroavg</span>
+<span class="n">kabsstd</span> <span class="o">=</span> <span class="n">cv_kabs</span> <span class="o">*</span> <span class="n">kabsavg</span>
+<span class="n">tortstd</span> <span class="o">=</span> <span class="n">cv_tort</span> <span class="o">*</span> <span class="n">tortavg</span>
+<span class="n">surfstd</span> <span class="o">=</span> <span class="n">cv_surf</span> <span class="o">*</span> <span class="n">surfavg</span>
+<span class="c1"># -------------------- Final reference values --------------------</span>
+<span class="n">poro_final</span> <span class="o">=</span> <span class="n">porovec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">kabs_final</span> <span class="o">=</span> <span class="n">kabsvec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">tort_final</span> <span class="o">=</span> <span class="n">tortvec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">surf_final</span> <span class="o">=</span> <span class="n">surfvec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="c1"># -------------------- Normalization --------------------</span>
+<span class="n">poro_norm</span> <span class="o">=</span> <span class="n">porovec</span> <span class="o">/</span> <span class="n">poro_final</span>
+<span class="n">kabs_norm</span> <span class="o">=</span> <span class="n">kabsvec</span> <span class="o">/</span> <span class="n">kabs_final</span>
+<span class="n">tort_norm</span> <span class="o">=</span> <span class="n">tortvec</span> <span class="o">/</span> <span class="n">tort_final</span>
+<span class="n">surf_norm</span> <span class="o">=</span> <span class="n">surfvec</span> <span class="o">/</span> <span class="n">surf_final</span>
+
+<span class="n">poroavg_norm</span> <span class="o">=</span> <span class="n">poroavg</span> <span class="o">/</span> <span class="n">poro_final</span>
+<span class="n">kabsavg_norm</span> <span class="o">=</span> <span class="n">kabsavg</span> <span class="o">/</span> <span class="n">kabs_final</span>
+<span class="n">tortavg_norm</span> <span class="o">=</span> <span class="n">tortavg</span> <span class="o">/</span> <span class="n">tort_final</span>
+<span class="n">surfavg_norm</span> <span class="o">=</span> <span class="n">surfavg</span> <span class="o">/</span> <span class="n">surf_final</span>
+
+<span class="n">porostd_norm</span> <span class="o">=</span> <span class="n">porostd</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">poro_final</span><span class="p">)</span>
+<span class="n">kabsstd_norm</span> <span class="o">=</span> <span class="n">kabsstd</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">kabs_final</span><span class="p">)</span>
+<span class="n">tortstd_norm</span> <span class="o">=</span> <span class="n">tortstd</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tort_final</span><span class="p">)</span>
+<span class="n">surfstd_norm</span> <span class="o">=</span> <span class="n">surfstd</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">surf_final</span><span class="p">)</span>
+
+<span class="c1"># -------------------- REV determination --------------------</span>
+<span class="k">def</span> <span class="nf">first_rev_size</span><span class="p">(</span><span class="n">sizes</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+   <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cv</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">cv</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">cv</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+   <span class="k">return</span> <span class="n">sizes</span><span class="p">[</span><span class="n">valid</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">if</span> <span class="n">valid</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">reported_rev_size</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+   <span class="n">values</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+   <span class="n">valid</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span>
+   <span class="k">return</span> <span class="n">valid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">valid</span><span class="o">.</span><span class="n">size</span> <span class="k">else</span> <span class="kc">None</span>
+
+<span class="k">if</span> <span class="n">rev_method</span> <span class="o">==</span> <span class="s2">&quot;statistical&quot;</span><span class="p">:</span>
+   <span class="n">rev_poro</span> <span class="o">=</span> <span class="n">first_rev_size</span><span class="p">(</span> <span class="n">tamanho_stat_um</span><span class="p">,</span> <span class="n">cv_poro</span><span class="p">,</span> <span class="n">rev_threshold</span> <span class="p">)</span>
+   <span class="n">rev_kabs</span> <span class="o">=</span> <span class="n">first_rev_size</span><span class="p">(</span> <span class="n">tamanho_stat_um</span><span class="p">,</span> <span class="n">cv_kabs</span><span class="p">,</span> <span class="n">rev_threshold</span> <span class="p">)</span>
+   <span class="n">rev_tort</span> <span class="o">=</span> <span class="n">first_rev_size</span><span class="p">(</span> <span class="n">tamanho_stat_um</span><span class="p">,</span> <span class="n">cv_tort</span><span class="p">,</span> <span class="n">rev_threshold</span> <span class="p">)</span>
+   <span class="n">rev_surf</span> <span class="o">=</span> <span class="n">first_rev_size</span><span class="p">(</span> <span class="n">tamanho_stat_um</span><span class="p">,</span> <span class="n">cv_surf</span><span class="p">,</span> <span class="n">rev_threshold</span> <span class="p">)</span>
+
+<span class="k">elif</span> <span class="n">rev_method</span> <span class="o">==</span> <span class="s2">&quot;deterministic&quot;</span><span class="p">:</span>
+   <span class="n">rev_poro</span> <span class="o">=</span> <span class="n">reported_rev_size</span><span class="p">(</span> <span class="n">det_geo</span><span class="p">,</span> <span class="s2">&quot;rev_poro_um&quot;</span> <span class="p">)</span>
+   <span class="n">rev_kabs</span> <span class="o">=</span> <span class="n">reported_rev_size</span><span class="p">(</span> <span class="n">det_hyd</span><span class="p">,</span> <span class="s2">&quot;rev_perm_um&quot;</span> <span class="p">)</span>
+   <span class="n">rev_tort</span> <span class="o">=</span> <span class="n">reported_rev_size</span><span class="p">(</span> <span class="n">det_hyd</span><span class="p">,</span> <span class="s2">&quot;rev_tort_um&quot;</span> <span class="p">)</span>
+   <span class="n">rev_surf</span> <span class="o">=</span> <span class="n">reported_rev_size</span><span class="p">(</span> <span class="n">det_geo</span><span class="p">,</span> <span class="s2">&quot;rev_surf_um&quot;</span> <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+   <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown REV method.&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Porosity REV: </span><span class="si">{</span><span class="n">rev_poro</span><span class="si">}</span><span class="s2"> um&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Permeability REV: </span><span class="si">{</span><span class="n">rev_kabs</span><span class="si">}</span><span class="s2"> um&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tortuosity REV: </span><span class="si">{</span><span class="n">rev_tort</span><span class="si">}</span><span class="s2"> um&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Surface area REV: </span><span class="si">{</span><span class="n">rev_surf</span><span class="si">}</span><span class="s2"> um&quot;</span><span class="p">)</span>
+
+<span class="c1"># -------------------- Plot configuration --------------------</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-v0_8-whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+   <span class="s2">&quot;font.size&quot;</span><span class="p">:</span> <span class="n">TAMANHO_BASE</span><span class="p">,</span>
+   <span class="s2">&quot;axes.titlesize&quot;</span><span class="p">:</span> <span class="n">TAMANHO_BASE</span><span class="p">,</span>
+   <span class="s2">&quot;axes.labelsize&quot;</span><span class="p">:</span> <span class="n">TAMANHO_BASE</span><span class="p">,</span>
+   <span class="s2">&quot;xtick.labelsize&quot;</span><span class="p">:</span> <span class="n">TAMANHO_BASE</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span>
+   <span class="s2">&quot;ytick.labelsize&quot;</span><span class="p">:</span> <span class="n">TAMANHO_BASE</span> <span class="o">-</span> <span class="mi">4</span><span class="p">,</span>
+   <span class="s2">&quot;legend.fontsize&quot;</span><span class="p">:</span> <span class="n">TAMANHO_BASE</span> <span class="o">-</span> <span class="mi">6</span><span class="p">,</span>
+   <span class="s2">&quot;mathtext.fontset&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span>
+<span class="p">})</span>
+
+<span class="c1"># -------------------- Plotting function --------------------</span>
+<span class="k">def</span> <span class="nf">plot_rev_properties</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">properties</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+   <span class="c1"># First valid statistical subvolume size</span>
+   <span class="n">transition_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">tamanho_stat_um</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">tamanho_stat_um</span><span class="p">)])</span>
+   <span class="c1"># Deterministic results stop before statistical results begin</span>
+   <span class="n">mask_det</span> <span class="o">=</span> <span class="n">tamanho_um</span> <span class="o">&lt;</span> <span class="n">transition_size</span>
+   <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+      <span class="c1"># -------------------- Deterministic curves --------------------</span>
+      <span class="n">x_det</span> <span class="o">=</span> <span class="n">tamanho_um</span><span class="p">[</span><span class="n">mask_det</span><span class="p">]</span>
+      <span class="n">y_det</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;det&quot;</span><span class="p">][</span><span class="n">mask_det</span><span class="p">]</span>
+
+      <span class="c1"># Find first statistical point</span>
+      <span class="n">idx_stat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;avg&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+
+      <span class="k">if</span> <span class="n">idx_stat</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">idx_stat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">x_combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x_det</span><span class="p">,</span> <span class="n">tamanho_stat_um</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">y_combined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_det</span><span class="p">,</span> <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;avg&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+      <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_combined</span> <span class="o">=</span> <span class="n">x_det</span>
+            <span class="n">y_combined</span> <span class="o">=</span> <span class="n">y_det</span>
+
+      <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_combined</span><span class="p">,</span><span class="n">y_combined</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;marker&quot;</span><span class="p">],</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span><span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+      <span class="c1"># -------------------- Statistical error bars --------------------</span>
+      <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">tamanho_stat_um</span><span class="p">,</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;avg&quot;</span><span class="p">],</span><span class="n">yerr</span><span class="o">=</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">],</span><span class="n">fmt</span><span class="o">=</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;marker&quot;</span><span class="p">],</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">],</span><span class="n">capsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span><span class="n">fillstyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+      <span class="c1"># -------------------- REV vertical lines --------------------</span>
+      <span class="k">if</span> <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;rev&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;rev&quot;</span><span class="p">],</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">],</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+   <span class="c1"># -------------------- Reference horizontal line --------------------</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+   <span class="c1"># -------------------- Additional reference lengths --------------------</span>
+   <span class="n">lmax_media</span> <span class="o">=</span> <span class="n">tamanho_um</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">16</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">/</span><span class="mi">37</span>
+   <span class="c1"># lmax_obrig = tamanho_um[-1] * (4 + np.sqrt(2))/7</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">lmax_media</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+   <span class="c1"># ax.axvline(lmax_obrig, color=&quot;k&quot;, linewidth=1.5)</span>
+   <span class="c1"># -------------------- Axis labels --------------------</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Aresta do subvolume [$\mu$m]&quot;</span><span class="p">)</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Propriedade normalizada [-]&quot;</span><span class="p">)</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">tamanho_um</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tamanho_um</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+   <span class="c1"># -------------------- Top axis: voxel units --------------------</span>
+   <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
+   <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">())</span>
+   <span class="n">voxel_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">tamanho_vx</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tamanho_vx</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">6</span><span class="p">)</span>
+   <span class="n">um_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">voxel_ticks</span><span class="p">,</span> <span class="n">tamanho_vx</span><span class="p">,</span> <span class="n">tamanho_um</span><span class="p">)</span>
+   <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">um_ticks</span><span class="p">)</span>
+   <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">voxel_ticks</span><span class="p">])</span>
+   <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Aresta do subvolume [voxels]&quot;</span><span class="p">)</span>
+   <span class="c1"># -------------------- Legend --------------------</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span><span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span><span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+<span class="c1"># -------------------- Geometric properties --------------------</span>
+<span class="n">geometric_properties</span> <span class="o">=</span> <span class="p">[</span>
+   <span class="p">{</span><span class="s2">&quot;det&quot;</span><span class="p">:</span> <span class="n">poro_norm</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span> <span class="n">poroavg_norm</span><span class="p">,</span><span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="n">porostd_norm</span><span class="p">,</span><span class="s2">&quot;rev&quot;</span><span class="p">:</span> <span class="n">rev_poro</span><span class="p">,</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">colors</span><span class="p">[</span><span class="s2">&quot;poro&quot;</span><span class="p">],</span><span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;$\phi$ (final: </span><span class="si">{</span><span class="n">poro_final</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">},</span>
+   <span class="p">{</span><span class="s2">&quot;det&quot;</span><span class="p">:</span> <span class="n">surf_norm</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span> <span class="n">surfavg_norm</span><span class="p">,</span><span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="n">surfstd_norm</span><span class="p">,</span><span class="s2">&quot;rev&quot;</span><span class="p">:</span> <span class="n">rev_surf</span><span class="p">,</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">colors</span><span class="p">[</span><span class="s2">&quot;surf&quot;</span><span class="p">],</span><span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">rf</span><span class="s2">&quot;$S_v$ (final: </span><span class="si">{</span><span class="n">surf_final</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+
+<span class="c1"># -------------------- Hydraulic properties --------------------</span>
+<span class="n">hydraulic_properties</span> <span class="o">=</span> <span class="p">[</span>
+   <span class="p">{</span><span class="s2">&quot;det&quot;</span><span class="p">:</span><span class="n">kabs_norm</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span><span class="n">kabsavg_norm</span><span class="p">,</span><span class="s2">&quot;std&quot;</span><span class="p">:</span><span class="n">kabsstd_norm</span><span class="p">,</span><span class="s2">&quot;rev&quot;</span><span class="p">:</span><span class="n">rev_kabs</span><span class="p">,</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="n">colors</span><span class="p">[</span><span class="s2">&quot;kabs&quot;</span><span class="p">],</span><span class="s2">&quot;marker&quot;</span><span class="p">:</span><span class="s2">&quot;s&quot;</span><span class="p">,</span><span class="s2">&quot;label&quot;</span><span class="p">:</span><span class="sa">rf</span><span class="s2">&quot;$k$ (final:</span><span class="si">{</span><span class="n">kabs_final</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> mD)&quot;</span><span class="p">},</span>
+   <span class="p">{</span><span class="s2">&quot;det&quot;</span><span class="p">:</span><span class="n">tort_norm</span><span class="p">,</span><span class="s2">&quot;avg&quot;</span><span class="p">:</span><span class="n">tortavg_norm</span><span class="p">,</span><span class="s2">&quot;std&quot;</span><span class="p">:</span><span class="n">tortstd_norm</span><span class="p">,</span><span class="s2">&quot;rev&quot;</span><span class="p">:</span><span class="n">rev_tort</span><span class="p">,</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="n">colors</span><span class="p">[</span><span class="s2">&quot;tort&quot;</span><span class="p">],</span><span class="s2">&quot;marker&quot;</span><span class="p">:</span><span class="s2">&quot;^&quot;</span><span class="p">,</span><span class="s2">&quot;label&quot;</span><span class="p">:</span><span class="sa">rf</span><span class="s2">&quot;$\tau$(final:</span><span class="si">{</span><span class="n">tort_final</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+<span class="c1"># ===================Create side-by-side plots================</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span><span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plot_rev_properties</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">geometric_properties</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;(a) Geometric properties&quot;</span><span class="p">)</span>   <span class="c1"># Left: geometric REV</span>
+<span class="n">plot_rev_properties</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">hydraulic_properties</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;(b) Hydraulic properties&quot;</span><span class="p">)</span>   <span class="c1"># Right: hydraulic REV</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="c1"># Remove duplicate Y-axis label</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">w_pad</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># Layout</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;/home/ricardolmb/Desktop/REV-Code/LBPM_fork/docs-sphinx/source/_static/images/rev_combined.svg&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</details><br></section>
+<section id="id4">
+<h3>lbpm_rev_analysis<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<p>The same analysis done inside <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code> can be performed inside
+<code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> if velocity was already obtained. Running the <code class="docutils literal notranslate"><span class="pre">input.db</span></code> file given
+bellow the same results presented in <a class="reference internal" href="#rev-plots"><span class="std std-numref">Fig. 7</span></a>.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain {
+   Filename = &quot;Berea.raw&quot;
+   ReadType = &quot;8bit&quot;      // data type
+   N = 400, 400, 400     // size of original image
+   nproc = 1, 1, 1        // process grid
+   n = 400, 400, 400      // sub-domain size
+   offset = 0, 0, 0 // offset to read sub-domain
+   InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+   OutletLayers = 0, 0, 10 // specify 10 layers along the z-outlet
+   voxel_length = 5.345    // voxel length (in microns)
+   ReadValues = 0, 1   // labels within the original image
+   WriteValues = 1, 0  // associated labels to be used by LBPM
+   BC = 0                 // boundary condition type (0 for periodic)
+}
+REV {
+   Geomtrical = True
+   Hydraulic = True
+   gamma = 0.1
+   SizeStep = 0.06
+   CCInterval = 10
+   StatSamples = 50
+   Seed_Anchor = True
+   SimulationParams = &quot;input.db&quot;
+   VelocityPath = &quot;./&quot;
+   VelocityTimestep = &quot;vis35000&quot;
+}
+</pre></div>
+</div>
+<p>Inside of <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> can be ran also only geometrical analysis in absence of
+velocity field. Running the <code class="docutils literal notranslate"><span class="pre">input.db</span></code> file given bellow the same results presented
+in <a class="reference internal" href="#rev-plots"><span class="std std-numref">Fig. 7</span></a> (a) are obtained.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain {
+   Filename = &quot;Berea.raw&quot;
+   ReadType = &quot;8bit&quot;      // data type
+   N = 400, 400, 400     // size of original image
+   nproc = 1, 1, 1        // process grid
+   n = 400, 400, 400      // sub-domain size
+   offset = 0, 0, 0 // offset to read sub-domain
+   InletLayers = 0, 0, 10 // specify 10 layers along the z-inlet
+   OutletLayers = 0, 0, 10 // specify 10 layers along the z-outlet
+   voxel_length = 5.345    // voxel length (in microns)
+   ReadValues = 0, 1   // labels within the original image
+   WriteValues = 1, 0  // associated labels to be used by LBPM
+   BC = 0                 // boundary condition type (0 for periodic)
+}
+REV {
+   Geomtrical = True
+   Hydraulic = False
+   gamma = 0.1
+   SizeStep = 0.06
+   CCInterval = 10
+   StatSamples = 50
+   Seed_Anchor = True
+}
+</pre></div>
+</div>
 </section>
 </section>
 <section id="benchmark-cases">
 <h2>Benchmark Cases<a class="headerlink" href="#benchmark-cases" title="Link to this heading">¶</a></h2>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 100.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p class="centered">
+<strong><a class="reference internal" href="../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases.html"><span class="doc">3D Digital Rocks</span></a></strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><a class="reference internal image-reference" href="../../../_images/REVHybridAnimation.gif"><img alt="../../../_images/REVHybridAnimation.gif" class="align-center" src="../../../_images/REVHybridAnimation.gif" style="width: 200px;" />
+</a>
+</td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 
