@@ -571,9 +571,14 @@ REV analysis.
 
 Selection writes the following files in the current working directory:
 
-* When ``save_subdomain_raw = true``, ``subdomain_porosity.raw`` and
-  ``subdomain_permeability.raw`` contain the independent selected crops, with
-  x varying fastest and no halo voxels.
+* When ``save_subdomain_raw = true``,
+  ``subdomain_porosity_<nx>x<ny>x<nz>.raw`` and
+  ``subdomain_permeability_<nx>x<ny>x<nz>.raw`` contain the independent
+  selected crops, with x varying fastest and no halo voxels. Here ``nx``,
+  ``ny``, and ``nz`` are the selected window dimensions in voxels along x,
+  y, and z, respectively. For example, a ``64 x 64 x 64`` geometric window
+  is saved as ``subdomain_porosity_64x64x64.raw``. Each property's filename
+  uses its own selected dimensions.
   ``Domain.Filename`` input with ``ReadType = "8bit"`` or ``"16bit"`` is
   copied byte for byte, preserving original labels and data type before
   relabeling. ``ID.00000`` input retains its original one-byte labels with
@@ -582,8 +587,9 @@ Selection writes the following files in the current working directory:
 * ``subdomain_selection.csv`` uses comma separators and records each
   property's status, REV size in voxels and micrometres, dimensions and
   physical lengths, statistical mean, selected value, relative deviation,
-  number of candidates, raw filename (blank when raw export is disabled), and
-  source layout. Coordinates use zero-based indices and exclusive upper bounds.
+  number of candidates, raw filename in ``raw_file`` (blank when raw export
+  is disabled), and source layout. The raw filename includes the selected
+  window dimensions. Coordinates use zero-based indices and exclusive upper bounds.
   ``x0,y0,z0`` and ``x1,y1,z1`` refer to the halo-free analysis image. The ``source_*``
   coordinates include ``Domain.offset`` or the input halos of ``ID.00000``;
   source dimensions and bytes per voxel allow the crop to be reproduced
@@ -610,11 +616,11 @@ Selection writes the following files in the current working directory:
   in the CSV identifies the corresponding database.
 
 The geometric row retains the property name ``porosity``, and its optional raw
-crop keeps the filename ``subdomain_porosity.raw``. These outputs identify
+crop uses ``subdomain_porosity_<nx>x<ny>x<nz>.raw``. These outputs identify
 the region selected by the combined porosity and specific-surface score.
 The hydraulic row retains the property name ``permeability``, and
-the optional ``subdomain_permeability.raw`` crop identifies the region selected
-by the combined permeability and tortuosity score.
+the optional ``subdomain_permeability_<nx>x<ny>x<nz>.raw`` crop identifies the
+region selected by the combined permeability and tortuosity score.
 
 The generated blocks preserve the raw input type, label mapping, and voxel
 length. They use ``nproc = 1, 1, 1``, ``BC = 0``, and zero inlet/outlet layers

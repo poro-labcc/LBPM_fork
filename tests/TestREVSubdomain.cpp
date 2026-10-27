@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <dirent.h>
 #include <fstream>
 #include <iterator>
 #include <limits>
@@ -24,6 +25,22 @@ void require(bool condition, const std::string &message) {
         throw std::runtime_error(message);
 }
 
+std::vector<std::string> selectedRawFiles() {
+    std::vector<std::string> files;
+    DIR *directory = opendir(".");
+    if (!directory)
+        return files;
+    while (const auto entry = readdir(directory)) {
+        const std::string name(entry->d_name);
+        if (name.compare(0, 10, "subdomain_") == 0 &&
+            ((name.size() >= 4 && name.compare(name.size() - 4, 4, ".raw") == 0) ||
+             (name.size() >= 8 && name.compare(name.size() - 8, 8, ".raw.tmp") == 0)))
+            files.push_back(name);
+    }
+    closedir(directory);
+    return files;
+}
+
 // Isolate generated fixtures and outputs from other tests and user files.
 class TestDirectory {
 public:
@@ -38,9 +55,9 @@ public:
         require(chdir(temporary.c_str()) == 0, "Cannot enter test directory");
     }
     ~TestDirectory() {
+        for (const auto &name : selectedRawFiles())
+            std::remove(name.c_str());
         for (const char *name : {"input.db", "source.raw", "subdomain_selection.csv",
-                                 "subdomain_porosity.raw", "subdomain_permeability.raw",
-                                 "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp",
                                  "geometrical-rev-domain.db", "hydraulic-rev-domain.db",
                                  "geometrical-rev-domain.db.tmp", "hydraulic-rev-domain.db.tmp",
                                  "ID.00000", "stat_rev_geometric.csv", "stat_rev_hydraulic.csv"})
@@ -101,6 +118,14 @@ std::vector<char> readBytes(const std::string &filename) {
     std::ifstream input(filename, std::ios::binary);
     require(input.good(), "Selected raw image was not written");
     return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+}
+
+std::string requireRawFile(const Row &row) {
+    const std::string expected = "subdomain_" + row.at("property") + "_" + row.at("nx") +
+                                 "x" + row.at("ny") + "x" + row.at("nz") + ".raw";
+    require(row.at("raw_file") == expected,
+            "Raw filename must contain the selected voxel dimensions in x/y/z order");
+    return expected;
 }
 
 bool close(double actual, double expected) {
@@ -399,7 +424,7 @@ void testWeightedGeometrySelection(const Utilities::MPI &comm) {
         for (int y = best_origin[1]; y < best_origin[1] + 2; ++y)
             for (int x = best_origin[0]; x < best_origin[0] + 2; ++x)
                 expected.push_back(source[x + 4 * (y + 4 * z)]);
-    require(readBytes("subdomain_porosity.raw") == expected,
+    require(readBytes(requireRawFile(row)) == expected,
             "Weighted-selected raw image does not contain the winning compromise geometry");
     requireDomainFile(row);
 }
@@ -430,7 +455,7 @@ void testLastWindowAndOffset(const Utilities::MPI &comm) {
                 std::stoi(row.at("source_z0")) == 5, "Original-image offset was lost");
     require(std::stoi(row.at("source_x1")) == 5 && std::stoi(row.at("source_y1")) == 6 &&
                 std::stoi(row.at("source_z1")) == 7, "Incorrect original-image exclusive bounds");
-    const auto actual = readBytes("subdomain_porosity.raw");
+    const auto actual = readBytes(requireRawFile(row));
     std::vector<char> expected(8, 17);
     expected.back() = 29;
     require(actual == expected, "8-bit raw export changed labels, order, or offset");
@@ -469,7 +494,7 @@ void testSixteenBitLabelsAndTies(const Utilities::MPI &comm) {
             for (int x = 0; x < 2; ++x)
                 expected.push_back(source[x + 3 * (y + 3 * z)]);
     const char *bytes = reinterpret_cast<const char *>(expected.data());
-    require(readBytes("subdomain_porosity.raw") == std::vector<char>(bytes, bytes + 16),
+    require(readBytes(requireRawFile(row)) == std::vector<char>(bytes, bytes + 16),
             "16-bit raw export did not preserve original bytes and labels");
     requireDomainFile(row);
 }
@@ -500,9 +525,9 @@ void testIndependentSizesAndZeroMeans(const Utilities::MPI &comm) {
             "Solid geometry should exactly match zero geometric targets");
     require(permeability.at("status") == "no_valid_tortuosity",
             "Solid candidates must not fabricate a finite hydraulic tortuosity");
-    require(readBytes("subdomain_porosity.raw").size() == 8,
+    require(readBytes(requireRawFile(porosity)).size() == 8,
             "Selected geometric dimensions were not independent of the hydraulic REV");
-    require(!exists("subdomain_permeability.raw") && !exists("hydraulic-rev-domain.db"),
+    require(!exists("subdomain_permeability_1x1x1.raw") && !exists("hydraulic-rev-domain.db"),
             "An undefined hydraulic score must not produce a selected raw image or Domain database");
     requireDomainFile(porosity);
 }
@@ -517,7 +542,7 @@ void testNoConvergence(const Utilities::MPI &comm) {
     rev.sub_domain_select(model);
     require(readSummary().at("porosity").at("status") == "not_converged",
             "Missing statistical convergence should be explicit");
-    require(!exists("subdomain_porosity.raw"), "An unconverged REV must not produce a selected raw image");
+    require(selectedRawFiles().empty(), "An unconverged REV must not produce selected raw images");
     require(!exists("geometrical-rev-domain.db") && !exists("hydraulic-rev-domain.db"),
             "An unconverged property must not produce a Domain database");
     require(readSummary().at("porosity").at("domain_file").empty(),
@@ -541,7 +566,7 @@ void testFullDomainWindow(const Utilities::MPI &comm) {
     require(std::stoi(row.at("x0")) == 0 && std::stoi(row.at("x1")) == 3,
             "Full-domain REV bounds are incorrect");
     const char *bytes = reinterpret_cast<const char *>(source.data());
-    require(readBytes("subdomain_porosity.raw") == std::vector<char>(bytes, bytes + source.size()),
+    require(readBytes(requireRawFile(row)) == std::vector<char>(bytes, bytes + source.size()),
             "A full-domain selection should reproduce the original image");
 }
 
@@ -576,7 +601,7 @@ void testDisabled(const Utilities::MPI &comm) {
     setREV(rev.stat_poro_rev, 2, 0.5, 12.0 / (8.0 * 2.5));
     // Deliberately omit the source image: disabled selection must not access it.
     rev.sub_domain_select(model);
-    require(!exists("subdomain_selection.csv") && !exists("subdomain_porosity.raw"),
+    require(!exists("subdomain_selection.csv") && selectedRawFiles().empty(),
             "Disabled selection must not create outputs");
     require(!exists("geometrical-rev-domain.db") && !exists("hydraulic-rev-domain.db"),
             "Disabled selection must not create Domain databases");
@@ -610,13 +635,15 @@ void testOptionalRawExports(const Utilities::MPI &comm) {
         const auto rows = readSummary();
         for (const char *property : {"porosity", "permeability"}) {
             const Row &row = rows.at(property);
-            const std::string raw_file = std::string("subdomain_") + property + ".raw";
+            const std::string raw_file = std::string("subdomain_") + property + "_4x4x4.raw";
             require(row.at("status") == "selected" && std::stoull(row.at("candidate_count")) == 1,
                     "Optional raw export must preserve selection for both properties");
             requireDomainFile(row);
             if (save_raw) {
                 require(row.at("raw_file") == raw_file && readBytes(raw_file) == original,
                         "Explicitly enabled raw export must preserve selected source bytes");
+                require(!exists("subdomain_porosity.raw") && !exists("subdomain_permeability.raw"),
+                        "Raw export must use dimensioned filenames instead of legacy names");
             } else {
                 require(row.at("raw_file").empty(),
                         "Disabled raw export must not advertise a raw output in the summary");
@@ -631,12 +658,12 @@ void testOptionalRawExports(const Utilities::MPI &comm) {
             requireDomainRoundTrip(requireDomainFile(rows.at("porosity")), mapped, comm);
             // Files that raw export will not touch may alias the source. This
             // also verifies that existing raw images and staging files survive.
-            for (const char *name : {"subdomain_porosity.raw", "subdomain_permeability.raw",
-                                     "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp"})
+            for (const char *name : {"subdomain_porosity_4x4x4.raw", "subdomain_permeability_4x4x4.raw",
+                                     "subdomain_porosity_4x4x4.raw.tmp", "subdomain_permeability_4x4x4.raw.tmp"})
                 require(link("source.raw", name) == 0, "Cannot create unused raw output aliases");
             rev.sub_domain_select(model);
-            for (const char *name : {"subdomain_porosity.raw", "subdomain_permeability.raw",
-                                     "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp"})
+            for (const char *name : {"subdomain_porosity_4x4x4.raw", "subdomain_permeability_4x4x4.raw",
+                                     "subdomain_porosity_4x4x4.raw.tmp", "subdomain_permeability_4x4x4.raw.tmp"})
                 require(readBytes(name) == original,
                         "Disabled raw export must preserve existing raw images and staging files");
             require(readBytes("source.raw") == original,
@@ -800,6 +827,11 @@ void testRectangularUnitAxisSurface(const Utilities::MPI &comm) {
                              (shape[2] - size[2] + 1);
         require(std::stoull(row.at("candidate_count")) == unsigned(expected),
                 "Rectangular weighted selection must scan each unit-axis window");
+        const std::string raw_file = "subdomain_porosity_" + std::to_string(size[0]) + "x" +
+                                     std::to_string(size[1]) + "x" + std::to_string(size[2]) + ".raw";
+        require(requireRawFile(row) == raw_file &&
+                    readBytes(raw_file).size() == size_t(size[0] * size[1] * size[2]),
+                "Rectangular raw filenames must use each selected voxel extent in x/y/z order");
         requireDomainFile(row);
     }
 }
@@ -821,7 +853,7 @@ void testMissingStatisticalSurface(const Utilities::MPI &comm) {
             rejected = std::string(error.what()).find("surface") != std::string::npos;
         }
         require(rejected, "Missing or invalid surface means must not create fabricated score targets");
-        require(!exists("subdomain_porosity.raw") && !exists("geometrical-rev-domain.db"),
+        require(!exists("subdomain_porosity_2x2x2.raw") && !exists("geometrical-rev-domain.db"),
                 "A score without a valid surface target must not export a selected domain");
     }
 }
@@ -914,7 +946,8 @@ void testNumericalSelection(const Utilities::MPI &comm) {
             "Hydraulic selection must use a fresh flow solve rather than saved local velocities");
     require(std::abs(std::stod(row.at("relative_deviation"))) < 1.0e-8,
             "Numerical selected permeability did not match its statistical target");
-    require(readBytes("subdomain_permeability.raw").size() == 27,
+    require(requireRawFile(row) == "subdomain_permeability_3x3x3.raw" &&
+                readBytes(requireRawFile(row)).size() == 27,
             "Numerical selection exported the wrong geometry size");
     requireHydraulicDiagnostics(row, 1.0, std::stod(row.at("selected_tortuosity")));
     require(std::abs(std::stod(row.at("selected_tortuosity")) - 1.0) < 1.0e-8,
@@ -1018,7 +1051,7 @@ void testWeightedHydraulicSelection(const Utilities::MPI &comm) {
         for (int y = actual[1]; y < actual[1] + 4; ++y)
             for (int x = actual[0]; x < actual[0] + 4; ++x)
                 expected_raw.push_back(static_cast<char>(source[x + 5 * (y + 5 * z)]));
-    require(readBytes("subdomain_permeability.raw") == expected_raw,
+    require(readBytes(requireRawFile(row)) == expected_raw,
             "Hydraulic compromise output does not correspond to its winning numerical geometry");
     require(rev.stat_perm_rev.size == retained.size && rev.stat_perm_rev.mean == retained.mean &&
                 rev.stat_perm_rev.tortuosity_mean == retained.tortuosity_mean,
@@ -1043,7 +1076,7 @@ void testUnavailableStatisticalTortuosity(const Utilities::MPI &comm) {
         require(row.at("status") == "unavailable_tortuosity" &&
                     std::stoull(row.at("candidate_count")) == 0,
                 "Missing or nonfinite tortuosity targets must be explicit instead of fabricated");
-        require(!exists("subdomain_permeability.raw") && !exists("hydraulic-rev-domain.db"),
+        require(!exists("subdomain_permeability_2x2x2.raw") && !exists("hydraulic-rev-domain.db"),
                 "An unavailable statistical target must not export a scored hydraulic subdomain");
     }
     TestDirectory directory;
@@ -1134,7 +1167,7 @@ void testLayeredPorositySource(const Utilities::MPI &comm) {
             "Layered selection measured synthetic geometry instead of the original source");
     std::vector<char> expected(8, 17);
     expected.back() = 29;
-    require(readBytes("subdomain_porosity.raw") == expected,
+    require(readBytes(requireRawFile(row)) == expected,
             "Layered selection did not preserve the original 8-bit crop");
     const char *bytes = reinterpret_cast<const char *>(source.data());
     require(readBytes("source.raw") == std::vector<char>(bytes, bytes + source.size()),
@@ -1175,7 +1208,7 @@ void testLayeredSixteenBitSource(const Utilities::MPI &comm) {
     std::vector<uint16_t> expected(8, 273);
     expected.back() = 285;
     const char *bytes = reinterpret_cast<const char *>(expected.data());
-    require(readBytes("subdomain_porosity.raw") == std::vector<char>(bytes, bytes + 16),
+    require(readBytes(requireRawFile(row)) == std::vector<char>(bytes, bytes + 16),
             "Layered 16-bit export changed source labels or byte order");
     requireUnchangedREV(rev.stat_poro_rev, retained);
     auto selected_domain = requireDomainFile(row);
@@ -1229,20 +1262,20 @@ void testLayeredNumericalSelection(const Utilities::MPI &comm) {
         for (int y = origin[1]; y < origin[1] + 3; ++y)
             for (int x = origin[0]; x < origin[0] + 3; ++x)
                 expected.push_back(static_cast<char>(source[x + 4 * (y + 4 * z)]));
-    require(readBytes("subdomain_permeability.raw") == expected,
+    require(readBytes(requireRawFile(row)) == expected,
             "Layered permeability export did not match the simulated source crop");
     requireDomainFile(row);
 }
 
 void testOriginalImageProtection(const Utilities::MPI &comm) {
     TestDirectory directory;
-    writeInput(3, {{3, 3, 3}}, {{0, 0, 0}}, "8bit");
+    writeInput(3, {{3, 3, 3}}, {{0, 0, 0}}, "8bit", true);
     writeRaw(std::vector<uint8_t>(27, 17));
     Model model(3, comm);
     const auto original = readBytes("source.raw");
-    for (const char *reserved : {"subdomain_selection.csv", "subdomain_porosity.raw",
-                                 "subdomain_permeability.raw", "subdomain_porosity.raw.tmp",
-                                 "subdomain_permeability.raw.tmp", "geometrical-rev-domain.db",
+    for (const char *reserved : {"subdomain_selection.csv", "subdomain_porosity_2x2x2.raw",
+                                 "subdomain_permeability_1x1x1.raw", "subdomain_porosity_2x2x2.raw.tmp",
+                                 "subdomain_permeability_1x1x1.raw.tmp", "geometrical-rev-domain.db",
                                  "hydraulic-rev-domain.db", "geometrical-rev-domain.db.tmp",
                                  "hydraulic-rev-domain.db.tmp"}) {
         require(link("source.raw", reserved) == 0,
@@ -1251,8 +1284,10 @@ void testOriginalImageProtection(const Utilities::MPI &comm) {
         rev.ReadParams("input.db", false);
         // The summary is also protected when no statistical REV converged:
         // writing only the status rows must never truncate an aliased source.
-        if (std::string(reserved) != "subdomain_selection.csv")
+        if (std::string(reserved) != "subdomain_selection.csv") {
             setREV(rev.stat_poro_rev, 2, 0.0);
+            setREV(rev.stat_perm_rev, 1, 0.0);
+        }
         bool rejected = false;
         try {
             rev.sub_domain_select(model);
@@ -1264,6 +1299,17 @@ void testOriginalImageProtection(const Utilities::MPI &comm) {
                 std::string("Selection modified original bytes through an alias: ") + reserved);
         require(std::remove(reserved) == 0, "Cannot remove hard-linked test output");
     }
+    for (const char *legacy : {"subdomain_porosity.raw", "subdomain_permeability.raw",
+                               "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp"})
+        require(link("source.raw", legacy) == 0, "Cannot create unused legacy output aliases");
+    ScaLBL_REV rev(0, 1, comm);
+    rev.ReadParams("input.db", false);
+    setREV(rev.stat_poro_rev, 2, 0.0);
+    rev.sub_domain_select(model);
+    for (const char *legacy : {"subdomain_porosity.raw", "subdomain_permeability.raw",
+                               "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp"})
+        require(readBytes(legacy) == original,
+                "Legacy raw filenames must remain untouched when dimensioned outputs are written");
 }
 
 void writeIDInput(int boundary_condition) {
@@ -1310,7 +1356,7 @@ void testIDSource(const Utilities::MPI &comm) {
         require(std::stoi(row.at(key)) == 5, "ID source dimensions must include stored halos");
     std::vector<char> expected(8, static_cast<char>(-17));
     expected.back() = 3;
-    require(readBytes("subdomain_porosity.raw") == expected,
+    require(readBytes(requireRawFile(row)) == expected,
             "ID output must preserve signed labels while excluding stored halos");
     require(readBytes("ID.00000") == original, "ID selection must preserve the original image");
     auto selected_domain = requireDomainFile(row);
