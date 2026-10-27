@@ -55,6 +55,7 @@ int main(int argc, char **argv)
 		MRT.VelocityField();
 		REV.DetRevAnalysis(MRT);
 		REV.StatRevAnalysis(MRT);
+		REV.sub_domain_select(MRT);
 		cout << flush;
 	}
     Utilities::shutdown();

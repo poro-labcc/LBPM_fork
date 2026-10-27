@@ -27,6 +27,8 @@
 #include <exception>
 #include <stdexcept>
 #include <fstream>
+#include <array>
+#include <limits>
 
 #include "common/ScaLBL.h"
 #include "common/Communication.h"
@@ -49,6 +51,21 @@ public:
     void PoreSize();
     void DetRevAnalysis();
     void StatRevAnalysis();
+    void sub_domain_select();
+
+    // Captured at the first statistical size with CV < REV.gamma.
+    // Keep these separate from the deterministic rev_x_* estimates.
+    struct StatisticalREVResult {
+        int size = 0;
+        std::array<int, 3> dimensions{{0, 0, 0}};
+        double mean = 0.0;
+        double cv = -1.0;
+        // Specific surface measured in the same samples at the porosity REV.
+        double surface_mean = std::numeric_limits<double>::quiet_NaN();
+        // Displayed hydraulic tortuosity (not tortuosity - 1), at the permeability REV.
+        double tortuosity_mean = std::numeric_limits<double>::quiet_NaN();
+    };
+    StatisticalREVResult stat_poro_rev, stat_perm_rev;
 
     // Models supply dimensions, domain, distance, velocity, tau and force.
     template<class Model> void PoreSize(const Model& model) {
@@ -61,6 +78,10 @@ public:
     template<class Model> void StatRevAnalysis(const Model& model) {
         if (run_rev && (geometrical || hydraulic))
             StatRevAnalysisImpl(GetModelData(model));
+    }
+    template<class Model> void sub_domain_select(const Model& model) {
+        if (run_rev && select_subdomains && (geometrical || hydraulic))
+            SubDomainSelectImpl(GetModelData(model));
     }
 
     double average_pore_size;
@@ -108,9 +129,12 @@ private:
     void DetRevAnalysisImpl(const ModelData& model);
     void StatRevAnalysisImpl(const ModelData& model);
     void LoadVelocityFields();
+    void SubDomainSelectImpl(const ModelData& model);
+    std::shared_ptr<Database> selection_flow_params;
     Utilities::MPI comm;
     bool run_rev = false;
     bool standalone_ready = false;
+    bool select_subdomains = false;
 };
 
 #endif // REV_ANALYSIS_H

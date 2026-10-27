@@ -39,7 +39,7 @@ in the workflow diagram presented in :numref:`rev-workflow`. The deterministic s
 size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
 evaluates the spatial variability of the property over randomly distributed subvolumes. The deterministic
 analysis uses a default convergence threshold of :math:`\gamma = 0.1`. The statistical stage reports
-coefficients of variation for comparison with the desired tolerance when assessing a final REV.
+coefficients of variation and retains the first porosity and permeability sizes below this tolerance.
 For a detailed explanation of the steps illustrated in :numref:`rev-workflow`,
 expand the toggle sections below for the deterministic and statistical analyses.
 
@@ -229,12 +229,12 @@ diagram, follows these steps:
    to 50 at each size. The current routine does not adapt this count based on
    the stability of the estimated CV.
 
-9. **Assess the statistical REV:** Compare the reported CV values with the
-   desired convergence tolerance to assess representativeness at each edge
-   length. The current routine records these values without automatically
-   selecting a statistical REV or stopping when CV falls below ``gamma``.
-   Subvolume sizes increase using ``SizeStep`` and the minimum increment
-   described above until the admissible domain-size limit is reached.
+9. **Assess the statistical REV:** The routine retains the first size with
+   ``0 <= CV < gamma`` independently for porosity and permeability, together
+   with its mean and dimensions. It continues reporting the subsequent sizes
+   using ``SizeStep`` and the minimum increment described above until the
+   admissible domain-size limit is reached. ``SubdomainSelect`` optionally
+   uses these retained results to select representative windows.
 
 .. raw:: html
 
@@ -289,9 +289,9 @@ is activated by the presence of a ``REV`` block in ``input.db``, alongside the u
 lbpm_rev_analysis
 --------------------------------
 
-The routine ``lbpm_rev_analysis`` performs a REV
-analyses directly from an input geometry without the necessity of run ``lbpm_permeability_simulator``
-to obtain the velocity field for hydraulic analysis.
+The routine ``lbpm_rev_analysis`` performs REV analysis from an input geometry.
+Geometrical analysis requires the geometry alone; hydraulic analysis also
+requires velocity fields saved by an earlier single-phase flow simulation.
 
 .. code-block:: bash
 
@@ -360,6 +360,9 @@ Setting both parameters to ``False`` skips both REV analyses.
 ``gamma`` is the dimensionless convergence tolerance, with a default value of
 ``0.1``. A deterministic REV is identified for a property when both its relative
 error (RE) and convergence criterion (CC) are valid and smaller than ``gamma``.
+The statistical analysis independently retains the first porosity and
+permeability sizes with a valid coefficient of variation (CV) below ``gamma``,
+together with their respective means and window dimensions.
 For example, ``gamma = 0.1`` requires both metrics to be below 10%. A smaller
 value imposes a stricter convergence requirement and may lead to a larger REV
 estimate or prevent convergence within the available domain.
@@ -395,6 +398,11 @@ to initialize the generator with a seed from ``std::random_device``, allowing
 the sampled locations to vary between runs. This parameter does not affect
 the deterministic analysis.
 
+``SubdomainSelect`` defaults to ``False``. Set it to ``True`` to select
+representative subdomains after the statistical analysis, using its retained
+REV sizes and means. See :ref:`rev-subdomain-selection` for the numerical
+workflow, input restrictions, and outputs.
+
 ``SimulationParams`` identifies the input database used for the flow simulation.
 The referenced database must contain an ``MRT`` block, from which the routine
 reads the relaxation time ``tau`` and body-force vector ``F``.
@@ -426,13 +434,94 @@ simulation. For an MRT simulation, enable ``write_silo = True`` in its
 
    <br>
 
-The seven property-selection, convergence, and sampling parameters are optional.
+The property-selection, convergence, sampling, and subdomain-selection parameters are optional.
 The three saved-flow settings are required for standalone hydraulic analysis.
 An empty ``REV`` block activates
 geometrical analysis in ``lbpm_rev_analysis`` and both property groups in
 ``lbpm_rev_permeability_simulator``, with ``gamma = 0.1``, ``SizeStep = 0.1``,
 ``CCInterval = 10``, ``StatSamples = 50``, and ``Seed_Anchor = True``. Omitting
 the entire block disables REV analysis.
+
+.. _rev-subdomain-selection:
+
+--------------------------------
+Representative subdomain selection
+--------------------------------
+
+Enable ``SubdomainSelect`` in ``input.db`` to select representative windows in
+either REV executable. For porosity selection alone:
+
+.. code-block:: text
+
+   REV {
+      Geometrical = True
+      Hydraulic = False
+      SubdomainSelect = True
+      gamma = 0.1
+      StatSamples = 50
+      Seed_Anchor = True
+   }
+
+For permeability selection, set ``Hydraulic = True`` and supply the saved-flow
+settings described above. Porosity and permeability use their independently
+retained statistical REV sizes and means, without repeating REV analysis.
+The selected window has the dimensions used to calculate the corresponding
+mean: ``L x L x L`` for a cubic image, or the statistical analysis's
+proportionally scaled dimensions for a rectangular image.
+
+The selection scans every valid position, moving one voxel along each axis
+and including the last window at each boundary. It minimizes
+:math:`|p_{\mathrm{local}}-\overline{p}_{\mathrm{REV}}| /
+|\overline{p}_{\mathrm{REV}}|` separately for each property. A zero mean gives
+zero deviation for an exact zero and infinite deviation otherwise. Equal
+deviations select the first candidate, with x changing fastest, then y and z.
+An exact match does not stop the scan.
+
+Porosity counts voxels with positive signed distance, following the existing
+analysis convention. Permeability is evaluated by a fresh numerical MRT flow
+simulation of each cropped geometry, followed by the existing Darcy conversion
+to millidarcies. The retained statistical hydraulic mean is calculated from
+the earlier full-domain simulation; changing to a cropped geometry with
+periodic boundaries can change its flow response.
+
+Selection requires one MPI process and rejects nonzero ``Domain.InletLayers``
+or ``Domain.OutletLayers`` because synthetic reservoir layers would differ
+from the original raw image. Hydraulic selection requires periodic
+flow (``BC = 0``) and a nonzero body force, and uses the same ``tau`` and force
+vector as the hydraulic analysis. Solver limits come from the
+``SimulationParams`` MRT block, or the local MRT block if no reference is
+supplied: ``timestepMax`` defaults to ``100000``, ``analysis_interval`` to
+``1000``, and ``tolerance`` to ``1e-8``. Failure of any candidate simulation to
+converge stops selection with an error. For a cubic window of edge length
+:math:`L`, there are :math:`(N_x-L+1)(N_y-L+1)(N_z-L+1)` candidates. Running a
+flow simulation for each can be substantially more expensive than statistical
+REV analysis.
+
+Selection writes the following files in the current working directory:
+
+* ``subdomain_porosity.raw`` and ``subdomain_permeability.raw`` contain the
+  independent selected crops, with x varying fastest and no halo voxels.
+  ``Domain.Filename`` input with ``ReadType = "8bit"`` or ``"16bit"`` is
+  copied byte for byte, preserving original labels and data type before
+  relabeling. ``ID.00000`` input retains its original one-byte labels with
+  halos removed. ``GridFile`` and ``swc`` input are unsupported for selection.
+* ``subdomain_selection.csv`` uses comma separators and records each
+  property's status, REV size in voxels and micrometres, dimensions and
+  physical lengths, statistical mean, selected value, relative deviation,
+  number of candidates, raw filename, and source layout. Coordinates use
+  zero-based indices and exclusive upper bounds. ``x0,y0,z0`` and
+  ``x1,y1,z1`` refer to the halo-free analysis image. The ``source_*``
+  coordinates include ``Domain.offset`` or the input halos of ``ID.00000``;
+  source dimensions and bytes per voxel allow the crop to be reproduced
+  directly from the original file.
+
+A disabled property or one without a converged statistical REV receives a
+status row and produces no raw crop.
+
+When calling the C++ API directly, invoke ``rev.sub_domain_select()`` after
+``rev.StatRevAnalysis()``, or ``rev.sub_domain_select(model)`` after
+``rev.StatRevAnalysis(model)``. These selection calls return immediately when
+``SubdomainSelect`` is disabled.
 
 ****************************
 Assessing Output Data

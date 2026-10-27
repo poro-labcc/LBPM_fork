@@ -37,6 +37,10 @@ ScaLBL_REV::~ScaLBL_REV() = default;
 void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
 
     db = std::make_shared<Database>(filename);
+    run_rev = false;
+    select_subdomains = false;
+    stat_poro_rev = StatisticalREVResult{};
+    stat_perm_rev = StatisticalREVResult{};
     if(db->keyExists("REV")){
         run_rev = true;
     }
@@ -62,6 +66,9 @@ void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
         ? rev_db->getScalar<bool>("Hydraulic")
         : hydraulic_default;
     seed_anchor = rev_db->getWithDefault<bool>("Seed_Anchor", true);
+    select_subdomains = rev_db->getWithDefault<bool>("SubdomainSelect", false);
+    INSIST(!select_subdomains || comm.getSize() == 1,
+           "REV.SubdomainSelect requires one MPI process");
     if (rev_db->keyExists("SizeStep"))
         size_step = rev_db->getScalar<double>("SizeStep");
     if (rev_db->keyExists("CCInterval"))
@@ -74,6 +81,7 @@ void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
     INSIST(size_step > 0.0, "REV.SizeStep must be positive");
     INSIST(cc_interval > 0, "REV.CCInterval must be positive");
     INSIST(stat_samples > 0, "REV.StatSamples must be positive");
+    INSIST(std::isfinite(gamma) && gamma > 0.0, "REV.gamma must be positive and finite");
     auto simulation_params = mrt_db;
     if (rev_db->keyExists("SimulationParams")) {
         auto simulation_filename =
@@ -105,10 +113,13 @@ void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
             Fz = force[2];
         }
     }
+    selection_flow_params = simulation_params;
 }
 
 void ScaLBL_REV::SetDomain() {
     standalone_ready = false;
+    stat_poro_rev = StatisticalREVResult{};
+    stat_perm_rev = StatisticalREVResult{};
     if (!run_rev || (!geometrical && !hydraulic))
         return;
     INSIST(db, "Call REV.ReadParams before REV.SetDomain");
@@ -241,6 +252,13 @@ void ScaLBL_REV::StatRevAnalysis() {
     StatRevAnalysis(*this);
 }
 
+void ScaLBL_REV::sub_domain_select() {
+    if (!run_rev || !select_subdomains || (!geometrical && !hydraulic))
+        return;
+    INSIST(standalone_ready, "Call REV.SetDomain before REV.sub_domain_select");
+    sub_domain_select(*this);
+}
+
 struct det_convergence_metrics {
     double RE;
     double CC;
@@ -325,7 +343,8 @@ stat_convergence_metrics stat_compute_convergence(const std::vector<double>& dat
     }
     std_dev = std::sqrt(std_dev / valid_count);
     
-    if (res.mean != 0) res.CV = std_dev / res.mean;
+    if (res.mean != 0) res.CV = std_dev / std::abs(res.mean);
+    else if (std_dev == 0.0) res.CV = 0.0;
 
     return res;
 }
@@ -643,6 +662,9 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
     if (!run_rev)
         return;
 
+    stat_poro_rev = StatisticalREVResult{};
+    stat_perm_rev = StatisticalREVResult{};
+
     std::mt19937 rng(0);
     if (!seed_anchor) {
         std::random_device rd;
@@ -692,8 +714,9 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
 
     while (x_size > 0 && x_size < Nx - 2) {
         
-        int sub_y = std::floor(x_size * (Ny - 2) / (Nx - 2)) + 1;
-        int sub_z = std::floor(x_size * (Nz - 2) / (Nx - 2)) + 1;
+        // Match the reported edge length: a cubic image uses L x L x L.
+        int sub_y = std::max(1, int(int64_t(x_size) * (Ny - 2) / (Nx - 2)));
+        int sub_z = std::max(1, int(int64_t(x_size) * (Nz - 2) / (Nx - 2)));
 
         int range_x = (Nx - 2) - x_size + 1;
         int range_y = (Ny - 2) - sub_y + 1;
@@ -776,6 +799,17 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
         if (hydraulic) {
             stat_convergence_metrics k_stats = stat_compute_convergence(stat_perm, stat_samples);
             stat_convergence_metrics t_stats = stat_compute_convergence(stat_tort, stat_samples);
+            if (stat_perm_rev.size == 0 && k_stats.CV >= 0.0 && k_stats.CV < gamma &&
+                std::isfinite(k_stats.mean)) {
+                stat_perm_rev = {x_size, {{x_size, sub_y, sub_z}}, k_stats.mean, k_stats.CV};
+                // The existing statistical samples store T - 1, using -1 for
+                // undefined flow. Do not turn an empty sample set into T = 1.
+                if (std::isfinite(t_stats.mean) &&
+                    std::any_of(stat_tort.begin(), stat_tort.end(), [](double value) {
+                        return value != -1.0 && std::isfinite(value);
+                    }))
+                    stat_perm_rev.tortuosity_mean = t_stats.mean + 1.0;
+            }
             hydraulic_log << x_size * h << " " << x_size << " "
                           << k_stats.CV << " " << k_stats.mean << " " << k_stats.max << " " << k_stats.min << " "
                           << t_stats.CV << " " << t_stats.mean + 1 << " " << t_stats.max + 1 << " " << t_stats.min + 1 << "\n";
@@ -784,6 +818,11 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
         if (geometrical) {
             stat_convergence_metrics p_stats = stat_compute_convergence(stat_poro, stat_samples);
             stat_convergence_metrics s_stats = stat_compute_convergence(stat_surf, stat_samples);
+            if (stat_poro_rev.size == 0 && p_stats.CV >= 0.0 && p_stats.CV < gamma &&
+                std::isfinite(p_stats.mean)) {
+                stat_poro_rev = {x_size, {{x_size, sub_y, sub_z}}, p_stats.mean, p_stats.CV,
+                                 s_stats.mean};
+            }
             geometric_log << x_size * h << " " << x_size << " "
                           << p_stats.CV << " " << p_stats.mean << " " << p_stats.max << " " << p_stats.min << " "
                           << s_stats.CV << " " << s_stats.mean  << " " << s_stats.max  << " " << s_stats.min  << "\n";

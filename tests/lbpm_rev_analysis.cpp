@@ -77,12 +77,17 @@ int main(int argc, char **argv)
 				          << ". Analysis was not run.\n";
 			}
 			status = 1;
-		} else {
+		} else try {
 			ScaLBL_REV REV(rank,nprocs,comm);
 			REV.ReadParams(filename, false);
 			REV.SetDomain();    // this reads in the domain
 			REV.DetRevAnalysis();
 			REV.StatRevAnalysis();
+			REV.sub_domain_select();
+		} catch (const std::exception &error) {
+			if (rank == 0)
+				std::cerr << "lbpm_rev_analysis: " << error.what() << '\n';
+			status = 1;
 		}
 		cout << flush;
 	}

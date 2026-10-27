@@ -55,6 +55,7 @@ ADD_LBPM_EXECUTABLE( lbpm_rev_analysis )
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/cylindertest ${CMAKE_CURRENT_BINARY_DIR}/cylindertest COPYONLY )
 
 # Add the tests
+ADD_LBPM_TEST( TestREVSubdomain )
 #ADD_LBPM_TEST( pmmc_cylinder )
 #ADD_LBPM_TEST( TestSubphase )
 #ADD_LBPM_TEST( TestTorus )
