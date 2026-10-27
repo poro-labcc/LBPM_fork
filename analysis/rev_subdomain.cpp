@@ -82,22 +82,27 @@ std::string csvString(const std::string &value) {
     return result + '"';
 }
 
-void protectSource(const std::string &filename) {
+void protectSource(const std::string &filename, bool save_raw) {
     // Check identity, including symlink and hard-link aliases, before any
     // result or staging file can be opened for writing.
     struct stat original;
     if (::stat(filename.c_str(), &original) != 0)
         return; // Missing sources are diagnosed when an export is needed.
-    for (const char *reserved : {"subdomain_selection.csv", "subdomain_porosity.raw",
-                                 "subdomain_permeability.raw", "subdomain_porosity.raw.tmp",
-                                 "subdomain_permeability.raw.tmp", "geometrical-rev-domain.db",
-                                 "hydraulic-rev-domain.db", "geometrical-rev-domain.db.tmp",
-                                 "hydraulic-rev-domain.db.tmp"}) {
+    const auto check_output = [&](const char *reserved) {
         struct stat output;
         if (::stat(reserved, &output) == 0 && original.st_dev == output.st_dev &&
             original.st_ino == output.st_ino)
             throw std::runtime_error("Selection output aliases the original image: " + std::string(reserved));
+    };
+    for (const char *reserved : {"subdomain_selection.csv", "geometrical-rev-domain.db",
+                                 "hydraulic-rev-domain.db", "geometrical-rev-domain.db.tmp",
+                                 "hydraulic-rev-domain.db.tmp"}) {
+        check_output(reserved);
     }
+    if (save_raw)
+        for (const char *reserved : {"subdomain_porosity.raw", "subdomain_permeability.raw",
+                                     "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp"})
+            check_output(reserved);
 }
 
 // Domain::Decomp maps labels (and narrows 16-bit images). Export from the
@@ -279,7 +284,7 @@ void ScaLBL_REV::SubDomainSelectImpl(const ModelData &model) {
         }
     }
     std::unique_ptr<RawSource> source;
-    protectSource(domain->getWithDefault<std::string>("Filename", "ID.00000"));
+    protectSource(domain->getWithDefault<std::string>("Filename", "ID.00000"), save_subdomain_raw);
     if ((geometrical && stat_poro_rev.size > 0) ||
         (hydraulic && stat_perm_rev.size > 0))
         source.reset(new RawSource(*domain, image));
@@ -485,8 +490,9 @@ void ScaLBL_REV::SubDomainSelectImpl(const ModelData &model) {
                       << best.candidates << " windows." << std::endl;
             continue;
         }
-        const std::string raw_file = std::string("subdomain_") + name + ".raw";
-        source->save(raw_file, best.start, size);
+        const std::string raw_file = save_subdomain_raw ? std::string("subdomain_") + name + ".raw" : "";
+        if (save_subdomain_raw)
+            source->save(raw_file, best.start, size);
         const std::string domain_file = porosity ? "geometrical-rev-domain.db" : "hydraulic-rev-domain.db";
         source->saveDomain(domain_file, *domain, best.start, size, h);
         const double error = best.deviation;

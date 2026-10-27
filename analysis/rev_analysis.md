@@ -115,11 +115,18 @@ REV {
     Geometrical = true
     Hydraulic = false
     SubdomainSelect = true
+    save_subdomain_raw = false
     gamma = 0.1
     StatSamples = 50
     Seed_Anchor = true
 }
 ```
+
+`save_subdomain_raw` controls whether selection writes the selected `.raw` crops
+and defaults to `false`. Set it to `true` in `input.db` to enable raw exports for
+both geometric and hydraulic selection. With raw export disabled, the selection
+CSV and domain databases are still written, and any existing raw crops or
+temporary raw files are left untouched. The CSV's `raw_file` field is blank.
 
 Enable `Hydraulic` and supply the saved-flow settings described above to also
 select a permeability subdomain. The statistical analysis retains the first
@@ -215,8 +222,9 @@ can be substantially more expensive than statistical REV analysis.
 
 Results are written to the current working directory:
 
-- `subdomain_porosity.raw` and `subdomain_permeability.raw` contain the selected
-  windows with x varying fastest and no halos. For `Domain.Filename` with
+- When `save_subdomain_raw = true`, `subdomain_porosity.raw` and
+  `subdomain_permeability.raw` contain the selected windows with x varying
+  fastest and no halos. For `Domain.Filename` with
   `ReadType = "8bit"` or `"16bit"`, the original bytes are copied without
   relabeling or data-type conversion. `ID.00000` input is exported as its
   original one-byte labels, with halos removed, and requires `BC = 0`.
@@ -224,8 +232,9 @@ Results are written to the current working directory:
 - `subdomain_selection.csv` is comma-separated and records each property's
   status, REV size in voxels and micrometres, window dimensions and physical
   lengths, statistical mean, selected value, relative deviation, candidate
-  count, raw filename, and source layout. Coordinates are zero-based with
-  exclusive upper bounds. `x0,y0,z0` and `x1,y1,z1` refer to the halo-free
+  count, raw filename (blank when raw export is disabled), and source layout.
+  Coordinates are zero-based with exclusive upper bounds. `x0,y0,z0` and
+  `x1,y1,z1` refer to the halo-free
   analysis image; the `source_*` coordinates additionally account for
   `Domain.offset` (and input halos for `ID.00000`), so the crop can be reproduced
   from the source file. Source dimensions and bytes per voxel are also recorded.

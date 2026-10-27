@@ -195,7 +195,7 @@ void requireDomainRoundTrip(const std::shared_ptr<Database> &selected,
 void writeInput(int n, std::array<int, 3> source_size,
                 std::array<int, 3> offset, const std::string &read_type,
                 bool hydraulic = false, bool selection = true,
-                bool synthetic_layers = false) {
+                bool synthetic_layers = false, const char *save_raw = "true") {
     std::ofstream out("input.db");
     out << "Domain {\n"
         << "  Filename = \"source.raw\"\n"
@@ -211,7 +211,10 @@ void writeInput(int n, std::array<int, 3> source_size,
         << source_size[2] * 2.5 << "\n"
         << "  ReadValues = 17, 29\n  WriteValues = 0, 1\n}\n"
         << "REV {\n  Geometrical = true\n  Hydraulic = " << (hydraulic ? "true" : "false") << "\n"
-        << "  SubdomainSelect = " << (selection ? "true" : "false") << "\n}\n"
+        << "  SubdomainSelect = " << (selection ? "true" : "false") << "\n";
+    if (save_raw)
+        out << "  save_subdomain_raw = " << save_raw << "\n";
+    out << "}\n"
         << "MRT {\n  tau = 1.0\n  F = 0, 0, 0.00001\n"
         << "  timestepMax = 4000\n  analysis_interval = 20\n  tolerance = 0.00000001\n}\n";
     require(out.good(), "Cannot write test input database");
@@ -577,6 +580,74 @@ void testDisabled(const Utilities::MPI &comm) {
             "Disabled selection must not create outputs");
     require(!exists("geometrical-rev-domain.db") && !exists("hydraulic-rev-domain.db"),
             "Disabled selection must not create Domain databases");
+}
+
+void testOptionalRawExports(const Utilities::MPI &comm) {
+    for (const char *setting : std::array<const char *, 3>{{nullptr, "false", "true"}}) {
+        const bool save_raw = setting && std::string(setting) == "true";
+        TestDirectory directory;
+        writeInput(4, {{4, 4, 4}}, {{0, 0, 0}}, "8bit", true, true, false, setting);
+        Model model(4, comm);
+        std::vector<uint8_t> source(64, 17);
+        Array<signed char> reference(4, 4, 4);
+        reference.fill(0);
+        for (int z = 0; z < 4; ++z)
+            for (int y = 1; y <= 2; ++y)
+                for (int x = 1; x <= 2; ++x) {
+                    source[x + 4 * (y + 4 * z)] = 29;
+                    reference(x, y, z) = 1;
+                    model.Distance(x + 1, y + 1, z + 1) = 1.0;
+                }
+        writeRaw(source);
+        const auto original = readBytes("source.raw");
+        const auto hydraulic = rev_selection::simulateHydraulicProperties(reference, 2.5, 1.0,
+                        {{0.0, 0.0, 1.0e-5}}, 4000, 20, 1.0e-8, comm);
+        ScaLBL_REV rev(0, 1, comm);
+        rev.ReadParams("input.db", false);
+        setREV(rev.stat_poro_rev, 4, 0.25, 32.0 / (64.0 * 2.5));
+        setREV(rev.stat_perm_rev, 4, hydraulic.permeability, 0.0, hydraulic.tortuosity);
+        rev.sub_domain_select(model);
+        const auto rows = readSummary();
+        for (const char *property : {"porosity", "permeability"}) {
+            const Row &row = rows.at(property);
+            const std::string raw_file = std::string("subdomain_") + property + ".raw";
+            require(row.at("status") == "selected" && std::stoull(row.at("candidate_count")) == 1,
+                    "Optional raw export must preserve selection for both properties");
+            requireDomainFile(row);
+            if (save_raw) {
+                require(row.at("raw_file") == raw_file && readBytes(raw_file) == original,
+                        "Explicitly enabled raw export must preserve selected source bytes");
+            } else {
+                require(row.at("raw_file").empty(),
+                        "Disabled raw export must not advertise a raw output in the summary");
+                require(!exists(raw_file) && !exists(raw_file + ".tmp"),
+                        "Disabled raw export must not create raw images or staging files");
+            }
+        }
+        if (!save_raw) {
+            std::vector<signed char> mapped;
+            for (auto label : source)
+                mapped.push_back(label == 29 ? 1 : 0);
+            requireDomainRoundTrip(requireDomainFile(rows.at("porosity")), mapped, comm);
+            // Files that raw export will not touch may alias the source. This
+            // also verifies that existing raw images and staging files survive.
+            for (const char *name : {"subdomain_porosity.raw", "subdomain_permeability.raw",
+                                     "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp"})
+                require(link("source.raw", name) == 0, "Cannot create unused raw output aliases");
+            rev.sub_domain_select(model);
+            for (const char *name : {"subdomain_porosity.raw", "subdomain_permeability.raw",
+                                     "subdomain_porosity.raw.tmp", "subdomain_permeability.raw.tmp"})
+                require(readBytes(name) == original,
+                        "Disabled raw export must preserve existing raw images and staging files");
+            require(readBytes("source.raw") == original,
+                    "Selection without raw export must preserve the aliased original image");
+            for (const auto &entry : readSummary()) {
+                require(entry.second.at("raw_file").empty(),
+                        "Existing unused raw files must not appear as newly exported outputs");
+                requireDomainFile(entry.second);
+            }
+        }
+    }
 }
 
 void testStatisticalRetention(const Utilities::MPI &comm) {
@@ -1199,7 +1270,8 @@ void writeIDInput(int boundary_condition) {
     std::ofstream out("input.db");
     out << "Domain {\n  n = 3, 3, 3\n  nproc = 1, 1, 1\n"
         << "  BC = " << boundary_condition << "\n  voxel_length = 2.5\n}\n"
-        << "REV {\n  Geometrical = true\n  Hydraulic = false\n  SubdomainSelect = true\n}\n";
+        << "REV {\n  Geometrical = true\n  Hydraulic = false\n  SubdomainSelect = true\n"
+        << "  save_subdomain_raw = true\n}\n";
     require(out.good(), "Cannot write test ID input database");
 }
 
@@ -1280,6 +1352,7 @@ int main(int argc, char **argv) {
             {"REV equal to the full domain", testFullDomainWindow},
             {"Nonzero local porosity relative to zero mean", testUnmatchedZeroMean},
             {"Selection boolean opt-out", testDisabled},
+            {"Optional raw exports for geometric and hydraulic selections", testOptionalRawExports},
             {"Statistical first convergence and independent property means", testStatisticalRetention},
             {"Surface target retained at the porosity statistical REV", testStatisticalSurfaceRetention},
             {"Surface units, internal boundaries, and strict distance signs", testSurfaceConventionsAndUnits},

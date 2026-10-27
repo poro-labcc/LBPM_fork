@@ -135,6 +135,7 @@ private:
     bool run_rev = false;
     bool standalone_ready = false;
     bool select_subdomains = false;
+    bool save_subdomain_raw = false;
 };
 
 #endif // REV_ANALYSIS_H

@@ -405,6 +405,10 @@ representative subdomains after the statistical analysis, using its retained
 REV sizes and means. See :ref:`rev-subdomain-selection` for the numerical
 workflow, input restrictions, and outputs.
 
+``save_subdomain_raw`` defaults to ``false``. Set it to ``true`` to save the
+selected geometric and hydraulic windows as raw crops. The selection CSV and
+domain databases are written independently of this setting.
+
 ``SimulationParams`` identifies the input database used for the flow simulation.
 The referenced database must contain an ``MRT`` block, from which the routine
 reads the relaxation time ``tau`` and body-force vector ``F``.
@@ -446,9 +450,9 @@ the entire block disables REV analysis.
 
 .. _rev-subdomain-selection:
 
---------------------------------
+----------------------------------
 Representative subdomain selection
---------------------------------
+----------------------------------
 
 Enable ``SubdomainSelect`` in ``input.db`` to select representative windows in
 either REV executable. For geometric selection without hydraulic input:
@@ -459,10 +463,18 @@ either REV executable. For geometric selection without hydraulic input:
       Geometrical = True
       Hydraulic = False
       SubdomainSelect = True
+      save_subdomain_raw = false
       gamma = 0.1
       StatSamples = 50
       Seed_Anchor = True
    }
+
+``save_subdomain_raw`` defaults to ``false`` in both REV executables. Set
+``save_subdomain_raw = true`` in the ``REV`` block to export the selected
+``.raw`` crops for both geometric and hydraulic selection. With raw export
+disabled, selection still writes its CSV and domain databases, leaves existing
+raw crops and temporary raw files untouched, and leaves the CSV's ``raw_file``
+field blank.
 
 For permeability selection, set ``Hydraulic = True`` and supply the saved-flow
 settings described above. Porosity and permeability use their independently
@@ -559,8 +571,9 @@ REV analysis.
 
 Selection writes the following files in the current working directory:
 
-* ``subdomain_porosity.raw`` and ``subdomain_permeability.raw`` contain the
-  independent selected crops, with x varying fastest and no halo voxels.
+* When ``save_subdomain_raw = true``, ``subdomain_porosity.raw`` and
+  ``subdomain_permeability.raw`` contain the independent selected crops, with
+  x varying fastest and no halo voxels.
   ``Domain.Filename`` input with ``ReadType = "8bit"`` or ``"16bit"`` is
   copied byte for byte, preserving original labels and data type before
   relabeling. ``ID.00000`` input retains its original one-byte labels with
@@ -569,9 +582,9 @@ Selection writes the following files in the current working directory:
 * ``subdomain_selection.csv`` uses comma separators and records each
   property's status, REV size in voxels and micrometres, dimensions and
   physical lengths, statistical mean, selected value, relative deviation,
-  number of candidates, raw filename, and source layout. Coordinates use
-  zero-based indices and exclusive upper bounds. ``x0,y0,z0`` and
-  ``x1,y1,z1`` refer to the halo-free analysis image. The ``source_*``
+  number of candidates, raw filename (blank when raw export is disabled), and
+  source layout. Coordinates use zero-based indices and exclusive upper bounds.
+  ``x0,y0,z0`` and ``x1,y1,z1`` refer to the halo-free analysis image. The ``source_*``
   coordinates include ``Domain.offset`` or the input halos of ``ID.00000``;
   source dimensions and bytes per voxel allow the crop to be reproduced
   directly from the original file.
@@ -596,12 +609,12 @@ Selection writes the following files in the current working directory:
   source, including any original analysis offset. The ``domain_file`` column
   in the CSV identifies the corresponding database.
 
-The geometric row retains the property name ``porosity``, and the raw crop
-keeps the filename ``subdomain_porosity.raw``. These outputs now identify
+The geometric row retains the property name ``porosity``, and its optional raw
+crop keeps the filename ``subdomain_porosity.raw``. These outputs identify
 the region selected by the combined porosity and specific-surface score.
 The hydraulic row retains the property name ``permeability``, and
-``subdomain_permeability.raw`` identifies the region selected by the combined
-permeability and tortuosity score.
+the optional ``subdomain_permeability.raw`` crop identifies the region selected
+by the combined permeability and tortuosity score.
 
 The generated blocks preserve the raw input type, label mapping, and voxel
 length. They use ``nproc = 1, 1, 1``, ``BC = 0``, and zero inlet/outlet layers

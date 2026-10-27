@@ -67,6 +67,7 @@ void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
         : hydraulic_default;
     seed_anchor = rev_db->getWithDefault<bool>("Seed_Anchor", true);
     select_subdomains = rev_db->getWithDefault<bool>("SubdomainSelect", false);
+    save_subdomain_raw = rev_db->getWithDefault<bool>("save_subdomain_raw", false);
     INSIST(!select_subdomains || comm.getSize() == 1,
            "REV.SubdomainSelect requires one MPI process");
     if (rev_db->keyExists("SizeStep"))

@@ -245,7 +245,7 @@ nominal update</p>
 <span class="eqno">(113)<a class="headerlink" href="#equation-rev-edge-growth" title="Link to this equation">¶</a></span>\[\ell_{i+1}=1.06\ell_i,\]</div>
 <p>The implementation also applies a minimum increment based on the average
 pore diameter and rounds the edge length upward to whole voxels, so the
-actual increase can be larger. The default <code class="docutils literal notranslate"><span class="pre">SizeStep</span></code> is <code class="docutils literal notranslate"><span class="pre">0.1</span></code> (10%).</p>
+actual increase can be larger. The default <code class="docutils literal notranslate"><span class="pre">SizeStep</span></code> is <code class="docutils literal notranslate"><span class="pre">0.06</span></code> (6%).</p>
 </li>
 </ol>
 </details><br></section>
@@ -312,6 +312,7 @@ compatibility, the <code class="docutils literal notranslate"><span class="pre">
 configuration block.</p>
 <section id="lbpm-rev-permeability-simulator">
 <h3>lbpm_rev_permeability_simulator<a class="headerlink" href="#lbpm-rev-permeability-simulator" title="Link to this heading">¶</a></h3>
+<p>Falar da caso MRT BC=0</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code> executable runs the single-phase flow
 simulation, computes the velocity field, and then performs deterministic and
 statistical REV analyses. A typical command for a single-process run is:</p>
@@ -429,6 +430,9 @@ the deterministic analysis.</p>
 representative subdomains after the statistical analysis, using its retained
 REV sizes and means. See <a class="reference internal" href="#rev-subdomain-selection"><span class="std std-ref">Representative subdomain selection</span></a> for the numerical
 workflow, input restrictions, and outputs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">save_subdomain_raw</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code>. Set it to <code class="docutils literal notranslate"><span class="pre">true</span></code> to save the
+selected geometric and hydraulic windows as raw crops. The selection CSV and
+domain databases are written independently of this setting.</p>
 <p><code class="docutils literal notranslate"><span class="pre">SimulationParams</span></code> identifies the input database used for the flow simulation.
 The referenced database must contain an <code class="docutils literal notranslate"><span class="pre">MRT</span></code> block, from which the routine
 reads the relaxation time <code class="docutils literal notranslate"><span class="pre">tau</span></code> and body-force vector <code class="docutils literal notranslate"><span class="pre">F</span></code>.
@@ -460,39 +464,95 @@ the entire block disables REV analysis.</p>
 <section id="representative-subdomain-selection">
 <span id="rev-subdomain-selection"></span><h3>Representative subdomain selection<a class="headerlink" href="#representative-subdomain-selection" title="Link to this heading">¶</a></h3>
 <p>Enable <code class="docutils literal notranslate"><span class="pre">SubdomainSelect</span></code> in <code class="docutils literal notranslate"><span class="pre">input.db</span></code> to select representative windows in
-either REV executable. For porosity selection alone:</p>
+either REV executable. For geometric selection without hydraulic input:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>REV {
    Geometrical = True
    Hydraulic = False
    SubdomainSelect = True
+   save_subdomain_raw = false
    gamma = 0.1
    StatSamples = 50
    Seed_Anchor = True
 }
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">save_subdomain_raw</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code> in both REV executables. Set
+<code class="docutils literal notranslate"><span class="pre">save_subdomain_raw</span> <span class="pre">=</span> <span class="pre">true</span></code> in the <code class="docutils literal notranslate"><span class="pre">REV</span></code> block to export the selected
+<code class="docutils literal notranslate"><span class="pre">.raw</span></code> crops for both geometric and hydraulic selection. With raw export
+disabled, selection still writes its CSV and domain databases, leaves existing
+raw crops and temporary raw files untouched, and leaves the CSV’s <code class="docutils literal notranslate"><span class="pre">raw_file</span></code>
+field blank.</p>
 <p>For permeability selection, set <code class="docutils literal notranslate"><span class="pre">Hydraulic</span> <span class="pre">=</span> <span class="pre">True</span></code> and supply the saved-flow
 settings described above. Porosity and permeability use their independently
 retained statistical REV sizes and means, without repeating REV analysis.
+The statistical mean specific surface area is retained at the porosity REV
+size, and mean hydraulic tortuosity is retained at the permeability REV size.
+Each target pair refers to the same dimensions. The independently assessed
+surface-area and tortuosity REVs do not determine the selection window sizes.
 The selected window has the dimensions used to calculate the corresponding
 mean: <code class="docutils literal notranslate"><span class="pre">L</span> <span class="pre">x</span> <span class="pre">L</span> <span class="pre">x</span> <span class="pre">L</span></code> for a cubic image, or the statistical analysis’s
 proportionally scaled dimensions for a rectangular image.</p>
 <p>The selection scans every valid position, moving one voxel along each axis
-and including the last window at each boundary. It minimizes
-<span class="math notranslate nohighlight">\(|p_{\mathrm{local}}-\overline{p}_{\mathrm{REV}}| /
-|\overline{p}_{\mathrm{REV}}|\)</span> separately for each property. A zero mean gives
-zero deviation for an exact zero and infinite deviation otherwise. Equal
-deviations select the first candidate, with x changing fastest, then y and z.
-An exact match does not stop the scan.</p>
+and including the last window at each boundary. At the retained porosity REV
+size, it minimizes the following weighted geometric score:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-1">
+<span class="eqno">(115)<a class="headerlink" href="#equation-userguide-models-rev-rev-1" title="Link to this equation">¶</a></span>\[\begin{split}E_{\phi} &amp;= \frac{|\phi_{\mathrm{local}}-\overline{\phi}_{\mathrm{REV}}|}
+                 {|\overline{\phi}_{\mathrm{REV}}|}, \\
+E_{S_v} &amp;= \frac{|S_{v,\mathrm{local}}-\overline{S_v}_{\mathrm{REV}}|}
+                {|\overline{S_v}_{\mathrm{REV}}|}, \\
+\mathrm{selection\_score} &amp;= 0.6 E_{\phi} + 0.4 E_{S_v}.\end{split}\]</div>
+<p>At the retained permeability REV size, hydraulic selection minimizes:</p>
+<div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-2">
+<span class="eqno">(116)<a class="headerlink" href="#equation-userguide-models-rev-rev-2" title="Link to this equation">¶</a></span>\[\begin{split}E_k &amp;= \frac{|k_{\mathrm{local}}-\overline{k}_{\mathrm{REV}}|}
+            {|\overline{k}_{\mathrm{REV}}|}, \\
+E_T &amp;= \frac{|T_{\mathrm{local}}-\overline{T}_{\mathrm{REV}}|}
+            {|\overline{T}_{\mathrm{REV}}|}, \\
+\mathrm{selection\_score} &amp;= 0.6 E_k + 0.4 E_T.\end{split}\]</div>
+<p>Lower scores indicate a closer match. The fixed weights are 60% porosity and
+40% specific surface area for the geometric region, and 60% permeability and
+40% hydraulic tortuosity for the hydraulic region. No additional input
+parameter is needed. For every component, a zero mean gives zero deviation
+for an exact zero and infinite deviation otherwise. Equal scores select the first candidate, with x changing
+fastest, then y and z. An exact match does not stop the scan.</p>
 <p>Porosity counts voxels with positive signed distance, following the existing
-analysis convention. Permeability is evaluated by a fresh numerical MRT flow
-simulation of each cropped geometry, followed by the existing Darcy conversion
-to millidarcies. The retained statistical hydraulic mean is calculated from
+analysis convention. Specific surface area uses the existing geometric
+measure: count internal solid-pore faces once along each of x, y, and z, then
+use <span class="math notranslate nohighlight">\(S_v = N_{\mathrm{faces}} / (N_{\mathrm{voxels}} h)\)</span>, where
+<span class="math notranslate nohighlight">\(N_{\mathrm{voxels}}\)</span> is the number of voxels in the window and
+<span class="math notranslate nohighlight">\(h\)</span> is the voxel length. It has units
+of inverse micrometres. Faces on the window exterior and across periodic
+boundaries are excluded. Permeability and hydraulic tortuosity are evaluated
+together from a fresh numerical MRT flow simulation of each cropped geometry,
+with the existing Darcy conversion to millidarcies for permeability.
+The retained statistical hydraulic means are calculated from
 the earlier full-domain simulation; changing to a cropped geometry with
 periodic boundaries can change its flow response.</p>
-<p>Selection requires one MPI process and rejects nonzero <code class="docutils literal notranslate"><span class="pre">Domain.InletLayers</span></code>
-or <code class="docutils literal notranslate"><span class="pre">Domain.OutletLayers</span></code> because synthetic reservoir layers would differ
-from the original raw image. Hydraulic selection requires periodic
+<p>Hydraulic tortuosity uses the existing displayed analysis convention,
+<span class="math notranslate nohighlight">\(T = \sum_{\mathrm{pores}} |\mathbf{u}| /
+\sum_{\mathrm{pores}} u_z\)</span>, evaluated from the converged numerical velocities.
+The statistical routine stores <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">-</span> <span class="pre">1</span></code> internally; selection retains <code class="docutils literal notranslate"><span class="pre">T</span></code>,
+matching <code class="docutils literal notranslate"><span class="pre">stat_tort_mean</span></code>. Its denominator uses z velocity, rather than the
+force-projected velocity used for permeability. Flow along positive z gives
+the usual positive tortuosity interpretation. A candidate with no flow or
+undefined net z transport has undefined tortuosity and cannot win the score;
+every window is still evaluated and counted. If no candidate has usable
+tortuosity, the hydraulic status is <code class="docutils literal notranslate"><span class="pre">no_valid_tortuosity</span></code>. An unavailable
+statistical tortuosity target at the permeability REV size gives status
+<code class="docutils literal notranslate"><span class="pre">unavailable_tortuosity</span></code>. These cases produce no hydraulic raw crop or
+domain database. Tortuosity is never replaced with a geometric estimate or an
+arbitrary zero.</p>
+<p>Nonzero <code class="docutils literal notranslate"><span class="pre">Domain.InletLayers</span></code> and <code class="docutils literal notranslate"><span class="pre">Domain.OutletLayers</span></code> are supported.
+Selection then rereads the original source geometry to build the candidate
+pore mask before synthetic layer modifications. Raw input uses the existing
+<code class="docutils literal notranslate"><span class="pre">ReadValues</span></code>/<code class="docutils literal notranslate"><span class="pre">WriteValues</span></code> convention, including the signed-byte narrowing
+performed by the current <code class="docutils literal notranslate"><span class="pre">16bit</span></code> geometry reader. This classification does
+not change the bytes exported below. <code class="docutils literal notranslate"><span class="pre">ID.00000</span></code> labels are already mapped
+and are used directly.</p>
+<p>The layer settings, full-domain analysis, saved velocities, and retained
+statistical REV sizes and means remain unchanged. The statistical targets
+can therefore include synthetic layer effects; deviations from candidates
+measured on the original rock can be larger.</p>
+<p>Selection requires one MPI process. Hydraulic selection requires periodic
 flow (<code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code>) and a nonzero body force, and uses the same <code class="docutils literal notranslate"><span class="pre">tau</span></code> and force
 vector as the hydraulic analysis. Solver limits come from the
 <code class="docutils literal notranslate"><span class="pre">SimulationParams</span></code> MRT block, or the local MRT block if no reference is
@@ -504,24 +564,81 @@ flow simulation for each can be substantially more expensive than statistical
 REV analysis.</p>
 <p>Selection writes the following files in the current working directory:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">subdomain_porosity.raw</span></code> and <code class="docutils literal notranslate"><span class="pre">subdomain_permeability.raw</span></code> contain the
-independent selected crops, with x varying fastest and no halo voxels.
+<li><p>When <code class="docutils literal notranslate"><span class="pre">save_subdomain_raw</span> <span class="pre">=</span> <span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">subdomain_porosity.raw</span></code> and
+<code class="docutils literal notranslate"><span class="pre">subdomain_permeability.raw</span></code> contain the independent selected crops, with
+x varying fastest and no halo voxels.
 <code class="docutils literal notranslate"><span class="pre">Domain.Filename</span></code> input with <code class="docutils literal notranslate"><span class="pre">ReadType</span> <span class="pre">=</span> <span class="pre">&quot;8bit&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;16bit&quot;</span></code> is
 copied byte for byte, preserving original labels and data type before
 relabeling. <code class="docutils literal notranslate"><span class="pre">ID.00000</span></code> input retains its original one-byte labels with
-halos removed. <code class="docutils literal notranslate"><span class="pre">GridFile</span></code> and <code class="docutils literal notranslate"><span class="pre">swc</span></code> input are unsupported for selection.</p></li>
+halos removed, and requires <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code>. <code class="docutils literal notranslate"><span class="pre">GridFile</span></code> and <code class="docutils literal notranslate"><span class="pre">swc</span></code> input are
+unsupported for selection.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">subdomain_selection.csv</span></code> uses comma separators and records each
 property’s status, REV size in voxels and micrometres, dimensions and
 physical lengths, statistical mean, selected value, relative deviation,
-number of candidates, raw filename, and source layout. Coordinates use
-zero-based indices and exclusive upper bounds. <code class="docutils literal notranslate"><span class="pre">x0,y0,z0</span></code> and
-<code class="docutils literal notranslate"><span class="pre">x1,y1,z1</span></code> refer to the halo-free analysis image. The <code class="docutils literal notranslate"><span class="pre">source_*</span></code>
+number of candidates, raw filename (blank when raw export is disabled), and
+source layout. Coordinates use zero-based indices and exclusive upper bounds.
+<code class="docutils literal notranslate"><span class="pre">x0,y0,z0</span></code> and <code class="docutils literal notranslate"><span class="pre">x1,y1,z1</span></code> refer to the halo-free analysis image. The <code class="docutils literal notranslate"><span class="pre">source_*</span></code>
 coordinates include <code class="docutils literal notranslate"><span class="pre">Domain.offset</span></code> or the input halos of <code class="docutils literal notranslate"><span class="pre">ID.00000</span></code>;
 source dimensions and bytes per voxel allow the crop to be reproduced
-directly from the original file.</p></li>
+directly from the original file.
+The geometric row retains <code class="docutils literal notranslate"><span class="pre">statistical_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">selected_value</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">relative_deviation</span></code> for porosity, and adds <code class="docutils literal notranslate"><span class="pre">statistical_mean_surface</span></code>,
+<code class="docutils literal notranslate"><span class="pre">selected_surface</span></code>, <code class="docutils literal notranslate"><span class="pre">relative_deviation_surface</span></code>, <code class="docutils literal notranslate"><span class="pre">porosity_weight</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">surface_weight</span></code>. These fields are blank for the hydraulic row.
+The hydraulic row retains <code class="docutils literal notranslate"><span class="pre">statistical_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">selected_value</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">relative_deviation</span></code> for permeability, and adds
+<code class="docutils literal notranslate"><span class="pre">statistical_mean_tortuosity</span></code>, <code class="docutils literal notranslate"><span class="pre">selected_tortuosity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">relative_deviation_tortuosity</span></code>, <code class="docutils literal notranslate"><span class="pre">permeability_weight</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">tortuosity_weight</span></code>. These fields are blank for the geometric row.
+<code class="docutils literal notranslate"><span class="pre">selection_score</span></code> records the applicable weighted score for either
+selected region.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">geometrical-rev-domain.db</span></code> locates the region with the lowest weighted
+geometric score, and
+<code class="docutils literal notranslate"><span class="pre">hydraulic-rev-domain.db</span></code> locates the region with the lowest weighted
+hydraulic score. Each contains only a <code class="docutils literal notranslate"><span class="pre">Domain</span></code> block referencing the
+original full sample.
+<code class="docutils literal notranslate"><span class="pre">Filename</span></code> is its absolute path, <code class="docutils literal notranslate"><span class="pre">N</span></code> is the full source size, <code class="docutils literal notranslate"><span class="pre">n</span></code> is
+the selected window size, and <code class="docutils literal notranslate"><span class="pre">offset</span></code> is its starting coordinate in the
+source, including any original analysis offset. The <code class="docutils literal notranslate"><span class="pre">domain_file</span></code> column
+in the CSV identifies the corresponding database.</p></li>
 </ul>
+<p>The geometric row retains the property name <code class="docutils literal notranslate"><span class="pre">porosity</span></code>, and its optional raw
+crop keeps the filename <code class="docutils literal notranslate"><span class="pre">subdomain_porosity.raw</span></code>. These outputs identify
+the region selected by the combined porosity and specific-surface score.
+The hydraulic row retains the property name <code class="docutils literal notranslate"><span class="pre">permeability</span></code>, and
+the optional <code class="docutils literal notranslate"><span class="pre">subdomain_permeability.raw</span></code> crop identifies the region selected
+by the combined permeability and tortuosity score.</p>
+<p>The generated blocks preserve the raw input type, label mapping, and voxel
+length. They use <code class="docutils literal notranslate"><span class="pre">nproc</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code>, and zero inlet/outlet layers
+to reproduce the selected original rock geometry. Physical <code class="docutils literal notranslate"><span class="pre">L</span></code> lengths,
+when present, are updated for the selected dimensions. <code class="docutils literal notranslate"><span class="pre">ID.00000</span></code> is
+referenced as an <code class="docutils literal notranslate"><span class="pre">8bit</span></code> raw image with the full haloed source dimensions,
+an offset including the one-voxel halo, and an identity label mapping.
+Load an <code class="docutils literal notranslate"><span class="pre">ID.00000</span></code>-based domain from a separate working directory: normal
+decomposition writes its own <code class="docutils literal notranslate"><span class="pre">ID.00000</span></code> in the working directory.</p>
+<p>For example, a selected region within a <code class="docutils literal notranslate"><span class="pre">400</span> <span class="pre">x</span> <span class="pre">400</span> <span class="pre">x</span> <span class="pre">400</span></code> sample could
+produce the following block:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain {
+   Filename = &quot;/path/to/Berea.raw&quot;
+   ReadType = &quot;8bit&quot;
+   ReadValues = 0, 1
+   WriteValues = 1, 0
+   N = 400, 400, 400
+   n = 64, 64, 64
+   offset = 100, 120, 80
+   nproc = 1, 1, 1
+   voxel_length = 5.345
+   BC = 0
+   InletLayers = 0, 0, 0
+   OutletLayers = 0, 0, 0
+}
+</pre></div>
+</div>
+<p>Reuse this block in a subsequent input database to load the selected region
+from the full sample. The generated file contains no <code class="docutils literal notranslate"><span class="pre">MRT</span></code>, <code class="docutils literal notranslate"><span class="pre">REV</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">Visualization</span></code> blocks; add the settings required by the intended solver.</p>
 <p>A disabled property or one without a converged statistical REV receives a
-status row and produces no raw crop.</p>
+status row and produces no raw crop or domain database.</p>
 <p>When calling the C++ API directly, invoke <code class="docutils literal notranslate"><span class="pre">rev.sub_domain_select()</span></code> after
 <code class="docutils literal notranslate"><span class="pre">rev.StatRevAnalysis()</span></code>, or <code class="docutils literal notranslate"><span class="pre">rev.sub_domain_select(model)</span></code> after
 <code class="docutils literal notranslate"><span class="pre">rev.StatRevAnalysis(model)</span></code>. These selection calls return immediately when
@@ -729,8 +846,8 @@ in micrometres and voxels.</p></td>
 <p>For interpreting the values actually written to the deterministic tables,
 let <span class="math notranslate nohighlight">\(q_i\)</span> denote the property measured at size iteration <span class="math notranslate nohighlight">\(i\)</span>.
 The implemented relative-change calculation is</p>
-<div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-1">
-<span class="eqno">(115)<a class="headerlink" href="#equation-userguide-models-rev-rev-1" title="Link to this equation">¶</a></span>\[RE_i =
+<div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-3">
+<span class="eqno">(117)<a class="headerlink" href="#equation-userguide-models-rev-rev-3" title="Link to this equation">¶</a></span>\[RE_i =
 \left|
 \frac{q_i-q_{i-1}}{q_i+q_{i-1}}
 \frac{V_{i-1}}{V_i}
@@ -738,12 +855,11 @@ The implemented relative-change calculation is</p>
 <p>Here, <span class="math notranslate nohighlight">\(V_i\)</span> is the actual sampled volume, calculated from the
 inclusive voxel bounds after clipping to the domain. The implementation
 uses the ratio of sampled voxel counts because the common voxel volume
-cancels in <span class="math notranslate nohighlight">\(V_{i-1}/V_i\)</span>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">CC</span></code> is the population standard deviation divided by the arithmetic mean
+cancels in <span class="math notranslate nohighlight">\(V_{i-1}/V_i\)</span>. <code class="docutils literal notranslate"><span class="pre">CC</span></code> is the population standard deviation
+divided by the arithmetic mean
 of the most recent <code class="docutils literal notranslate"><span class="pre">CCInterval</span></code> measurements, using the available history
 before that window is full and excluding invalid values. For tortuosity,
-<span class="math notranslate nohighlight">\(q_i = \tau_{h,i}-1\)</span> in both calculations. The coefficients are
-dimensionless fractions: <code class="docutils literal notranslate"><span class="pre">0.05</span></code> corresponds to 5%.</p>
+<span class="math notranslate nohighlight">\(q_i = \tau_{h,i}-1\)</span> in both calculations.</p>
 </div>
 <p>A property’s <code class="docutils literal notranslate"><span class="pre">rev_*</span></code> columns are set when both <code class="docutils literal notranslate"><span class="pre">RE</span></code> and <code class="docutils literal notranslate"><span class="pre">CC</span></code> first
 satisfy <span class="math notranslate nohighlight">\(0 \le RE &lt; \gamma\)</span> and <span class="math notranslate nohighlight">\(0 \le CC &lt; \gamma\)</span>. The
@@ -886,7 +1002,7 @@ which is printed as <code class="docutils literal notranslate"><span class="pre"
 statistical calculations. If all tortuosity samples at a size are
 invalid, <code class="docutils literal notranslate"><span class="pre">stat_tort</span></code> is <code class="docutils literal notranslate"><span class="pre">-1</span></code> and the reported mean, maximum, and
 minimum are initialization artifacts (<code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">0</span></code>, and approximately
-<code class="docutils literal notranslate"><span class="pre">1e100</span></code>); these are not physical tortuosity statistics.</p>
+<code class="docutils literal notranslate"><span class="pre">1e100</span></code>); these are not physical tortuosity statistics. Falar do NaN</p>
 </div>
 </details><br><p>The results obtained by the Berea sample are illustrated in the <a class="reference internal" href="#rev-plots"><span class="std std-numref">Fig. 7</span></a>, for the
 data porosity, superficial area, absolute permeability, and hydraulic tortuosity.
@@ -900,7 +1016,7 @@ plot.</p>
 points represent the range of the deterministic analysis; isolated points represent
 the averages of the statistical measurements; vertical bars represent the standard
 deviation of the statistical measurements; dashed lines represent the REV found by
-the approach; and the black line represents the upper limit for the REV size.</span><a class="headerlink" href="#rev-plots" title="Link to this image">¶</a></p>
+the approach; and the black line represents the upper limit for the REV size.XXXXXXXXXXXXXXXX</span><a class="headerlink" href="#rev-plots" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 <details>
