@@ -39,6 +39,7 @@ void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
     db = std::make_shared<Database>(filename);
     run_rev = false;
     select_subdomains = false;
+    subdomain_size = {{0, 0, 0}};
     stat_poro_rev = StatisticalREVResult{};
     stat_perm_rev = StatisticalREVResult{};
     if(db->keyExists("REV")){
@@ -68,6 +69,21 @@ void ScaLBL_REV::ReadParams(string filename, bool hydraulic_default) {
     seed_anchor = rev_db->getWithDefault<bool>("Seed_Anchor", true);
     select_subdomains = rev_db->getWithDefault<bool>("SubdomainSelect", false);
     save_subdomain_raw = rev_db->getWithDefault<bool>("save_subdomain_raw", false);
+    if (rev_db->keyExists("subdomain_size")) {
+        const std::string message = "REV.subdomain_size requires one or three positive integer voxel dimensions";
+        if (!rev_db->isType<double>("subdomain_size"))
+            throw std::runtime_error(message);
+        const auto size = rev_db->getVector<double>("subdomain_size");
+        if (size.size() != 1 && size.size() != 3)
+            throw std::runtime_error(message);
+        for (int d = 0; d < 3; ++d) {
+            const double value = size[size.size() == 1 ? 0 : d];
+            if (!std::isfinite(value) || value < 1.0 ||
+                value > std::numeric_limits<int>::max() || std::floor(value) != value)
+                throw std::runtime_error(message);
+            subdomain_size[d] = static_cast<int>(value);
+        }
+    }
     INSIST(!select_subdomains || comm.getSize() == 1,
            "REV.SubdomainSelect requires one MPI process");
     if (rev_db->keyExists("SizeStep"))

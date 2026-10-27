@@ -136,6 +136,8 @@ private:
     bool standalone_ready = false;
     bool select_subdomains = false;
     bool save_subdomain_raw = false;
+    // Zero means use each property's retained statistical REV dimensions.
+    std::array<int, 3> subdomain_size{{0, 0, 0}};
 };
 
 #endif // REV_ANALYSIS_H

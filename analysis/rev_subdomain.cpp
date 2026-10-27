@@ -283,6 +283,13 @@ void ScaLBL_REV::SubDomainSelectImpl(const ModelData &model) {
     if (configured_size.size() != 3 ||
         !std::equal(configured_size.begin(), configured_size.end(), image.begin()))
         throw std::runtime_error("Selection model dimensions do not match Domain.n");
+    if (subdomain_size[0] > 0)
+        for (int d = 0; d < 3; ++d)
+            if (subdomain_size[d] > image[d])
+                throw std::runtime_error("REV.subdomain_size exceeds the analyzed Domain.n dimensions");
+    const auto selection_dimensions = [&](const StatisticalREVResult &stat) {
+        return subdomain_size[0] > 0 ? subdomain_size : stat.dimensions;
+    };
     bool synthetic_layers = false;
     for (const char *key : {"InletLayers", "OutletLayers"}) {
         if (domain->keyExists(key)) {
@@ -293,9 +300,9 @@ void ScaLBL_REV::SubDomainSelectImpl(const ModelData &model) {
     std::array<std::string, 2> raw_files;
     if (save_subdomain_raw) {
         if (geometrical && stat_poro_rev.size > 0)
-            raw_files[0] = rawFilename("porosity", stat_poro_rev.dimensions);
+            raw_files[0] = rawFilename("porosity", selection_dimensions(stat_poro_rev));
         if (hydraulic && stat_perm_rev.size > 0)
-            raw_files[1] = rawFilename("permeability", stat_perm_rev.dimensions);
+            raw_files[1] = rawFilename("permeability", selection_dimensions(stat_perm_rev));
     }
     std::unique_ptr<RawSource> source;
     protectSource(domain->getWithDefault<std::string>("Filename", "ID.00000"), raw_files);
@@ -329,14 +336,15 @@ void ScaLBL_REV::SubDomainSelectImpl(const ModelData &model) {
     const auto write_status = [&](const char *name, const char *status,
                                   const StatisticalREVResult *stat, uint64_t candidates) {
         summary << name << ',' << status;
+        const Shape size = stat ? selection_dimensions(*stat) : Shape{{0, 0, 0}};
         for (int column = 2; column < 45; ++column) {
             summary << ',';
             if (column == 19) summary << candidates;
             if (!stat) continue;
             if (column == 2) summary << stat->size;
             else if (column == 3) summary << stat->size * h;
-            else if (column >= 4 && column <= 6) summary << stat->dimensions[column - 4];
-            else if (column >= 7 && column <= 9) summary << stat->dimensions[column - 7] * h;
+            else if (column >= 4 && column <= 6) summary << size[column - 4];
+            else if (column >= 7 && column <= 9) summary << size[column - 7] * h;
             else if (column == 16) summary << stat->mean;
             else if (column == 40 && std::isfinite(stat->tortuosity_mean))
                 summary << stat->tortuosity_mean;
@@ -356,7 +364,7 @@ void ScaLBL_REV::SubDomainSelectImpl(const ModelData &model) {
             write_status(name, enabled ? "not_converged" : "disabled", nullptr, 0);
             continue;
         }
-        const Shape size = stat.dimensions;
+        const Shape size = selection_dimensions(stat);
         for (int d = 0; d < 3; ++d)
             if (size[d] < 1 || size[d] > image[d])
                 throw std::runtime_error("Statistical REV dimensions exceed the input image");

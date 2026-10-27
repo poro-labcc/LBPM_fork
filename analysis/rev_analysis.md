@@ -108,13 +108,15 @@ are retained.
 
 Set `SubdomainSelect = true` in `REV` to select representative subdomains after
 the statistical analysis. It defaults to `false` in both REV executables. For
-example, this selects a geometric subdomain without hydraulic input:
+example, this selects a `64 x 64 x 64` geometric subdomain without hydraulic
+input, using the statistical REV properties as the selection targets:
 
 ```text
 REV {
     Geometrical = true
     Hydraulic = false
     SubdomainSelect = true
+    subdomain_size = 64
     save_subdomain_raw = false
     gamma = 0.1
     StatSamples = 50
@@ -136,11 +138,24 @@ permeability retain independent results. Selection uses these results directly;
 it does not repeat the REV analysis. The mean specific surface area is also
 retained at the porosity REV size for geometric scoring, and mean hydraulic
 tortuosity is retained at the permeability REV size for hydraulic scoring.
-Each target pair therefore describes the same window dimensions, even if the
-surface-area or tortuosity REV would have a different size. For a cubic image
-the window is `L x L x L`; for a rectangular image its dimensions follow the
-same aspect ratio and integer
-rounding used in the statistical analysis.
+Each target pair therefore comes from the same statistical window dimensions,
+even if the surface-area or tortuosity REV would have a different size.
+
+`subdomain_size` optionally overrides the selection window dimensions in
+voxels. A single positive integer, such as `subdomain_size = 64`, selects a
+`64 x 64 x 64` cube. Three positive integers, such as
+`subdomain_size = 64, 48, 32`, specify the exact x, y, and z dimensions. The
+configured dimensions apply to both geometric and hydraulic selection and
+must fit within the analyzed `Domain.n`. If omitted, each property uses its
+own statistical REV dimensions: cubic for a cubic image, or proportionally
+scaled and rounded as in the statistical analysis for a rectangular image.
+
+The override changes only the selection window. Statistical REV sizes and
+all retained target means, including specific surface area and tortuosity,
+remain unchanged. Selection compares candidates of the requested size against
+those targets; it does not repeat REV analysis at the custom size. A converged
+statistical REV and valid target properties are still required. A custom size
+does not provide missing reference values or enable an unconverged property.
 
 Every valid window is evaluated with a one-voxel increment in each direction,
 including the last position at each boundary. Porosity uses the analysis pore
@@ -176,8 +191,8 @@ selection_score = 0.6 * E_k + 0.4 * E_tortuosity
 
 The weights apply automatically: 60% porosity and 40% specific surface for the
 geometric region, and 60% permeability and 40% tortuosity for the hydraulic
-region. No new input parameter is needed. The geometric window retains the
-porosity REV size, and the hydraulic window retains the permeability REV size.
+region. These fixed weights apply to candidates at the actual selection
+window dimensions, including a configured `subdomain_size`.
 For each component, a zero statistical mean gives zero deviation for an exact
 zero and infinite deviation otherwise. Equal
 scores select the first candidate in traversal order: x changes fastest,
@@ -216,9 +231,11 @@ requires periodic flow (`BC = 0`) and a nonzero body force. It inherits
 `tolerance` from the referenced `SimulationParams` MRT block, or the local MRT
 block when no reference is supplied. Their defaults are `100000`, `1000`, and
 `1e-8`, respectively. A candidate that fails to converge stops selection with
-an error. For a cubic window there are
-`(Nx-L+1)*(Ny-L+1)*(Nz-L+1)` simulations, so exhaustive permeability selection
-can be substantially more expensive than statistical REV analysis.
+an error. There are `(Nx-nx+1)*(Ny-ny+1)*(Nz-nz+1)` candidates, where
+`Nx,Ny,Nz` are the analyzed image dimensions from `Domain.n` and `nx,ny,nz`
+are the actual selection window dimensions. Exhaustive permeability selection
+runs a simulation for each candidate and can be substantially more expensive
+than statistical REV analysis.
 
 Results are written to the current working directory:
 
@@ -238,6 +255,9 @@ Results are written to the current working directory:
   lengths, statistical mean, selected value, relative deviation, candidate
   count, raw filename in `raw_file` (blank when raw export is disabled), and
   source layout. The raw filename includes the selected window dimensions.
+  `rev_size_vx` and `rev_size_um` retain the statistical reference size, even
+  when `subdomain_size` is set. `nx,ny,nz`, physical lengths, coordinates,
+  candidate count, and the raw filename describe the actual selection window.
   Coordinates are zero-based with exclusive upper bounds. `x0,y0,z0` and
   `x1,y1,z1` refer to the halo-free
   analysis image; the `source_*` coordinates additionally account for
@@ -255,8 +275,9 @@ Results are written to the current working directory:
 - `geometrical-rev-domain.db` locates the weighted geometric selection, and
   `hydraulic-rev-domain.db` locates the weighted hydraulic selection. Each file
   contains only a `Domain` block referencing the original full sample: `Filename` is the
-  absolute source path, `N` is its full size, `n` is the selected window size,
-  and `offset` is its starting position in the source image, including any
+  absolute source path, `N` is its full size, `n` is the actual selected window
+  size (including any `subdomain_size` override), and `offset` is its starting
+  position in the source image, including any
   original analysis offset. The CSV's `domain_file` column identifies this file.
 
 The geometric row retains the property name `porosity`, and its optional raw

@@ -405,6 +405,13 @@ representative subdomains after the statistical analysis, using its retained
 REV sizes and means. See :ref:`rev-subdomain-selection` for the numerical
 workflow, input restrictions, and outputs.
 
+``subdomain_size`` optionally sets the selection window dimensions in voxels.
+A positive integer, such as ``64``, specifies a cube; three positive integers,
+such as ``64, 48, 32``, specify the exact x, y, and z dimensions. The setting
+applies to both geometric and hydraulic selection and must fit within
+``Domain.n``. If omitted, each property uses its own statistical REV window
+dimensions. The statistical reference sizes and target means remain unchanged.
+
 ``save_subdomain_raw`` defaults to ``false``. Set it to ``true`` to save the
 selected geometric and hydraulic windows as raw crops. The selection CSV and
 domain databases are written independently of this setting.
@@ -455,7 +462,9 @@ Representative subdomain selection
 ----------------------------------
 
 Enable ``SubdomainSelect`` in ``input.db`` to select representative windows in
-either REV executable. For geometric selection without hydraulic input:
+either REV executable. For example, select a ``64 x 64 x 64`` geometric
+window without hydraulic input, using the statistical REV properties as
+selection targets:
 
 .. code-block:: text
 
@@ -463,6 +472,7 @@ either REV executable. For geometric selection without hydraulic input:
       Geometrical = True
       Hydraulic = False
       SubdomainSelect = True
+      subdomain_size = 64
       save_subdomain_raw = false
       gamma = 0.1
       StatSamples = 50
@@ -481,15 +491,30 @@ settings described above. Porosity and permeability use their independently
 retained statistical REV sizes and means, without repeating REV analysis.
 The statistical mean specific surface area is retained at the porosity REV
 size, and mean hydraulic tortuosity is retained at the permeability REV size.
-Each target pair refers to the same dimensions. The independently assessed
-surface-area and tortuosity REVs do not determine the selection window sizes.
-The selected window has the dimensions used to calculate the corresponding
-mean: ``L x L x L`` for a cubic image, or the statistical analysis's
-proportionally scaled dimensions for a rectangular image.
+Each target pair comes from the same statistical window dimensions. The
+independently assessed surface-area and tortuosity REVs do not determine the
+selection window sizes.
+
+``subdomain_size`` optionally overrides the selection window dimensions in
+voxels. A single positive integer, such as ``subdomain_size = 64``, specifies
+a ``64 x 64 x 64`` cube. Alternatively, ``subdomain_size = 64, 48, 32``
+specifies the exact x, y, and z dimensions. The configured dimensions apply
+to both geometric and hydraulic selection and must fit within the analyzed
+``Domain.n``. If omitted, each property uses its own statistical REV window
+dimensions: ``L x L x L`` for a cubic image, or the statistical analysis's
+proportionally scaled and rounded dimensions for a rectangular image.
+
+The override changes only the selection window. The statistical REV sizes
+and all retained target means, including specific surface area and hydraulic
+tortuosity, remain unchanged. Candidates at the requested size are compared
+against those targets; REV analysis is not repeated at the custom size. A
+converged statistical REV and valid target properties are still required.
+A custom size does not supply missing reference values or enable selection
+for an unconverged property.
 
 The selection scans every valid position, moving one voxel along each axis
-and including the last window at each boundary. At the retained porosity REV
-size, it minimizes the following weighted geometric score:
+and including the last window at each boundary. For the actual geometric
+selection window dimensions, it minimizes the following weighted score:
 
 .. math::
 
@@ -499,7 +524,8 @@ size, it minimizes the following weighted geometric score:
                    {|\overline{S_v}_{\mathrm{REV}}|}, \\
    \mathrm{selection\_score} &= 0.6 E_{\phi} + 0.4 E_{S_v}.
 
-At the retained permeability REV size, hydraulic selection minimizes:
+For the actual hydraulic selection window dimensions, hydraulic selection
+minimizes:
 
 .. math::
 
@@ -511,8 +537,8 @@ At the retained permeability REV size, hydraulic selection minimizes:
 
 Lower scores indicate a closer match. The fixed weights are 60% porosity and
 40% specific surface area for the geometric region, and 60% permeability and
-40% hydraulic tortuosity for the hydraulic region. No additional input
-parameter is needed. For every component, a zero mean gives zero deviation
+40% hydraulic tortuosity for the hydraulic region. The weights are fixed.
+For every component, a zero mean gives zero deviation
 for an exact zero and infinite deviation otherwise. Equal scores select the first candidate, with x changing
 fastest, then y and z. An exact match does not stop the scan.
 
@@ -564,16 +590,23 @@ vector as the hydraulic analysis. Solver limits come from the
 ``SimulationParams`` MRT block, or the local MRT block if no reference is
 supplied: ``timestepMax`` defaults to ``100000``, ``analysis_interval`` to
 ``1000``, and ``tolerance`` to ``1e-8``. Failure of any candidate simulation to
-converge stops selection with an error. For a cubic window of edge length
-:math:`L`, there are :math:`(N_x-L+1)(N_y-L+1)(N_z-L+1)` candidates. Running a
-flow simulation for each can be substantially more expensive than statistical
+converge stops selection with an error. There are
+:math:`(N_x-n_x+1)(N_y-n_y+1)(N_z-n_z+1)` candidates, where
+:math:`N_x,N_y,N_z` are the analyzed image dimensions from ``Domain.n`` and
+:math:`n_x,n_y,n_z` are the actual selection window dimensions. Running a flow
+simulation for each can be substantially more expensive than statistical
 REV analysis.
 
 Selection writes the following files in the current working directory:
 
-* When ``save_subdomain_raw = true``, ``subdomain_porosity.raw`` and
-  ``subdomain_permeability.raw`` contain the independent selected crops, with
-  x varying fastest and no halo voxels.
+* When ``save_subdomain_raw = true``,
+  ``subdomain_porosity_<nx>x<ny>x<nz>.raw`` and
+  ``subdomain_permeability_<nx>x<ny>x<nz>.raw`` contain the independent
+  selected crops, with x varying fastest and no halo voxels. Here ``nx``,
+  ``ny``, and ``nz`` are the selected window dimensions in voxels along x,
+  y, and z, respectively. For example, a ``64 x 64 x 64`` geometric window
+  is saved as ``subdomain_porosity_64x64x64.raw``. Each property's filename
+  uses its own selected dimensions.
   ``Domain.Filename`` input with ``ReadType = "8bit"`` or ``"16bit"`` is
   copied byte for byte, preserving original labels and data type before
   relabeling. ``ID.00000`` input retains its original one-byte labels with
@@ -582,8 +615,13 @@ Selection writes the following files in the current working directory:
 * ``subdomain_selection.csv`` uses comma separators and records each
   property's status, REV size in voxels and micrometres, dimensions and
   physical lengths, statistical mean, selected value, relative deviation,
-  number of candidates, raw filename (blank when raw export is disabled), and
-  source layout. Coordinates use zero-based indices and exclusive upper bounds.
+  number of candidates, raw filename in ``raw_file`` (blank when raw export
+  is disabled), and source layout. The raw filename includes the selected
+  window dimensions. ``rev_size_vx`` and ``rev_size_um`` retain the statistical
+  reference size, even when ``subdomain_size`` is set. ``nx,ny,nz``, physical
+  lengths, coordinates, candidate count, and the raw filename describe the
+  actual selection window. Coordinates use zero-based indices and exclusive
+  upper bounds.
   ``x0,y0,z0`` and ``x1,y1,z1`` refer to the halo-free analysis image. The ``source_*``
   coordinates include ``Domain.offset`` or the input halos of ``ID.00000``;
   source dimensions and bytes per voxel allow the crop to be reproduced
@@ -605,16 +643,17 @@ Selection writes the following files in the current working directory:
   hydraulic score. Each contains only a ``Domain`` block referencing the
   original full sample.
   ``Filename`` is its absolute path, ``N`` is the full source size, ``n`` is
-  the selected window size, and ``offset`` is its starting coordinate in the
-  source, including any original analysis offset. The ``domain_file`` column
+  the actual selected window size (including any ``subdomain_size`` override),
+  and ``offset`` is its starting coordinate in the source, including any
+  original analysis offset. The ``domain_file`` column
   in the CSV identifies the corresponding database.
 
 The geometric row retains the property name ``porosity``, and its optional raw
-crop keeps the filename ``subdomain_porosity.raw``. These outputs identify
+crop uses ``subdomain_porosity_<nx>x<ny>x<nz>.raw``. These outputs identify
 the region selected by the combined porosity and specific-surface score.
 The hydraulic row retains the property name ``permeability``, and
-the optional ``subdomain_permeability.raw`` crop identifies the region selected
-by the combined permeability and tortuosity score.
+the optional ``subdomain_permeability_<nx>x<ny>x<nz>.raw`` crop identifies the
+region selected by the combined permeability and tortuosity score.
 
 The generated blocks preserve the raw input type, label mapping, and voxel
 length. They use ``nproc = 1, 1, 1``, ``BC = 0``, and zero inlet/outlet layers

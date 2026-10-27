@@ -220,7 +220,8 @@ void requireDomainRoundTrip(const std::shared_ptr<Database> &selected,
 void writeInput(int n, std::array<int, 3> source_size,
                 std::array<int, 3> offset, const std::string &read_type,
                 bool hydraulic = false, bool selection = true,
-                bool synthetic_layers = false, const char *save_raw = "true") {
+                bool synthetic_layers = false, const char *save_raw = "true",
+                const char *subdomain_size = nullptr) {
     std::ofstream out("input.db");
     out << "Domain {\n"
         << "  Filename = \"source.raw\"\n"
@@ -239,6 +240,8 @@ void writeInput(int n, std::array<int, 3> source_size,
         << "  SubdomainSelect = " << (selection ? "true" : "false") << "\n";
     if (save_raw)
         out << "  save_subdomain_raw = " << save_raw << "\n";
+    if (subdomain_size)
+        out << "  subdomain_size = " << subdomain_size << "\n";
     out << "}\n"
         << "MRT {\n  tau = 1.0\n  F = 0, 0, 0.00001\n"
         << "  timestepMax = 4000\n  analysis_interval = 20\n  tolerance = 0.00000001\n}\n";
@@ -1138,7 +1141,228 @@ void requireUnchangedREV(const ScaLBL_REV::StatisticalREVResult &actual,
                  (std::isnan(actual.surface_mean) && std::isnan(original.surface_mean))) &&
                 (actual.tortuosity_mean == original.tortuosity_mean ||
                  (std::isnan(actual.tortuosity_mean) && std::isnan(original.tortuosity_mean))),
-            "Layer-compatible selection must reuse the retained statistical REV unchanged");
+            "Selection must reuse the retained statistical REV unchanged");
+}
+
+void requireSelectionDimensions(const Row &row, std::array<int, 3> size, int reference_size) {
+    require(std::stoi(row.at("rev_size_vx")) == reference_size &&
+                close(std::stod(row.at("rev_size_um")), reference_size * 2.5),
+            "Selection CSV must retain the statistical reference size");
+    const std::array<const char *, 3> dimensions{{"nx", "ny", "nz"}};
+    const std::array<const char *, 3> lengths{{"lx_um", "ly_um", "lz_um"}};
+    for (int d = 0; d < 3; ++d)
+        require(std::stoi(row.at(dimensions[d])) == size[d] &&
+                    close(std::stod(row.at(lengths[d])), size[d] * 2.5),
+                "Selection CSV must describe the overridden voxel and physical dimensions");
+}
+
+void testGeometricSizeOverride(const Utilities::MPI &comm) {
+    TestDirectory directory;
+    writeInput(4, {{6, 7, 8}}, {{1, 2, 3}}, "8bit", false, true, false, "true", "3");
+    std::vector<uint8_t> source(6 * 7 * 8, 17);
+    source[4 + 6 * (5 + 7 * 6)] = 29;
+    writeRaw(source);
+    const auto original = readBytes("source.raw");
+    Model model(4, comm);
+    model.Distance(4, 4, 4) = 1.0;
+    ScaLBL_REV rev(0, 1, comm);
+    rev.ReadParams("input.db", false);
+    setREV(rev.stat_poro_rev, 2, 1.0 / 27.0, 3.0 / (27.0 * 2.5));
+    const auto retained = rev.stat_poro_rev;
+    for (const char *alias : {"subdomain_porosity_3x3x3.raw", "subdomain_porosity_3x3x3.raw.tmp"}) {
+        require(link("source.raw", alias) == 0, "Cannot create override output alias");
+        bool rejected = false;
+        try {
+            rev.sub_domain_select(model);
+        } catch (const std::runtime_error &error) {
+            rejected = std::string(error.what()).find("aliases") != std::string::npos;
+        }
+        require(rejected && !exists("subdomain_selection.csv") && readBytes("source.raw") == original,
+                "Override output aliases must be rejected before writing any outputs");
+        require(std::remove(alias) == 0, "Cannot remove override output alias");
+    }
+    rev.sub_domain_select(model);
+    const Row row = readSummary().at("porosity");
+    requireSelectionDimensions(row, {{3, 3, 3}}, 2);
+    require(std::stoull(row.at("candidate_count")) == 8 &&
+                std::stoi(row.at("x0")) == 1 && std::stoi(row.at("y0")) == 1 &&
+                std::stoi(row.at("z0")) == 1 && std::stoi(row.at("x1")) == 4 &&
+                std::stoi(row.at("y1")) == 4 && std::stoi(row.at("z1")) == 4,
+            "Scalar override must scan cubic windows and select the exact retained-target match");
+    require(close(std::stod(row.at("statistical_mean")), retained.mean) &&
+                close(std::stod(row.at("selected_value")), retained.mean),
+            "Geometry override must use the retained porosity target");
+    requireWeightedDiagnostics(row, retained.surface_mean, retained.surface_mean, 0.0);
+    std::vector<char> expected(27, 17);
+    expected.back() = 29;
+    require(requireRawFile(row) == "subdomain_porosity_3x3x3.raw" &&
+                readBytes(requireRawFile(row)) == expected,
+            "Override raw export must contain the selected three-voxel cube");
+    require(std::stoi(row.at("source_x0")) == 2 && std::stoi(row.at("source_y0")) == 3 &&
+                std::stoi(row.at("source_z0")) == 4,
+            "Override selection must preserve the original-image offset");
+    auto selected = requireDomainFile(row);
+    std::vector<signed char> mapped(27, 0);
+    mapped.back() = 1;
+    requireDomainRoundTrip(selected, mapped, comm);
+    requireUnchangedREV(rev.stat_poro_rev, retained);
+}
+
+void testRectangularSizeOverride(const Utilities::MPI &comm) {
+    TestDirectory directory;
+    writeInput(4, {{4, 4, 4}}, {{0, 0, 0}}, "8bit", false, true, false, "true", "3, 2, 1");
+    Model model(4, comm);
+    std::vector<uint8_t> source(64, 17);
+    for (int z = 0; z < 4; ++z)
+        for (int y = 0; y < 4; ++y)
+            for (int x = 0; x < 4; ++x) {
+                const bool pore = (x + y + z) % 2 != 0;
+                source[x + 4 * (y + 4 * z)] = pore ? 29 : 17;
+                model.Distance(x + 1, y + 1, z + 1) = pore ? 1.0 : -1.0;
+            }
+    writeRaw(source);
+    ScaLBL_REV rev(0, 1, comm);
+    rev.ReadParams("input.db", false);
+    setREV(rev.stat_poro_rev, 2, 0.5, 12.0 / (8.0 * 2.5));
+    const auto retained = rev.stat_poro_rev;
+    rev.sub_domain_select(model);
+    const Row row = readSummary().at("porosity");
+    requireSelectionDimensions(row, {{3, 2, 1}}, 2);
+    require(std::stoull(row.at("candidate_count")) == 24 &&
+                std::stoi(row.at("x0")) == 0 && std::stoi(row.at("y0")) == 0 &&
+                std::stoi(row.at("z0")) == 0,
+            "Rectangular override must scan every valid window and preserve deterministic ties");
+    const double surface = 7.0 / (6.0 * 2.5);
+    const double score = 0.4 * std::abs(surface - retained.surface_mean) / retained.surface_mean;
+    requireWeightedDiagnostics(row, retained.surface_mean, surface, score);
+    std::vector<char> expected;
+    for (int y = 0; y < 2; ++y)
+        for (int x = 0; x < 3; ++x)
+            expected.push_back(source[x + 4 * y]);
+    require(requireRawFile(row) == "subdomain_porosity_3x2x1.raw" &&
+                readBytes(requireRawFile(row)) == expected,
+            "Rectangular override must control raw shape and x/y/z filename dimensions");
+    requireDomainFile(row);
+    requireUnchangedREV(rev.stat_poro_rev, retained);
+}
+
+void testHydraulicSizeOverride(const Utilities::MPI &comm) {
+    TestDirectory directory;
+    writeInput(4, {{4, 4, 4}}, {{0, 0, 0}}, "8bit", true, true, false, "true", "3");
+    Model model(4, comm);
+    std::vector<uint8_t> source(64, 17);
+    Array<signed char> full(4, 4, 4), window(3, 3, 3);
+    full.fill(0);
+    window.fill(0);
+    for (int z = 0; z < 4; ++z)
+        for (int y = 1; y <= 2; ++y)
+            for (int x = 1; x <= 2; ++x) {
+                source[x + 4 * (y + 4 * z)] = 29;
+                full(x, y, z) = 1;
+                model.Distance(x + 1, y + 1, z + 1) = 1.0;
+                if (z < 3)
+                    window(x, y, z) = 1;
+            }
+    writeRaw(source);
+    const auto simulate = [&](const Array<signed char> &geometry) {
+        return rev_selection::simulateHydraulicProperties(geometry, 2.5, 1.0,
+                        {{0.0, 0.0, 1.0e-5}}, 4000, 20, 1.0e-8, comm);
+    };
+    const auto target = simulate(full), expected = simulate(window);
+    require(std::abs(expected.permeability / target.permeability - 1.0) > 0.1,
+            "Hydraulic override fixture must distinguish the new measurement from its reference mean");
+    ScaLBL_REV rev(0, 1, comm);
+    rev.ReadParams("input.db", false);
+    setREV(rev.stat_poro_rev, 2, 0.25, 32.0 / (64.0 * 2.5));
+    setREV(rev.stat_perm_rev, 4, target.permeability, 0.0, target.tortuosity);
+    const auto retained_poro = rev.stat_poro_rev, retained_perm = rev.stat_perm_rev;
+    rev.sub_domain_select(model);
+    const auto rows = readSummary();
+    for (const char *property : {"porosity", "permeability"}) {
+        const Row &row = rows.at(property);
+        requireSelectionDimensions(row, {{3, 3, 3}}, std::string(property) == "porosity" ? 2 : 4);
+        require(row.at("status") == "selected" && std::stoull(row.at("candidate_count")) == 8,
+                "Both properties must use the shared override despite independent statistical sizes");
+        require(readBytes(requireRawFile(row)).size() == 27,
+                "Both property exports must use the overridden geometry size");
+        requireDomainFile(row);
+    }
+    const Row &row = rows.at("permeability");
+    require(close(std::stod(row.at("statistical_mean")), target.permeability) &&
+                std::abs(std::stod(row.at("selected_value")) / expected.permeability - 1.0) < 1.0e-8,
+            "Hydraulic override must simulate new candidate windows using the retained reference target");
+    require(std::abs(std::stod(row.at("relative_deviation")) -
+                     std::abs(expected.permeability - target.permeability) / target.permeability) < 1.0e-8,
+            "Hydraulic override must report error relative to the original statistical mean");
+    requireHydraulicDiagnostics(row, retained_perm.tortuosity_mean, expected.tortuosity);
+    requireUnchangedREV(rev.stat_poro_rev, retained_poro);
+    requireUnchangedREV(rev.stat_perm_rev, retained_perm);
+}
+
+void testSizeOverrideValidation(const Utilities::MPI &comm) {
+    TestDirectory directory;
+    for (const char *invalid : {"0", "-1", "2, 0, 3", "2, -1, 3", "1, 2", "1, 2, 3, 4", "2.5"}) {
+        writeInput(4, {{4, 4, 4}}, {{0, 0, 0}}, "8bit", false, true, false, "true", invalid);
+        ScaLBL_REV rev(0, 1, comm);
+        bool rejected = false;
+        try {
+            rev.ReadParams("input.db", false);
+        } catch (const std::runtime_error &error) {
+            rejected = std::string(error.what()).find("REV.subdomain_size") != std::string::npos;
+        }
+        require(rejected, std::string("Invalid REV.subdomain_size was not diagnosed: ") + invalid);
+    }
+    for (const char *save_raw : {"false", "true"})
+        for (const char *oversized : {"5", "2, 5, 3"}) {
+            writeInput(4, {{4, 4, 4}}, {{0, 0, 0}}, "8bit", false, true, false, save_raw, oversized);
+            Model model(4, comm);
+            ScaLBL_REV rev(0, 1, comm);
+            rev.ReadParams("input.db", false);
+            setREV(rev.stat_poro_rev, 2, 0.5, 0.0);
+            bool rejected = false;
+            try {
+                // No source file: bounds must be checked before reading it.
+                rev.sub_domain_select(model);
+            } catch (const std::runtime_error &error) {
+                rejected = std::string(error.what()).find("REV.subdomain_size") != std::string::npos;
+            }
+            require(rejected && !exists("subdomain_selection.csv") && selectedRawFiles().empty() &&
+                        !exists("geometrical-rev-domain.db") && !exists("hydraulic-rev-domain.db"),
+                    "Oversized override must be rejected before all source reads and output writes");
+        }
+}
+
+void testSizeOverrideRequiresStatisticalTargets(const Utilities::MPI &comm) {
+    TestDirectory directory;
+    writeInput(4, {{4, 4, 4}}, {{0, 0, 0}}, "8bit", true, true, false, "false", "3, 2, 1");
+    Model model(4, comm);
+    ScaLBL_REV rev(0, 1, comm);
+    rev.ReadParams("input.db", false);
+    // A size override cannot create converged references or require a source
+    // image when neither statistical property has converged.
+    rev.sub_domain_select(model);
+    for (const auto &entry : readSummary())
+        require(entry.second.at("status") == "not_converged" && entry.second.at("raw_file").empty() &&
+                    entry.second.at("domain_file").empty(),
+                "A size override must not bypass statistical convergence");
+    require(rev.stat_poro_rev.size == 0 && rev.stat_perm_rev.size == 0 && selectedRawFiles().empty(),
+            "A size override must not fabricate retained statistical results");
+    writeRaw(std::vector<uint8_t>(64, 17));
+    rev.geometrical = false;
+    setREV(rev.stat_perm_rev, 2, 0.0, 0.0, std::numeric_limits<double>::quiet_NaN());
+    rev.sub_domain_select(model);
+    Row row = readSummary().at("permeability");
+    require(row.at("status") == "unavailable_tortuosity", "Override must retain unavailable-target status");
+    requireSelectionDimensions(row, {{3, 2, 1}}, 2);
+    setREV(rev.stat_perm_rev, 2, 0.0);
+    rev.sub_domain_select(model);
+    row = readSummary().at("permeability");
+    require(row.at("status") == "no_valid_tortuosity" && std::stoull(row.at("candidate_count")) == 24,
+            "Invalid candidate status must retain the overridden scan count");
+    requireSelectionDimensions(row, {{3, 2, 1}}, 2);
+    require(row.at("raw_file").empty() && row.at("domain_file").empty() && selectedRawFiles().empty() &&
+                !exists("geometrical-rev-domain.db") && !exists("hydraulic-rev-domain.db"),
+            "Unavailable references and candidates must not export an override domain");
 }
 
 void testLayeredPorositySource(const Utilities::MPI &comm) {
@@ -1409,6 +1633,11 @@ int main(int argc, char **argv) {
             {"Weighted hydraulic compromise versus permeability-only selection", testWeightedHydraulicSelection},
             {"Unavailable statistical tortuosity targets", testUnavailableStatisticalTortuosity},
             {"Undefined hydraulic candidates counted without fabricated tortuosity", testUndefinedCandidateTortuosity},
+            {"Scalar selection size override with retained targets and source protection", testGeometricSizeOverride},
+            {"Rectangular selection size override and retained surface target", testRectangularSizeOverride},
+            {"Shared selection size override with fresh hydraulic measurements", testHydraulicSizeOverride},
+            {"Selection size override validation before output writes", testSizeOverrideValidation},
+            {"Selection size override requires valid statistical references", testSizeOverrideRequiresStatisticalTargets},
             {"Original porosity geometry despite synthetic layer settings", testLayeredPorositySource},
             {"Original layered 16-bit labels, mapping, and offset", testLayeredSixteenBitSource},
             {"Original numerical flow geometry despite synthetic layer settings", testLayeredNumericalSelection},
