@@ -22,7 +22,9 @@
         <script src="../../../_static/css/sidebar.js?v=29393464"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Domain Decomposition (lbpm_serial_decomp)" href="../domain/domain.html" />
+    <link rel="prev" title="Digital drainage" href="../morph/ylm-inc.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,9 +47,33 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../index.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">User Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">LBPM model summary</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../mrt/mrt.html">Single-Phase Pore-Scale Model (lbpm_permeability_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscale/greyscale.html">Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../color/index.html">Two-Phase Pore-Scale Simulator (lbpm_color_simulator)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cell/cell.html">Cell model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../greyscaleColor/greyscaleColor.html">Greyscale Color Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../freeEnergy/freeEnergy.html">Free energy model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-comp.html">Full Morphology Method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morph/ylm-inc.html">Digital drainage</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#methodology">Methodology</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-rev-analysis">Run REV Analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#assessing-output-data">Assessing Output Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#representative-subdomain-selection">Representative subdomain selection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benchmark-cases">Benchmark Cases</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#lbpm-support-routines">LBPM Support Routines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/visit.html">Visualizing simulation data with visit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../IO/fileformat.html">I/O conventions for LBPM</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developerGuide/index.html">Developer guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../examples/running.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../publications/publications.html">Publications</a></li>
@@ -68,6 +94,8 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">User Guide</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">LBPM model summary</a></li>
       <li class="breadcrumb-item active">Representative Elementary Volume (REV) Analysis (lbpm_rev_analysis)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/userGuide/models/rev/rev.rst.txt" rel="nofollow"> View page source</a>
@@ -86,11 +114,11 @@ investigate larger volumes that capture the intrinsic heterogeneities of porous 
 identification of representative elementary volumes (REVs), beyond which the influence of local heterogeneities becomes
 negligible and specific effective properties of the porous medium can be reliably characterized.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> routine provides an automated REV analysis for a range of
-geometrical and hydrodynamic properties, as summarized in <code class="xref std std-numref docutils literal notranslate"><span class="pre">Table</span> <span class="pre">%s</span></code>. By combining deterministic and statistical approaches,
+geometrical and hydrodynamic properties, as summarized in <a class="reference internal" href="#rev-properties"><span class="std std-numref">Table 1</span></a>. By combining deterministic and statistical approaches,
 the routine enables a comprehensive characterization of these properties, providing valuable insights for assessing the
 representativeness of microtomography images and estimating effective sample volumes for subsequent numerical analyses.</p>
 <span id="rev-properties"></span><table class="docutils align-center" id="id5">
-<caption><span class="caption-text">Properties available for REV analysis.</span><a class="headerlink" href="#id5" title="Link to this table">¶</a></caption>
+<caption><span class="caption-number">Table 1 - </span><span class="caption-text">Properties available for REV analysis.</span><a class="headerlink" href="#id5" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 33.3%" />
 <col style="width: 33.3%" />
@@ -116,13 +144,13 @@ representativeness of microtomography images and estimating effective sample vol
 <section id="methodology">
 <h2>Methodology<a class="headerlink" href="#methodology" title="Link to this heading">¶</a></h2>
 <p>The implemented REV routine combines deterministic and statistical approaches into a <strong>hybrid methodology</strong>, as illustrated
-in the workflow diagram presented in <code class="xref std std-numref docutils literal notranslate"><span class="pre">rev-workflow</span></code>. The deterministic stage provides an initial estimate of the REV
+in the workflow diagram presented in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5 -</span></a>. The deterministic stage provides an initial estimate of the REV
 size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
 evaluates the spatial variability of the property over randomly distributed subvolumes. The deterministic
 analysis uses a default convergence threshold of <span class="math notranslate nohighlight">\(\gamma = 0.1\)</span>. The statistical stage reports
 coefficients of variation and retains the first subvolume sizes at which the
 coefficients for porosity and permeability fall below this tolerance.
-For a detailed explanation of the steps illustrated in <code class="xref std std-numref docutils literal notranslate"><span class="pre">rev-workflow</span></code>,
+For a detailed explanation of the steps illustrated in <a class="reference internal" href="#rev-workflow"><span class="std std-numref">Fig. 5 -</span></a>,
 expand the toggle sections below for the deterministic and statistical analyses.</p>
 <table class="borderless docutils align-center">
 <colgroup>
@@ -134,7 +162,7 @@ expand the toggle sections below for the deterministic and statistical analyses.
 <a class="reference internal image-reference" href="../../../_images/rev-workflow.svg"><img alt="../../../_images/rev-workflow.svg" src="../../../_images/rev-workflow.svg" style="width: 70%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Workflow of the hybrid REV analysis, combining deterministic
+<p><span class="caption-number">Fig. 5 - </span><span class="caption-text">Workflow of the hybrid REV analysis, combining deterministic
 (steps 1–5) and statistical (steps 6–9) convergence assessments.</span><a class="headerlink" href="#rev-workflow" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
@@ -143,7 +171,7 @@ expand the toggle sections below for the deterministic and statistical analyses.
 <a class="reference internal image-reference" href="../../../_images/REVHybridAnimation.gif"><img alt="../../../_images/REVHybridAnimation.gif" src="../../../_images/REVHybridAnimation.gif" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">GIF animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#rev-gif" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 6 - </span><span class="caption-text">GIF animation illustrating the hybrid REV analysis for porosity.</span><a class="headerlink" href="#rev-gif" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -169,7 +197,7 @@ workflow diagram, consists of the following steps:</p>
 <li><p><strong>Initialize the subvolume size:</strong> The initial edge length is defined
 as twice the average pore diameter,</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-0">
-<span class="eqno">()<a class="headerlink" href="#equation-userguide-models-rev-rev-0" title="Link to this equation">¶</a></span>\[\ell_0 = 2\overline{d}_p.\]</div>
+<span class="eqno">(110)<a class="headerlink" href="#equation-userguide-models-rev-rev-0" title="Link to this equation">¶</a></span>\[\ell_0 = 2\overline{d}_p.\]</div>
 </li>
 <li><p><strong>Evaluate the domain-size constraint:</strong> Before each evaluation,
 the subvolume dimensions are checked against the available computational
@@ -182,7 +210,7 @@ calculated to quantify the variation of the measured property with
 increasing subvolume size.</p>
 <p>The first metric is the relative error (RE), defined as</p>
 <div class="math notranslate nohighlight" id="equation-rev-relative-error">
-<span class="eqno">()<a class="headerlink" href="#equation-rev-relative-error" title="Link to this equation">¶</a></span>\[RE_i = \left|\frac{q_i-q_{i-1}} {q_i+q_{i-1}} \frac{V_{i-1}}{V_i} \right| &lt; \gamma,\]</div>
+<span class="eqno">(111)<a class="headerlink" href="#equation-rev-relative-error" title="Link to this equation">¶</a></span>\[RE_i = \left|\frac{q_i-q_{i-1}} {q_i+q_{i-1}} \frac{V_{i-1}}{V_i} \right| &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(RE_i\)</span> is the relative error at iteration <span class="math notranslate nohighlight">\(i\)</span>,
 <span class="math notranslate nohighlight">\(q_i\)</span> represents the measured property in the <span class="math notranslate nohighlight">\(i\)</span>-th
 subvolume, and <span class="math notranslate nohighlight">\(V_i\)</span> denotes the volume of that sampled subvolume.
@@ -191,7 +219,7 @@ evaluated subvolume increases in size.</p>
 <p>The second metric is the convergence criterion (CC), introduced by
 <span id="id1"></span>:</p>
 <div class="math notranslate nohighlight" id="equation-rev-convergence-criterion">
-<span class="eqno">()<a class="headerlink" href="#equation-rev-convergence-criterion" title="Link to this equation">¶</a></span>\[CC_i = \frac{\sigma(q_{i-m+1},\ldots,q_i)}{\overline{q}(q_{i-m+1},\ldots,q_i) } &lt; \gamma,\]</div>
+<span class="eqno">(112)<a class="headerlink" href="#equation-rev-convergence-criterion" title="Link to this equation">¶</a></span>\[CC_i = \frac{\sigma(q_{i-m+1},\ldots,q_i)}{\overline{q}(q_{i-m+1},\ldots,q_i) } &lt; \gamma,\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma\)</span> denotes the standard deviation,
 <span class="math notranslate nohighlight">\(\overline{q}\)</span> represents the arithmetic mean, and
 <span class="math notranslate nohighlight">\(m\)</span> is the number of consecutive measurements considered.
@@ -206,7 +234,7 @@ increase up to the maximum admissible domain size. The proportional growth
 is controlled by <code class="docutils literal notranslate"><span class="pre">SizeStep</span></code>; for example, <code class="docutils literal notranslate"><span class="pre">SizeStep</span> <span class="pre">=</span> <span class="pre">0.06</span></code> gives the
 nominal update</p>
 <div class="math notranslate nohighlight" id="equation-rev-edge-growth">
-<span class="eqno">()<a class="headerlink" href="#equation-rev-edge-growth" title="Link to this equation">¶</a></span>\[\ell_{i+1}=1.06\ell_i.\]</div>
+<span class="eqno">(113)<a class="headerlink" href="#equation-rev-edge-growth" title="Link to this equation">¶</a></span>\[\ell_{i+1}=1.06\ell_i.\]</div>
 <p>The implementation also applies a minimum increment based on the average
 pore diameter and rounds the edge length upward to whole voxels, so the
 actual increase can be larger. The default <code class="docutils literal notranslate"><span class="pre">SizeStep</span></code> is <code class="docutils literal notranslate"><span class="pre">0.06</span></code> (6%).</p>
@@ -254,7 +282,7 @@ evaluated for all subvolumes selected in the previous step.</p></li>
 quantified using the coefficient of variation (CV), following
 <span id="id2"></span>:</p>
 <div class="math notranslate nohighlight" id="equation-rev-coefficient-variation">
-<span class="eqno">()<a class="headerlink" href="#equation-rev-coefficient-variation" title="Link to this equation">¶</a></span>\[CV = \frac{\sigma(q)}{\overline{q}},\]</div>
+<span class="eqno">(114)<a class="headerlink" href="#equation-rev-coefficient-variation" title="Link to this equation">¶</a></span>\[CV = \frac{\sigma(q)}{\overline{q}},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma(q)\)</span> is the standard deviation of the property
 measurements and <span class="math notranslate nohighlight">\(\overline{q}\)</span> is their arithmetic mean.
 Normalization by the mean provides a dimensionless measure of relative
@@ -264,7 +292,7 @@ dispersion.</p>
 variation is compared with the prescribed tolerance <span class="math notranslate nohighlight">\(\gamma\)</span>.
 Statistical convergence is achieved when</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-1">
-<span class="eqno">()<a class="headerlink" href="#equation-userguide-models-rev-rev-1" title="Link to this equation">¶</a></span>\[0 \leq CV &lt; \gamma.\]</div>
+<span class="eqno">(115)<a class="headerlink" href="#equation-userguide-models-rev-rev-1" title="Link to this equation">¶</a></span>\[0 \leq CV &lt; \gamma.\]</div>
 <p>If the criterion is satisfied, the current edge length is identified
 as the statistical REV, and the procedure terminates. Otherwise,
 the analysis proceeds to the next step.</p>
@@ -533,7 +561,7 @@ appear in the following order:</p>
 </tbody>
 </table>
 <table class="docutils align-center" id="id6">
-<caption><span class="caption-text">Columns in the deterministic geometrical output.</span><a class="headerlink" href="#id6" title="Link to this table">¶</a></caption>
+<caption><span class="caption-number">Table 2 - </span><span class="caption-text">Columns in the deterministic geometrical output.</span><a class="headerlink" href="#id6" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -601,7 +629,7 @@ deterministic geometrical file when both groups are enabled:</p>
 </tbody>
 </table>
 <table class="docutils align-center" id="id7">
-<caption><span class="caption-text">Columns in the deterministic hydraulic output.</span><a class="headerlink" href="#id7" title="Link to this table">¶</a></caption>
+<caption><span class="caption-number">Table 3 - </span><span class="caption-text">Columns in the deterministic hydraulic output.</span><a class="headerlink" href="#id7" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -650,7 +678,7 @@ in micrometres and voxels.</p></td>
 let <span class="math notranslate nohighlight">\(q_i\)</span> denote the property measured at size iteration <span class="math notranslate nohighlight">\(i\)</span>.
 The implemented relative-change calculation is</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-2">
-<span class="eqno">()<a class="headerlink" href="#equation-userguide-models-rev-rev-2" title="Link to this equation">¶</a></span>\[RE_i =
+<span class="eqno">(116)<a class="headerlink" href="#equation-userguide-models-rev-rev-2" title="Link to this equation">¶</a></span>\[RE_i =
 \left|
 \frac{q_i-q_{i-1}}{q_i+q_{i-1}}
 \frac{V_{i-1}}{V_i}
@@ -663,7 +691,7 @@ divided by the arithmetic mean of the most recent <code class="docutils literal 
 using the available history before that window is full and excluding invalid
 values:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-3">
-<span class="eqno">()<a class="headerlink" href="#equation-userguide-models-rev-rev-3" title="Link to this equation">¶</a></span>\[CC_i =\frac{\sigma(q_{i-m+1},\ldots,q_i)}{\overline{q}(q_{i-m+1},\ldots,q_i)}.\]</div>
+<span class="eqno">(117)<a class="headerlink" href="#equation-userguide-models-rev-rev-3" title="Link to this equation">¶</a></span>\[CC_i =\frac{\sigma(q_{i-m+1},\ldots,q_i)}{\overline{q}(q_{i-m+1},\ldots,q_i)}.\]</div>
 <p>For tortuosity,
 <span class="math notranslate nohighlight">\(q_i = \tau_{h,i}-1\)</span> in both calculations.</p>
 <p>A property’s <code class="docutils literal notranslate"><span class="pre">rev_*</span></code> columns are set when both <code class="docutils literal notranslate"><span class="pre">RE</span></code> and <code class="docutils literal notranslate"><span class="pre">CC</span></code> first
@@ -697,7 +725,7 @@ measurements or locations. The columns are:</p>
 </tbody>
 </table>
 <table class="docutils align-center" id="id8">
-<caption><span class="caption-text">Columns in the statistical geometrical output.</span><a class="headerlink" href="#id8" title="Link to this table">¶</a></caption>
+<caption><span class="caption-number">Table 4 - </span><span class="caption-text">Columns in the statistical geometrical output.</span><a class="headerlink" href="#id8" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -748,7 +776,7 @@ geometrical file when both groups are enabled:</p>
 </tbody>
 </table>
 <table class="docutils align-center" id="id9">
-<caption><span class="caption-text">Columns in the statistical hydraulic output.</span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
+<caption><span class="caption-number">Table 5 - </span><span class="caption-text">Columns in the statistical hydraulic output.</span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 35.0%" />
 <col style="width: 65.0%" />
@@ -802,14 +830,14 @@ statistical calculations. If all tortuosity samples at a size are
 invalid, <code class="docutils literal notranslate"><span class="pre">stat_tort</span></code> is <code class="docutils literal notranslate"><span class="pre">-1</span></code> and the reported mean, maximum, and
 minimum are all <code class="docutils literal notranslate"><span class="pre">0</span></code>. These zeros indicate unavailable tortuosity
 statistics, not physical measurements. Falar do NaN</p>
-</details><br><p>The REV results for the Berea sandstone sample are presented in <code class="xref std std-numref docutils literal notranslate"><span class="pre">rev-plots</span></code>,
+</details><br><p>The REV results for the Berea sandstone sample are presented in <a class="reference internal" href="#rev-plots"><span class="std std-numref">Fig. 7 -</span></a>,
 including porosity, specific surface area, absolute permeability, and hydraulic tortuosity.
 The Python code used to generate these plots is available in the toggle section below the figure.</p>
 <figure class="align-center" id="rev-plots">
 <a class="reference internal image-reference" href="../../../_images/rev_combined.svg"><img alt="../../../_images/rev_combined.svg" src="../../../_images/rev_combined.svg" style="width: 100%;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Evolution of the measured properties with subvolume size for the Berea sandstone sample.
+<p><span class="caption-number">Fig. 7 - </span><span class="caption-text">Evolution of the measured properties with subvolume size for the Berea sandstone sample.
 Connected points represent the range of deterministic measurements; isolated points represent
 the averages of the statistical measurements; vertical bars represent the standard
 deviation of the statistical measurements; dashed lines represent the REVs identified by
@@ -994,7 +1022,7 @@ the selected approach; and the black line represents the upper limit of 71% for 
 <p>The same analysis performed by <code class="docutils literal notranslate"><span class="pre">lbpm_rev_permeability_simulator</span></code> can be performed by
 <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> if the velocity fields have already been obtained. Running
 <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> with the <code class="docutils literal notranslate"><span class="pre">input.db</span></code> file below produces the same results
-as those presented in <code class="xref std std-numref docutils literal notranslate"><span class="pre">rev-plots</span></code>.</p>
+as those presented in <a class="reference internal" href="#rev-plots"><span class="std std-numref">Fig. 7 -</span></a>.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain {
    Filename = &quot;Berea.raw&quot;
    ReadType = &quot;8bit&quot;      // data type
@@ -1025,7 +1053,7 @@ REV {
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">lbpm_rev_analysis</span></code> routine can also perform geometrical analysis alone
 without velocity fields. Running it with the <code class="docutils literal notranslate"><span class="pre">input.db</span></code> file below produces
-the same results as those presented in <code class="xref std std-numref docutils literal notranslate"><span class="pre">rev-plots</span></code> (a).</p>
+the same results as those presented in <a class="reference internal" href="#rev-plots"><span class="std std-numref">Fig. 7 -</span></a> (a).</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain {
    Filename = &quot;Berea.raw&quot;
    ReadType = &quot;8bit&quot;      // data type
@@ -1111,7 +1139,7 @@ toggle section below.</p>
 and including the last window at each boundary. For the actual geometric
 selection window dimensions, it minimizes the following weighted score:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-4">
-<span class="eqno">()<a class="headerlink" href="#equation-userguide-models-rev-rev-4" title="Link to this equation">¶</a></span>\[\begin{split}E_{\phi} &amp;= \frac{|\phi_{\mathrm{local}}-\overline{\phi}_{\mathrm{REV}}|}
+<span class="eqno">(118)<a class="headerlink" href="#equation-userguide-models-rev-rev-4" title="Link to this equation">¶</a></span>\[\begin{split}E_{\phi} &amp;= \frac{|\phi_{\mathrm{local}}-\overline{\phi}_{\mathrm{REV}}|}
                  {|\overline{\phi}_{\mathrm{REV}}|}, \\
 E_{S_v} &amp;= \frac{|S_{v,\mathrm{local}}-\overline{S_v}_{\mathrm{REV}}|}
                 {|\overline{S_v}_{\mathrm{REV}}|}, \\
@@ -1119,7 +1147,7 @@ E_{S_v} &amp;= \frac{|S_{v,\mathrm{local}}-\overline{S_v}_{\mathrm{REV}}|}
 <p>For the actual hydraulic selection window dimensions, hydraulic selection
 minimizes the following score:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-5">
-<span class="eqno">()<a class="headerlink" href="#equation-userguide-models-rev-rev-5" title="Link to this equation">¶</a></span>\[\begin{split}E_k &amp;= \frac{|k_{\mathrm{local}}-\overline{k}_{\mathrm{REV}}|}
+<span class="eqno">(119)<a class="headerlink" href="#equation-userguide-models-rev-rev-5" title="Link to this equation">¶</a></span>\[\begin{split}E_k &amp;= \frac{|k_{\mathrm{local}}-\overline{k}_{\mathrm{REV}}|}
             {|\overline{k}_{\mathrm{REV}}|}, \\
 E_T &amp;= \frac{|T_{\mathrm{local}}-\overline{T}_{\mathrm{REV}}|}
             {|\overline{T}_{\mathrm{REV}}|}, \\
@@ -1235,7 +1263,10 @@ database.</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../morph/ylm-inc.html" class="btn btn-neutral float-left" title="Digital drainage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../domain/domain.html" class="btn btn-neutral float-right" title="Domain Decomposition (lbpm_serial_decomp)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
