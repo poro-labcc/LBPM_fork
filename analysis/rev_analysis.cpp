@@ -816,6 +816,10 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
         if (hydraulic) {
             stat_convergence_metrics k_stats = stat_compute_convergence(stat_perm, stat_samples);
             stat_convergence_metrics t_stats = stat_compute_convergence(stat_tort, stat_samples);
+            const bool has_tortuosity_samples =
+                std::any_of(stat_tort.begin(), stat_tort.end(), [](double value) {
+                    return value != -1.0;
+                });
             if (stat_perm_rev.size == 0 && k_stats.CV >= 0.0 && k_stats.CV < gamma &&
                 std::isfinite(k_stats.mean)) {
                 stat_perm_rev = {x_size, {{x_size, sub_y, sub_z}}, k_stats.mean, k_stats.CV};
@@ -829,7 +833,8 @@ void ScaLBL_REV::StatRevAnalysisImpl(const ModelData &model) {
             }
             hydraulic_log << x_size * h << " " << x_size << " "
                           << k_stats.CV << " " << k_stats.mean << " " << k_stats.max << " " << k_stats.min << " "
-                          << t_stats.CV << " " << t_stats.mean + 1 << " " << t_stats.max + 1 << " " << t_stats.min + 1 << "\n";
+                          << t_stats.CV << " " << (has_tortuosity_samples ? t_stats.mean + 1 : 0) << " "
+                          << t_stats.max + 1 << " " << (has_tortuosity_samples ? t_stats.min + 1 : 0) << "\n";
         }
 
         if (geometrical) {
