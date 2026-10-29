@@ -2,7 +2,7 @@
 #ADD_LBPM_EXECUTABLE( lbpm_nonnewtonian_simulator ) 
 #ADD_LBPM_EXECUTABLE( lbpm_nondarcy_simulator )
 #ADD_LBPM_EXECUTABLE( lbpm_color_simulator )
-#ADD_LBPM_EXECUTABLE( lbpm_permeability_simulator )
+ADD_LBPM_EXECUTABLE( lbpm_permeability_simulator )
 #ADD_LBPM_EXECUTABLE( lbpm_greyscale_simulator )
 #ADD_LBPM_EXECUTABLE( lbpm_greyscaleColor_simulator )
 #ADD_LBPM_EXECUTABLE( lbpm_electrokinetic_SingleFluid_simulator )
@@ -49,13 +49,11 @@
 #ADD_LBPM_EXECUTABLE( TestPNP_Stokes )
 #ADD_LBPM_EXECUTABLE( TestMixedGrad )
 #ADD_LBPM_EXECUTABLE( fmm_micp_drainage )
-ADD_LBPM_EXECUTABLE( lbpm_rev_permeability_simulator )
 ADD_LBPM_EXECUTABLE( lbpm_rev_analysis )
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/cylindertest ${CMAKE_CURRENT_BINARY_DIR}/cylindertest COPYONLY )
 
 # Add the tests
-ADD_LBPM_TEST( TestREVSubdomain )
 #ADD_LBPM_TEST( pmmc_cylinder )
 #ADD_LBPM_TEST( TestSubphase )
 #ADD_LBPM_TEST( TestTorus )
