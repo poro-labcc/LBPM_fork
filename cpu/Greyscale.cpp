@@ -17,7 +17,7 @@
 #include <math.h>
 
 extern "C" void ScaLBL_D3Q19_AAeven_Greyscale(
-    double *dist, int start, int finish, int Np, double rlx, double rlx_eff,
+    double *dist, int start, int finish, int Np, double rlx_eff, double rlx,
     double Gx, double Gy, double Gz, double *Poros, double *Perm,
     double *Velocity, double *Pressure, bool Forchheimer) {
     // conserved momemnts
@@ -369,8 +369,8 @@ extern "C" void ScaLBL_D3Q19_AAeven_Greyscale(
 }
 
 extern "C" void ScaLBL_D3Q19_AAodd_Greyscale(
-    int *neighborList, double *dist, int start, int finish, int Np, double rlx,
-    double rlx_eff, double Gx, double Gy, double Gz, double *Poros,
+    int *neighborList, double *dist, int start, int finish, int Np,
+    double rlx_eff, double rlx, double Gx, double Gy, double Gz, double *Poros,
     double *Perm, double *Velocity, double *Pressure, bool Forchheimer) {
     // conserved momemnts
     double rho, vx, vy, vz, v_mag;
@@ -771,7 +771,7 @@ extern "C" void ScaLBL_D3Q19_AAodd_Greyscale(
 }
 
 extern "C" void ScaLBL_D3Q19_AAeven_Greyscale_IMRT(
-    double *dist, int start, int finish, int Np, double rlx, double rlx_eff,
+    double *dist, int start, int finish, int Np, double rlx_eff, double rlx,
     double Gx, double Gy, double Gz, double *Poros, double *Perm,
     double *Velocity, double Den, double *Pressure, bool Forchheimer) {
     double vx, vy, vz, v_mag;
@@ -1317,8 +1317,8 @@ extern "C" void ScaLBL_D3Q19_AAeven_Greyscale_IMRT(
 }
 
 extern "C" void ScaLBL_D3Q19_AAodd_Greyscale_IMRT(
-    int *neighborList, double *dist, int start, int finish, int Np, double rlx,
-    double rlx_eff, double Gx, double Gy, double Gz, double *Poros,
+    int *neighborList, double *dist, int start, int finish, int Np,
+    double rlx_eff, double rlx, double Gx, double Gy, double Gz, double *Poros,
     double *Perm, double *Velocity, double Den, double *Pressure,
     bool Forchheimer) {
     int nread;
@@ -1904,7 +1904,7 @@ extern "C" void ScaLBL_D3Q19_AAodd_Greyscale_IMRT(
 
 extern "C" void
 ScaLBL_D3Q19_AAodd_Greyscale_MRT(int *neighborList, double *dist, int start,
-                                 int finish, int Np, double rlx, double rlx_eff,
+                                 int finish, int Np, double rlx_eff, double rlx,
                                  double Gx, double Gy, double Gz, double *Poros,
                                  double *Perm, double *Velocity, double rho0,
                                  double *Pressure, bool Forchheimer) {
@@ -2487,7 +2487,7 @@ ScaLBL_D3Q19_AAodd_Greyscale_MRT(int *neighborList, double *dist, int start,
 }
 
 extern "C" void ScaLBL_D3Q19_AAeven_Greyscale_MRT(
-    double *dist, int start, int finish, int Np, double rlx, double rlx_eff,
+    double *dist, int start, int finish, int Np, double rlx_eff, double rlx,
     double Gx, double Gy, double Gz, double *Poros, double *Perm,
     double *Velocity, double rho0, double *Pressure, bool Forchheimer) {
 
