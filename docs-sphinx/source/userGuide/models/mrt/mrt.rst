@@ -51,7 +51,7 @@ The moments defined in the Gram--Schmidt basis are linearly independent function
    :nowrap:
 
    $$
-      m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(
+      m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(\tiny
       \begin{array}{rrrrrrrrrrrrrrrrrrr}
       1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
       -30 & -11 & -11 & -11 & -11 & -11 & -11 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 \\

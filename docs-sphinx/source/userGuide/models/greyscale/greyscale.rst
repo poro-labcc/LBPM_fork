@@ -1,6 +1,6 @@
-=============================================
+======================================================================================
 Single-Phase Multi-Scale Porous Media (Greyscale Model - lbpm_greyscale_simulator)
-=============================================
+======================================================================================
 
 The LBPM model to simulate single-phase multi-scale porous media, also called greyscale model, 
 is constructed to approximate the solution of the Darcy-Brinkman equations in grey regions, 
@@ -9,12 +9,18 @@ flow in porous media employs volume-averaged Navier-Stokes equations that accoun
 and nonlinear drag effects:
 
 .. math::
+   :nowrap:
 
+   $$
    \nabla \cdot \boldsymbol{u} = 0 \;,
+   $$
 
 .. math::
+   :nowrap:
 
+   $$
    \frac{\partial \boldsymbol{u}}{\partial t} + (\boldsymbol{u} \cdot \nabla) \left(\frac{\boldsymbol{u}}{\epsilon}\right) = -\frac{1}{\rho} \nabla(\epsilon p) + \nu_eff \nabla^2 \boldsymbol{u}  -\frac{\epsilon \nu}{K} \boldsymbol{u} - \frac{\epsilon F_e}{\sqrt{K}} |\boldsymbol{u}| \boldsymbol{u} + \epsilon \boldsymbol{g} \;.
+   $$
 
 In this formulation, :math:`p` and :math:`\boldsymbol{u}` denote the volume-averaged pressure and velocity, 
 respectively, and :math:`\rho` represents the fluid density. The model incorporates :math:`\nu` as the 
@@ -23,8 +29,11 @@ effects are captured through the acceleration term :math:`\boldsymbol{g}`. The g
 derived from Ergun's experimental investigations, characterizes the porous medium structure through the relation:
 
 .. math::
+   :nowrap:
 
+   $$
    F_e = \frac{1.75}{\sqrt{150\epsilon^3}} \;.
+   $$
 
 ****************************
 LBM Formulation
@@ -38,43 +47,63 @@ LBM Formulation
 A multiple-relaxation-time (MRT) lattice Boltzmann equation with D3Q19 discretization describes momentum transport for the phase-averaged equations: 
 
 .. math::
+   :nowrap:
 
+   $$
    f_q(\boldsymbol{x}_i + \boldsymbol{\xi}_q \delta_t,t + \delta_t) - f_q(\boldsymbol{x}_i,t) = \sum^{Q-1}_{k=0} M^{-1}_{qk} S_{kk} (m_k^{eq}-m_k)  + \sum^{Q-1}_{k=0} M^{-1}_{qk} \left(1-\frac{S_{kk}}{2}\right) \hat{F}_q \;.
+   $$
 
 The total force :math:`\boldsymbol{F}` is imposed based on the discrete force construction developed by Guo et al. (2002):
 
 .. math::
+   :nowrap:
 
+   $$
    \boldsymbol{F} = - \frac{\epsilon \nu \rho}{K} \boldsymbol{u} - \frac{\epsilon F_{e}}{\sqrt{K}} \rho |\boldsymbol{u}|\boldsymbol{u} +  \epsilon \rho \boldsymbol{g} \;.
+   $$
 
 The fluid velocity is computed through the relation for the forcing scheme:
 
 .. math::
+   :nowrap:
 
+   $$
    \rho \boldsymbol{u} = \sum_i \boldsymbol{\xi}_i f_i + \frac{\delta_t}{2}  \boldsymbol{F} \;.
+   $$
 
 However, to handle the nonlinearity arising from the velocity-dependent force term, an explicit solution for the velocity is employed:
 
 .. math::
+   :nowrap:
 
+   $$
    \boldsymbol{u} = \frac{\boldsymbol{v}}{c_0 + \sqrt{c_0^2 + c_1 |\boldsymbol{v}|}} \;,
+   $$
 
 that utilizes a temporal velocity field :math:`\boldsymbol{v}`:
 
 .. math::
+   :nowrap:
 
+   $$
    \rho \boldsymbol{v} = \sum_i \boldsymbol{\xi}_i f_i + \frac{\delta_t}{2} \rho \epsilon \boldsymbol{g} \;,
+   $$
 
 and the coefficients governing this nonlinear transformation are:
 
 .. math::
+   :nowrap:
 
+   $$
    c_0 = \frac{1}{2} \left(  1 + \frac{\delta_t}{2}\frac{\epsilon \nu}{K} \right), \qquad c_1 = \frac{\delta_t}{2}\frac{\epsilon F_e}{\sqrt{K}} \;.
+   $$
 
 where :math:`c_s^2 = 1/3` is the speed of sound and :math:`\boldsymbol{\xi}_q` are the unit lattice vectors for the D3Q19 lattice discretization:
 
 .. math::
+   :nowrap:
 
+   $$
    \boldsymbol{\xi}_q=\xi_{q,\alpha} =\left\{
    \begin{array}{llll}
       \alpha=0, & \{0,0,0\}, & \text{for } q = 0, & w_{0}=1/3 \\
@@ -85,12 +114,15 @@ where :math:`c_s^2 = 1/3` is the speed of sound and :math:`\boldsymbol{\xi}_q` a
       \alpha=x,z,& \{\pm 1,0,\pm 1\}, & \text{for } q = 11,12,13,14, & w_{11,12,13,14}=1/36 \\
       \alpha=y,z,& \{0,\pm 1,\pm 1\}, & \text{for } q = 15,16,17,18, & w_{15,16,17,18}=1/36 .
    \end{array}\right.
+   $$
 
 The moments defined in the Gram-Schmidt basis are linearly independent functions of the distribution functions:
 
 .. math::
-
-   m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(
+   :nowrap:
+   
+   $$
+   m_k = \sum_{q=0}^{18} M_{qk} f_q\; \quad \rightarrow \quad M_{qk} = \left(\tiny
    \begin{array}{rrrrrrrrrrrrrrrrrrr}
    1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
    -30 & -11 & -11 & -11 & -11 & -11 & -11 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 \\
@@ -113,24 +145,19 @@ The moments defined in the Gram-Schmidt basis are linearly independent functions
    0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & -1 & -1 & 1 & 0 & 0 & -1 & 1 & 1 & -1
    \end{array}
    \right)
+   $$
 
-The equilibrium formulation is adapted from the generalized volume-averaged macroscopic equations. As established in the appendix of Guo and Zhao (2002), the definition of the equilibrium distribution function yields the following moments, where the presence of the porous matrix modifies the second-order velocity terms by a factor of :math:`1/\epsilon`:
-
-.. math::
-
-   \sum_i f_i^{(eq)} = \rho \;,
-
-.. math::
-
-   \sum_i \xi_{i\alpha} f_i^{(eq)} = \rho u_\alpha \;,
+The equilibrium formulation is adapted from the generalized volume-averaged macroscopic equations. As 
+established in the appendix of Guo and Zhao (2002), the definition of the equilibrium distribution 
+function yields the following moments, where the presence of the porous matrix modifies the second-order 
+velocity terms by a factor of :math:`1/\epsilon`:
 
 .. math::
+   :nowrap:
 
-   \sum_i \xi_{i\alpha} \xi_{i\beta} f_i^{(eq)} = c_s^2 \rho \delta_{\alpha\beta} + \frac{1}{\epsilon} \rho u_\alpha u_\beta \;,
-
-.. math::
-
-   \sum_i \xi_{i\alpha} \xi_{i\beta} \xi_{i\gamma} f_i^{(eq)} = c_s^2 \rho (u_\alpha \delta_{\beta\gamma} + u_\beta \delta_{\alpha\gamma} + u_\gamma \delta_{\alpha\beta}) \;.
+   $$
+   f_i^{(eq)} = w_{i}\rho \left( 1 + \frac{\xi_{i,\alpha} u_{\alpha}}{c_{s}^{2}} + \frac{u_{\alpha}u_{\beta}\left(\xi_{i,\alpha}\xi_{i,\beta} - c_{s}^{2}\delta_{\alpha\beta}\right)}{2\epsilon c_{s}^{2}} \right) ,
+   $$
 
 Applying this to the D3Q19 MRT basis yields the corresponding equilibrium moments, given by:
 
