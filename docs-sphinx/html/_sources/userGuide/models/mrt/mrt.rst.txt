@@ -51,7 +51,7 @@ The moments defined in the Gram--Schmidt basis are linearly independent function
    :nowrap:
 
    $$
-      m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(
+      m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(\tiny
       \begin{array}{rrrrrrrrrrrrrrrrrrr}
       1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
       -30 & -11 & -11 & -11 & -11 & -11 & -11 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 \\
@@ -76,7 +76,8 @@ The moments defined in the Gram--Schmidt basis are linearly independent function
       \right),
    $$
 
-and the non-conserved equilibrium moments are then obtained following the moment-based approach proposed by :cite:t:`d2002multiple`, in which selected equilibrium moments are explicitly enforced:
+and the non-conserved equilibrium moments are then obtained following the moment-based approach 
+proposed by :cite:t:`d2002multiple`, in which selected equilibrium moments are explicitly enforced:
 
 .. math::
    :nowrap:
@@ -217,7 +218,7 @@ reducing the restriction imposed on the fluid flow (:numref:`Fig. %s <mixing-lay
    * - .. figure:: ../../../_static/images/no-mixing-layers.png
           :width: 60%
           :align: center
-          :name: no-mixing-layers
+          :name: No-mixing-layers
 
           mixing layers not applied
 
@@ -226,10 +227,10 @@ reducing the restriction imposed on the fluid flow (:numref:`Fig. %s <mixing-lay
           :align: center
           :name: mixing-layers-10
 
-          mixing layers applied
+          Mixing layers applied
 
 To observe the application of mixing layers scheme in 3D Digital Rocks and its impact in absolute permeability results 
-see XXXXX 3D-DigitalRocks.
+see :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`.
 
 In scenarios where there is no match between inlet and outlet pores (:numref:`Fig. %s <no-match>`), the fluid through the domain will not be allowed using ``BC = 0``. In this case we 
 recommend apply a mirroring of the image, as illustrate :numref:`Fig. %s <simetric-domain>`. This procees duplicate the computational cost, but it ensure the pore conectivity and
@@ -245,14 +246,14 @@ of this checkboard function see :doc:`../domain/domain`.
           :align: center
           :name: no-match
 
-          no match through inlet-outlet pore area 
+          No match through inlet-outlet pore area 
 
      - .. figure:: ../../../_static/images/simetric-domain.png
           :width: 60%
           :align: center
           :name: simetric-domain
 
-          simetric-domain (perfect pore match)
+          Simetric-domain (perfect pore match)
 
 .. For the other boundary conditions a thin reservoir of fluid  (default ``3`` voxels)
 .. is established at either side of the domain. The inlet is defined as the boundary face

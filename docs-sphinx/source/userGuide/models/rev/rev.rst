@@ -35,13 +35,13 @@ Methodology
 ****************************
 
 The implemented REV routine combines deterministic and statistical approaches into a **hybrid methodology**, as illustrated
-in the workflow diagram presented in :numref:`rev-workflow`. The deterministic stage provides an initial estimate of the REV
+in the workflow diagram presented in :numref:`Fig. %s <rev-workflow>`. The deterministic stage provides an initial estimate of the REV
 size at a relatively low computational cost. This estimate is subsequently used to initialize the statistical stage, which
 evaluates the spatial variability of the property over randomly distributed subvolumes. The deterministic
 analysis uses a default convergence threshold of :math:`\gamma = 0.1`. The statistical stage reports
 coefficients of variation and retains the first subvolume sizes at which the
 coefficients for porosity and permeability fall below this tolerance.
-For a detailed explanation of the steps illustrated in :numref:`rev-workflow`,
+For a detailed explanation of the steps illustrated in :numref:`Fig. %s <rev-workflow>`,
 expand the toggle sections below for the deterministic and statistical analyses.
 
 .. list-table::
@@ -212,8 +212,7 @@ diagram, follows these steps:
 
 
 11. **Compute the convergence criterion:** The dispersion of the measurements is
-    quantified using the coefficient of variation (CV), following
-    :cite:t:`Zhang2000`:
+    quantified using the coefficient of variation (CV), following :cite:t:`Zhang2000`:
 
     .. math::
        :label: rev-coefficient-variation
@@ -818,7 +817,7 @@ statistics, not physical measurements. Falar do NaN
 
    <br>
 
-The REV results for the Berea sandstone sample are presented in :numref:`rev-plots`, 
+The REV results for the Berea sandstone sample are presented in :numref:`Fig. %s <rev-plots>`, 
 including porosity, specific surface area, absolute permeability, and hydraulic tortuosity. 
 The Python code used to generate these plots is available in the toggle section below the figure.
 
@@ -1025,7 +1024,7 @@ lbpm_rev_analysis
 The same analysis performed by ``lbpm_rev_permeability_simulator`` can be performed by
 ``lbpm_rev_analysis`` if the velocity fields have already been obtained. Running
 ``lbpm_rev_analysis`` with the ``input.db`` file below produces the same results
-as those presented in :numref:`rev-plots`.
+as those presented in :numref:`Fig. %s <rev-plots>`.
 
 .. code-block:: text
 
@@ -1058,7 +1057,7 @@ as those presented in :numref:`rev-plots`.
 
 The ``lbpm_rev_analysis`` routine can also perform geometrical analysis alone
 without velocity fields. Running it with the ``input.db`` file below produces
-the same results as those presented in :numref:`rev-plots` (a).
+the same results as those presented in :numref:`Fig. %s <rev-plots>` (a).
 
 .. code-block:: text
 

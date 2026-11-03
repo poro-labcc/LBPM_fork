@@ -134,7 +134,7 @@ $$
 $$</div><p>The moments defined in the Gram–Schmidt basis are linearly independent functions of the distribution functions:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-2">
 $$
-   m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(
+   m_k = \sum_{q=0}^{18} M_{qk} f_q\; \qquad \rightarrow \qquad M_{qk} = \left(\tiny
    \begin{array}{rrrrrrrrrrrrrrrrrrr}
    1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 \\
    -30 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; -11 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 &amp; 8 \\
@@ -157,7 +157,8 @@ $$
    0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; -1 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; 1 &amp; -1
    \end{array}
    \right),
-$$</div><p>and the non-conserved equilibrium moments are then obtained following the moment-based approach proposed by <span id="id2">d'Humières [<a class="reference internal" href="../../../citations/citations.html#id6" title="Dominique d'Humières. Multiple–relaxation–time lattice boltzmann models in three dimensions. Philosophical Transactions of the Royal Society of London. Series A: Mathematical, Physical and Engineering Sciences, 360(1792):437–451, 2002.">2</a>]</span>, in which selected equilibrium moments are explicitly enforced:</p>
+$$</div><p>and the non-conserved equilibrium moments are then obtained following the moment-based approach
+proposed by <span id="id2">d'Humières [<a class="reference internal" href="../../../citations/citations.html#id6" title="Dominique d'Humières. Multiple–relaxation–time lattice boltzmann models in three dimensions. Philosophical Transactions of the Royal Society of London. Series A: Mathematical, Physical and Engineering Sciences, 360(1792):437–451, 2002.">2</a>]</span>, in which selected equilibrium moments are explicitly enforced:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-mrt-mrt-3">
 $$
   m_1^{eq} = 19\frac{j_x^2+j_y^2+j_z^2}{\rho} - 11\rho \;, \qquad m_2^{eq} = 3\rho - \frac{11}{2} \frac{j_x^2+j_y^2+j_z^2}{\rho} \;,
@@ -257,7 +258,7 @@ reducing the restriction imposed on the fluid flow (<a class="reference internal
 <a class="reference internal image-reference" href="../../../_images/mixing-layers-10.png"><img alt="../../../_images/mixing-layers-10.png" src="../../../_images/mixing-layers-10.png" style="width: 60%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 2 - </span><span class="caption-text">mixing layers applied</span><a class="headerlink" href="#mixing-layers-10" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 2 - </span><span class="caption-text">Mixing layers applied</span><a class="headerlink" href="#mixing-layers-10" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -265,7 +266,7 @@ reducing the restriction imposed on the fluid flow (<a class="reference internal
 </tbody>
 </table>
 <p>To observe the application of mixing layers scheme in 3D Digital Rocks and its impact in absolute permeability results
-see XXXXX 3D-DigitalRocks.</p>
+see <a class="reference internal" href="../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases.html"><span class="doc">3D Digital Rocks</span></a>.</p>
 <p>In scenarios where there is no match between inlet and outlet pores (<a class="reference internal" href="#no-match"><span class="std std-numref">Fig. 3</span></a>), the fluid through the domain will not be allowed using <code class="docutils literal notranslate"><span class="pre">BC</span> <span class="pre">=</span> <span class="pre">0</span></code>. In this case we
 recommend apply a mirroring of the image, as illustrate <a class="reference internal" href="#simetric-domain"><span class="std std-numref">Fig. 4</span></a>. This procees duplicate the computational cost, but it ensure the pore conectivity and
 accuracy for the permeability values. Is also available as function the introduction of layers based in a checkboard geometry as a alternative, for details
@@ -280,7 +281,7 @@ of this checkboard function see <a class="reference internal" href="../domain/do
 <a class="reference internal image-reference" href="../../../_images/no-match.png"><img alt="../../../_images/no-match.png" src="../../../_images/no-match.png" style="width: 50%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 3 - </span><span class="caption-text">no match through inlet-outlet pore area</span><a class="headerlink" href="#no-match" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 3 - </span><span class="caption-text">No match through inlet-outlet pore area</span><a class="headerlink" href="#no-match" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
@@ -288,7 +289,7 @@ of this checkboard function see <a class="reference internal" href="../domain/do
 <a class="reference internal image-reference" href="../../../_images/simetric-domain.png"><img alt="../../../_images/simetric-domain.png" src="../../../_images/simetric-domain.png" style="width: 60%;" />
 </a>
 <figcaption>
-<p><span class="caption-number">Fig. 4 - </span><span class="caption-text">simetric-domain (perfect pore match)</span><a class="headerlink" href="#simetric-domain" title="Link to this image">¶</a></p>
+<p><span class="caption-number">Fig. 4 - </span><span class="caption-text">Simetric-domain (perfect pore match)</span><a class="headerlink" href="#simetric-domain" title="Link to this image">¶</a></p>
 </figcaption>
 </figure>
 </td>
