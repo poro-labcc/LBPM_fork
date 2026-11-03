@@ -1139,7 +1139,16 @@ tortuosity, remain unchanged. Candidates at the requested size are compared
 against those targets; REV analysis is not repeated at the custom size. A
 converged statistical REV and valid target properties are still required.
 A custom size does not supply missing reference values or enable selection
-for an unconverged property.
+for an unconverged property. :numref:`Figure %s <subdomain-selection-GIF>` 
+provides a schematic illustration of the subdomain selection procedure through 
+an animated GIF.
+
+.. figure:: ../../../_static/images/subdomain-selection.gif
+   :width: 55%
+   :align: center
+   :name: subdomain-selection-GIF
+
+   GIF animation illustrating the subdomain selection for geometrical properties.
 
 For a detailed description of the subdomain selection procedure, expand the 
 toggle section below.
@@ -1148,8 +1157,6 @@ toggle section below.
 
    <details>
    <summary><strong>Click here to open: Subdomain Selection</strong></summary>
-
-.. code-block:: python
 
 The selection scans every valid position, moving one voxel along each axis
 and including the last window at each boundary. For the actual geometric
@@ -1181,7 +1188,7 @@ Lower scores indicate a closer match. The fixed weights are 60% porosity and
 Nonzero ``Domain.InletLayers`` and ``Domain.OutletLayers`` are supported.
 Selection then rereads the original source geometry to build the candidate
 pore mask before synthetic layer modifications. Raw input uses the existing
-``ReadValues``/``WriteValues`` convention, including the signed-byte narrowing
+``ReadValues``/ ``WriteValues`` convention, including the signed-byte narrowing
 performed by the current ``16bit`` geometry reader. This classification does
 not change the bytes exported below. ``ID.00000`` labels are already mapped
 and are used directly.

@@ -1127,14 +1127,20 @@ tortuosity, remain unchanged. Candidates at the requested size are compared
 against those targets; REV analysis is not repeated at the custom size. A
 converged statistical REV and valid target properties are still required.
 A custom size does not supply missing reference values or enable selection
-for an unconverged property.</p>
+for an unconverged property. <a class="reference internal" href="#subdomain-selection-gif"><span class="std std-numref">Figure 8</span></a>
+provides a schematic illustration of the subdomain selection procedure through
+an animated GIF.</p>
+<figure class="align-center" id="subdomain-selection-gif">
+<a class="reference internal image-reference" href="../../../_images/subdomain-selection.gif"><img alt="../../../_images/subdomain-selection.gif" src="../../../_images/subdomain-selection.gif" style="width: 55%;" />
+</a>
+<figcaption>
+<p><span class="caption-number">Fig. 8 - </span><span class="caption-text">GIF animation illustrating the subdomain selection for geometrical properties.</span><a class="headerlink" href="#subdomain-selection-gif" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>For a detailed description of the subdomain selection procedure, expand the
 toggle section below.</p>
 <details>
-<summary><strong>Click here to open: Subdomain Selection</strong></summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-<p>The selection scans every valid position, moving one voxel along each axis
+<summary><strong>Click here to open: Subdomain Selection</strong></summary><p>The selection scans every valid position, moving one voxel along each axis
 and including the last window at each boundary. For the actual geometric
 selection window dimensions, it minimizes the following weighted score:</p>
 <div class="math notranslate nohighlight" id="equation-userguide-models-rev-rev-4">
@@ -1157,7 +1163,7 @@ E_T &amp;= \frac{|T_{\mathrm{local}}-\overline{T}_{\mathrm{REV}}|}
 <p>Nonzero <code class="docutils literal notranslate"><span class="pre">Domain.InletLayers</span></code> and <code class="docutils literal notranslate"><span class="pre">Domain.OutletLayers</span></code> are supported.
 Selection then rereads the original source geometry to build the candidate
 pore mask before synthetic layer modifications. Raw input uses the existing
-<code class="docutils literal notranslate"><span class="pre">ReadValues</span></code>/<code class="docutils literal notranslate"><span class="pre">WriteValues</span></code> convention, including the signed-byte narrowing
+<code class="docutils literal notranslate"><span class="pre">ReadValues</span></code>/ <code class="docutils literal notranslate"><span class="pre">WriteValues</span></code> convention, including the signed-byte narrowing
 performed by the current <code class="docutils literal notranslate"><span class="pre">16bit</span></code> geometry reader. This classification does
 not change the bytes exported below. <code class="docutils literal notranslate"><span class="pre">ID.00000</span></code> labels are already mapped
 and are used directly.</p>
