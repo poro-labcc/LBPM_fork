@@ -8,7 +8,7 @@ corresponding to micro- and macroporosity. Owing to their optical accessibility,
 provide two-dimensional representations that can effectively reproduce key features of pore geometry and connectivity observed in natural porous media.
 
 In the present benchmark analysis, four micromodels based on Voronoi tessellation (M1, M2, M3 and M4) are simulated and compared with the experimental 
-data reported by :cite:t:`wolf2022dual`(https://doi.org/10.1039/D2LC00445C). Each micromodel has a square dimensions of :math:`25 \times 25~mm` 
+data reported by :cite:t:`wolf2022dual` (https://doi.org/10.1039/D2LC00445C). Each micromodel has a square dimensions of :math:`25 \times 25~mm`
 and approximate depths of :math:`31(0.5)~\mu m`, :math:`34.8(0.9)~\mu m`, :math:`33.6(0.5)~\mu m`, and :math:`32.0(2.9)~\mu m` for models M1, M2, M3, and M4, 
 respectively. :numref:`Figure %s <MX-Pore-Struc>` illustrates the micromodels structure. 
 
