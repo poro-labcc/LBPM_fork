@@ -15,6 +15,8 @@ a basic introduction to working with LBPM.
 
    domain/*
 
+   scaling-db/*
+
    SinglePhasePoreScale/*
 
    SinglePhaseMultiScale/*
