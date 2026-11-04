@@ -950,7 +950,7 @@ The Python code used to generate these plots is available in the toggle section 
          x_det = tamanho_um[mask_det]
          y_det = prop["det"][mask_det]
          
-         # Find the first statistical point
+         # Find first statistical point
          idx_stat = np.where(np.isfinite(prop["avg"]))[0]
          
          if idx_stat.size > 0:
@@ -977,8 +977,8 @@ The Python code used to generate these plots is available in the toggle section 
       # ax.axvline(lmax_obrig, color="k", linewidth=1.5)
       # -------------------- Axis labels --------------------
       ax.set_title(title, pad=20)
-      ax.set_xlabel(r"Aresta do subvolume [$\mu$m]")
-      ax.set_ylabel("Propriedade normalizada [-]")
+      ax.set_xlabel(r"Edge Size [$\mu$m]")
+      ax.set_ylabel("Normalized property [-]")
       ax.set_xlim(tamanho_um[0], tamanho_um[-1])
       # -------------------- Top axis: voxel units --------------------
       ax2 = ax.twiny()
@@ -987,7 +987,7 @@ The Python code used to generate these plots is available in the toggle section 
       um_ticks = np.interp(voxel_ticks, tamanho_vx, tamanho_um)
       ax2.set_xticks(um_ticks)
       ax2.set_xticklabels([f"{v:.0f}" for v in voxel_ticks])
-      ax2.set_xlabel("Aresta do subvolume [voxels]")
+      ax2.set_xlabel("Edge Size [voxels]")
       # -------------------- Legend --------------------
       ax.legend(loc="upper right",frameon=True,facecolor="white",edgecolor="black")
    # -------------------- Geometric properties --------------------
@@ -1007,7 +1007,7 @@ The Python code used to generate these plots is available in the toggle section 
    plot_rev_properties(axes[1],hydraulic_properties,title="(b) Hydraulic properties")   # Right: hydraulic REV
    axes[1].set_ylabel("") # Remove duplicate Y-axis label
    plt.tight_layout(w_pad=3) # Layout
-   plt.savefig("/home/ricardolmb/Desktop/REV-Code/LBPM_fork/docs-sphinx/source/_static/images/rev_combined.svg", bbox_inches="tight")
+   plt.savefig("~/path/rev_combined.svg", bbox_inches="tight")
 
 .. raw:: html
 

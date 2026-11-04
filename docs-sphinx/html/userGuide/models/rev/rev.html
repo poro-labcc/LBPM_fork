@@ -955,7 +955,7 @@ the selected approach; and the black line represents the upper limit of 71% for 
       <span class="n">x_det</span> <span class="o">=</span> <span class="n">tamanho_um</span><span class="p">[</span><span class="n">mask_det</span><span class="p">]</span>
       <span class="n">y_det</span> <span class="o">=</span> <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;det&quot;</span><span class="p">][</span><span class="n">mask_det</span><span class="p">]</span>
 
-      <span class="c1"># Find the first statistical point</span>
+      <span class="c1"># Find first statistical point</span>
       <span class="n">idx_stat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;avg&quot;</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
 
       <span class="k">if</span> <span class="n">idx_stat</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -982,8 +982,8 @@ the selected approach; and the black line represents the upper limit of 71% for 
    <span class="c1"># ax.axvline(lmax_obrig, color=&quot;k&quot;, linewidth=1.5)</span>
    <span class="c1"># -------------------- Axis labels --------------------</span>
    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-   <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Aresta do subvolume [$\mu$m]&quot;</span><span class="p">)</span>
-   <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Propriedade normalizada [-]&quot;</span><span class="p">)</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Edge Size [$\mu$m]&quot;</span><span class="p">)</span>
+   <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Normalized property [-]&quot;</span><span class="p">)</span>
    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">tamanho_um</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tamanho_um</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
    <span class="c1"># -------------------- Top axis: voxel units --------------------</span>
    <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
@@ -992,7 +992,7 @@ the selected approach; and the black line represents the upper limit of 71% for 
    <span class="n">um_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">voxel_ticks</span><span class="p">,</span> <span class="n">tamanho_vx</span><span class="p">,</span> <span class="n">tamanho_um</span><span class="p">)</span>
    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">um_ticks</span><span class="p">)</span>
    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">voxel_ticks</span><span class="p">])</span>
-   <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Aresta do subvolume [voxels]&quot;</span><span class="p">)</span>
+   <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Edge Size [voxels]&quot;</span><span class="p">)</span>
    <span class="c1"># -------------------- Legend --------------------</span>
    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper right&quot;</span><span class="p">,</span><span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span><span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
 <span class="c1"># -------------------- Geometric properties --------------------</span>
@@ -1012,7 +1012,7 @@ the selected approach; and the black line represents the upper limit of 71% for 
 <span class="n">plot_rev_properties</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">hydraulic_properties</span><span class="p">,</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;(b) Hydraulic properties&quot;</span><span class="p">)</span>   <span class="c1"># Right: hydraulic REV</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="c1"># Remove duplicate Y-axis label</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">w_pad</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># Layout</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;/home/ricardolmb/Desktop/REV-Code/LBPM_fork/docs-sphinx/source/_static/images/rev_combined.svg&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;~/path/rev_combined.svg&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </details><br></section>
