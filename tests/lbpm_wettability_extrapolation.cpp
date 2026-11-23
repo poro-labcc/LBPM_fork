@@ -36,6 +36,10 @@ int main(int argc, char **argv)
     Utilities::startup( argc, argv );
     Utilities::MPI comm( MPI_COMM_WORLD );
     int rank = comm.getRank();
+
+    if(comm.getSize() != 1)
+        ERROR("This routine supports exactly one MPI process. Use nproc=1,1,1 and mpirun -np 1 or run it directly.");
+
     {
         string filename;
         if (argc > 1){
