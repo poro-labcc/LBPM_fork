@@ -1291,7 +1291,7 @@ Benchmark Cases
    :widths: 40
    :align: center
 
-   * - .. centered:: :doc:`../../../examples/SinglePhasePoreScale/3D-DigitalRocks/3D-DigitalRocks-Cases`
+   * - .. centered:: :doc:`REV benchmarks for Berea, LV60A, and C2 <../../../examples/SinglePhaseREV/Benchmarks/rev_benchmarks>`
 
    * - .. image:: ../../../_static/images/REVHybridAnimation.gif
           :width: 400px
